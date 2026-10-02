@@ -59,3 +59,22 @@
 - Item do pedido
 
 A estrutura definitiva será validada na Etapa 2, durante a modelagem do banco MySQL.
+
+
+## Complementos consolidados da Etapa 1
+
+Estas regras complementam os requisitos originais e serão detalhadas em contratos de API e testes automatizados.
+
+| ID | Regra adicional |
+|---|---|
+| RN39 | Oferta segue `RASCUNHO → PUBLICADA`, `PUBLICADA ↔ PAUSADA` e qualquer estado não terminal pode ir para `ENCERRADA`, que é final. Há no máximo uma oferta `PUBLICADA` ou `PAUSADA` por produto; a restrição deve ser atômica. |
+| RN40 | O pedido preserva nome, endereço, fuso e prazo de retirada; o prazo é o menor `retiradaAte` dos itens. |
+| RN41 | A criação exige chave de idempotência única por cliente e impressão digital do pedido; repetição equivalente retorna o pedido original e repetição diferente retorna `409`. |
+| RN42 | Suspensão bloqueia novas ofertas e pedidos, mas permite tratar pedidos existentes. |
+| RN43 | Preço e prazos de oferta publicada ou pausada são imutáveis; mudanças exigem nova oferta. Cancelamento devolve estoque exatamente uma vez. |
+| RN44 | `publicadaEm` registra a primeira publicação e `concluidoEm` a conclusão única. Taxas usam coorte por `criadoEm` em `[inicio, fim)`; contagens concluídas usam `concluidoEm`; denominador zero é N/A. |
+| RN45 | JWT dura 15 minutos, fica apenas em memória e não possui refresh token no MVP. |
+
+### Rastreabilidade e evidências
+
+Os critérios verificáveis estão em [Critérios de aceitação](criterios-de-aceitacao.md). As fórmulas e hipóteses estão em [Métricas e validação](metricas-e-validacao.md). Decisões, transições, snapshots e riscos estão em [Decisões do MVP](decisoes-do-mvp.md) e [Riscos e premissas](riscos-e-premissas.md). Os complementos são planejados e ainda não representam implementação ou testes executados.
