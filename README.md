@@ -73,3 +73,24 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 
 - [Protótipo publicado](https://v0-ifood-like-website.vercel.app/login)
 - [Projeto original no GitHub](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_TCC)
+
+
+---
+
+## Consolidação da Etapa 1
+
+A Etapa 1 foi revisada como uma baseline de produto e engenharia. O projeto está alinhado ao **ODS 8 — Trabalho Decente e Crescimento Econômico** e atende às restrições do curso: público adulto, sem saúde, esporte ou religião.
+
+A implementação ainda não começou. As tecnologias obrigatórias estão planejadas para as próximas etapas: ReactJS/TypeScript no frontend, Java/Spring Boot na API e MySQL no banco.
+
+### Documentação de decisão
+
+- [Escopo do projeto](docs/planejamento/escopo.md)
+- [Requisitos iniciais](docs/planejamento/requisitos-iniciais.md)
+- [Decisões do MVP e arquitetura](docs/planejamento/decisoes-do-mvp.md)
+- [Critérios de aceitação](docs/planejamento/criterios-de-aceitacao.md)
+- [Métricas e validação](docs/planejamento/metricas-e-validacao.md)
+- [Riscos e premissas](docs/planejamento/riscos-e-premissas.md)
+- [Glossário](docs/planejamento/glossario.md)
+
+Nenhum teste, métrica de desempenho ou impacto social é apresentado como resultado antes de ser executado e registrado.
