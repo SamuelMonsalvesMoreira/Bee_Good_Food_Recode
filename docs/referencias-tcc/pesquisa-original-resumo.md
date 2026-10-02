@@ -30,3 +30,17 @@ A planilha bruta não foi copiada para este repositório público. Este document
 ## Limitação
 
 Antes da entrega final, recomenda-se realizar uma nova rodada de testes com um grupo maior e formado exclusivamente por pessoas com 18 anos ou mais.
+
+
+## Uso responsável da evidência
+
+Os quatro participantes da pesquisa original servem para orientar hipóteses de usabilidade, não para afirmar demanda, impacto no ODS ou viabilidade comercial. A amostra não deve ser apresentada como validação de mercado.
+
+### Próxima rodada planejada
+
+- testar a compreensão da proposta com pelo menos 5 consumidores adultos;
+- testar publicação, estoque, pedidos e indicadores com pelo menos 3 responsáveis por pequenos estabelecimentos;
+- registrar tarefas concluídas, dúvidas e erros sem dados identificáveis;
+- transformar resultados em decisões documentadas no escopo, requisitos ou interface.
+
+Os resultados agregados devem permanecer separados de qualquer alegação de empregos, renda, pagamentos ou desperdício evitado.
