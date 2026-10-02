@@ -75,3 +75,21 @@ Esses itens poderão ser considerados somente após a conclusão e validação d
 - Quantidade de produtos excedentes publicados.
 - Quantidade e valor dos pedidos concluídos.
 - Quantidade de itens vendidos por meio da plataforma.
+
+
+## Consolidação executiva da Etapa 1
+
+O MVP será um monólito modular com ReactJS/TypeScript, Java/Spring Boot e MySQL. O fluxo demonstrável termina em **pedido para retirada**, com pagamento apenas declarado e sem logística própria.
+
+### Decisões que protegem o escopo
+
+- Conta de usuário e estabelecimento são entidades diferentes.
+- Os papéis `CLIENTE`, `RESPONSAVEL` e `ADMINISTRADOR` são cumulativos.
+- Todo estabelecimento passa por moderação antes de publicar ofertas.
+- Produto é o item do catálogo; oferta controla preço, estoque e janela de venda.
+- O backend recalcula preços, totais e estoque em transação.
+- Pedido e item preservam snapshots para manter o histórico.
+- Preço e prazos de oferta publicada ou pausada não são editados; uma alteração cria nova oferta.
+- Entrega, pagamento online, menores de 18 anos, saúde, esporte e religião permanecem fora do escopo.
+
+A definição de pronto, a matriz de transições e os critérios verificáveis estão nos documentos de [requisitos](requisitos-iniciais.md), [decisões](decisoes-do-mvp.md) e [critérios de aceitação](criterios-de-aceitacao.md).
