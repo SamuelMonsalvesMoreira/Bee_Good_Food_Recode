@@ -51,3 +51,17 @@ O protótipo original se aproxima visualmente de uma plataforma genérica de del
 > Apoiar pequenos estabelecimentos na geração de receita por meio da oferta digital de produtos excedentes.
 
 Essa formulação conecta o sistema ao ODS 8. A redução do desperdício permanece como benefício adicional, e não como o enquadramento principal do projeto.
+
+
+## Decisão de migração para o Recode
+
+O TCC é a fonte de contexto, pesquisa exploratória e referências visuais; não é a implementação final. A migração foi feita por decisão de produto:
+
+| Material | Uso no Recode | Tratamento |
+|---|---|---|
+| Requisitos e fluxos do TCC | Baseline da Etapa 1 | Revisados para retirada, adultos e ODS 8; regras críticas ganharam critérios de aceitação. |
+| Protótipo Next.js/React | Referência visual | Não será copiado como arquitetura; a implementação usará ReactJS/TypeScript integrado à API Java. |
+| Pesquisa exploratória | Evidência inicial | Mantida apenas de forma agregada e anônima; quatro respostas não são validação de mercado. |
+| Planilhas brutas e dados individuais | Não migrados | Permanecem fora do repositório público para minimizar exposição de dados. |
+
+A próxima migração técnica ocorrerá somente depois do modelo MySQL e dos contratos da API. Componentes serão reutilizados apenas quando atenderem às regras, acessibilidade e identidade do novo produto.
