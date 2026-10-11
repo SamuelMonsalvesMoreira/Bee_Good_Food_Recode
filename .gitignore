@@ -34,6 +34,7 @@ Thumbs.db
 # Arquivos locais do banco
 *.sql.bak
 *.sqlite
+.local-mysql/
 
 # Referências visuais mantidas somente no TCC original
 docs/referencias-tcc/wireframes.png

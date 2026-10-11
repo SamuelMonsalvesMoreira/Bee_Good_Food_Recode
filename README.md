@@ -2,6 +2,8 @@
 
 Projeto final do programa Recode Fullstack baseado no TCC [Bee Good Food](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_TCC).
 
+**Status:** Etapas 1 e 2 concluídas — planejamento e banco MySQL. Esquema e dados fictícios validados localmente em MySQL 8.0.46 com 47 verificações aprovadas. Próxima etapa: base da API Java/Spring Boot.
+
 ## Sobre o projeto
 
 O Bee Good Food Recode será uma plataforma web para aproximar consumidores adultos de pequenos estabelecimentos que desejam oferecer produtos excedentes por preço reduzido. A solução permitirá divulgar itens disponíveis, receber pedidos e acompanhar vendas.
@@ -58,11 +60,13 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [Inventário de migração do TCC](docs/planejamento/inventario-migracao.md)
 - [Resumo da pesquisa original](docs/referencias-tcc/pesquisa-original-resumo.md)
 - [Referências visuais do TCC](docs/referencias-tcc/README.md)
+- [Banco de dados: execução e estudos](database/README.md)
+- [Conclusão da Etapa 2 e evidências](docs/planejamento/conclusao-etapa-2.md)
 
 ## Etapas
 
 - [x] Etapa 1 — estrutura, escopo e migração seletiva das referências do TCC
-- [ ] Etapa 2 — modelagem do banco de dados MySQL
+- [x] Etapa 2 — modelagem MySQL, dados fictícios e validação local
 - [ ] Etapa 3 — criação da API Java/Spring Boot
 - [ ] Etapa 4 — autenticação e perfis de acesso
 - [ ] Etapa 5 — cadastros e fluxo de pedidos
@@ -81,7 +85,7 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 
 A Etapa 1 foi revisada como uma baseline de produto e engenharia. O projeto está alinhado ao **ODS 8 — Trabalho Decente e Crescimento Econômico** e atende às restrições do curso: público adulto, sem saúde, esporte ou religião.
 
-A implementação ainda não começou. As tecnologias obrigatórias estão planejadas para as próximas etapas: ReactJS/TypeScript no frontend, Java/Spring Boot na API e MySQL no banco.
+A implementação do banco MySQL foi validada na Etapa 2. ReactJS/TypeScript no frontend e Java/Spring Boot na API permanecem planejados para as próximas etapas. A integração da API com MySQL e Flyway ainda será implementada.
 
 ### Documentação de decisão
 

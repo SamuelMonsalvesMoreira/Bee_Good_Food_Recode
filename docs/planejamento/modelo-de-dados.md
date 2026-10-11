@@ -1,6 +1,6 @@
 # Modelo de dados — Etapa 2
 
-Este documento inicia a modelagem do MySQL para o MVP. O modelo representa pedidos para retirada e pagamento apenas declarado. Não haverá gateway, captura financeira, dados de cartão ou entidade `Pagamento` nesta etapa.
+Este documento descreve o modelo MySQL do MVP, executado e validado localmente em 11/10/2026. O modelo representa pedidos para retirada e pagamento apenas declarado. Não haverá gateway, captura financeira, dados de cartão ou entidade `Pagamento` nesta etapa.
 
 ## Entidades do MVP
 
@@ -42,7 +42,7 @@ erDiagram
 
 ### Identidade e estabelecimento
 
-- Todas as tabelas terão chave primária `BIGINT` ou UUID definido antes da migration inicial.
+- As entidades usam chave primária `BIGINT UNSIGNED AUTO_INCREMENT`; `papel` usa `codigo VARCHAR(30)` e `usuario_papel` usa chave composta (`usuario_id`, `papel_codigo`).
 - `usuario.email_normalizado` será único e comparado sem distinção entre maiúsculas e minúsculas.
 - `usuario.maioridade_confirmada_em` será obrigatório no cadastro público.
 - `usuario_papel` terá unicidade composta por usuário e papel.
@@ -97,12 +97,18 @@ erDiagram
 - `endereco_cliente`: o pedido será retirado no estabelecimento.
 - `funcionario_estabelecimento`: múltiplos funcionários ficam para evolução futura.
 
+## Esquema físico validado
+
+A [migration V1](../../database/migrations/V1__criar_schema_inicial.sql) é a definição física das 12 tabelas. A V2 cadastra os três papéis, sem criar usuários. Os relatórios abaixo foram extraídos do MySQL real:
+
+- [104 colunas: tipos, nulabilidade, padrões e chaves](../../database/evidencias/dicionario-fisico.tsv).
+- [15 chaves estrangeiras](../../database/evidencias/relacionamentos.tsv).
+- [34 índices, incluindo primários e únicos](../../database/evidencias/indices.tsv).
+
+O diagrama acima representa as cardinalidades de negócio. Algumas exigências dependem da API: por exemplo, uma chave estrangeira não obriga todo estabelecimento a ter endereço nem todo pedido a ter um item ou histórico. A API deverá criar e validar esses conjuntos dentro de transações.
+
+Preços usam `DECIMAL(10,2)`, datas usam `DATETIME(6)` com convenção UTC e textos usam `utf8mb4`. A chave gerada `oferta.produto_oferta_ativa`, combinada com um índice único, limita cada produto a uma oferta publicada ou pausada.
+
 ## Próximo entregável
 
-Na sequência, este modelo será convertido em:
-
-1. modelo lógico com nomes, tipos e nulabilidade;
-2. diagrama físico com chaves e índices;
-3. migration `V1__criar_schema_inicial.sql` do Flyway;
-4. dados de demonstração sem informações pessoais reais;
-5. consultas de verificação para estoque, idempotência e histórico.
+Integrar as migrations ao Flyway na API Java e implementar as regras de aplicação descritas em [Conclusão da Etapa 2](conclusao-etapa-2.md). [Instruções de execução e dados de demonstração](../../database/README.md).

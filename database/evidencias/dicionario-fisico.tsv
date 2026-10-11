@@ -1,0 +1,105 @@
+tabela	coluna	tipo	nulo	padrao	chave	extra
+categoria	id	bigint unsigned	NO	NULL	PRI	auto_increment
+categoria	nome	varchar(100)	NO	NULL		
+categoria	nome_normalizado	varchar(100)	NO	NULL	UNI	
+categoria	slug	varchar(120)	NO	NULL	UNI	
+categoria	ativo	tinyint(1)	NO	1		
+categoria	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+categoria	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+endereco_estabelecimento	id	bigint unsigned	NO	NULL	PRI	auto_increment
+endereco_estabelecimento	estabelecimento_id	bigint unsigned	NO	NULL	UNI	
+endereco_estabelecimento	logradouro	varchar(180)	NO	NULL		
+endereco_estabelecimento	numero	varchar(30)	NO	NULL		
+endereco_estabelecimento	complemento	varchar(120)	YES	NULL		
+endereco_estabelecimento	bairro	varchar(100)	NO	NULL		
+endereco_estabelecimento	cidade	varchar(100)	NO	NULL		
+endereco_estabelecimento	estado	char(2)	NO	NULL		
+endereco_estabelecimento	cep	varchar(12)	NO	NULL		
+endereco_estabelecimento	fuso_iana	varchar(64)	NO	America/Sao_Paulo		
+estabelecimento	id	bigint unsigned	NO	NULL	PRI	auto_increment
+estabelecimento	responsavel_id	bigint unsigned	NO	NULL	MUL	
+estabelecimento	nome	varchar(160)	NO	NULL		
+estabelecimento	descricao	varchar(500)	YES	NULL		
+estabelecimento	status	varchar(24)	NO	PENDENTE_ANALISE	MUL	
+estabelecimento	ativo	tinyint(1)	NO	1		
+estabelecimento	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+estabelecimento	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+historico_status_estabelecimento	id	bigint unsigned	NO	NULL	PRI	auto_increment
+historico_status_estabelecimento	estabelecimento_id	bigint unsigned	NO	NULL	MUL	
+historico_status_estabelecimento	ator_id	bigint unsigned	YES	NULL	MUL	
+historico_status_estabelecimento	status_anterior	varchar(24)	YES	NULL		
+historico_status_estabelecimento	status_novo	varchar(24)	NO	NULL		
+historico_status_estabelecimento	motivo	varchar(500)	YES	NULL		
+historico_status_estabelecimento	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+historico_status_pedido	id	bigint unsigned	NO	NULL	PRI	auto_increment
+historico_status_pedido	pedido_id	bigint unsigned	NO	NULL	MUL	
+historico_status_pedido	ator_id	bigint unsigned	YES	NULL	MUL	
+historico_status_pedido	status_anterior	varchar(24)	YES	NULL		
+historico_status_pedido	status_novo	varchar(24)	NO	NULL		
+historico_status_pedido	motivo	varchar(500)	YES	NULL		
+historico_status_pedido	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+item_pedido	id	bigint unsigned	NO	NULL	PRI	auto_increment
+item_pedido	pedido_id	bigint unsigned	NO	NULL	MUL	
+item_pedido	oferta_id	bigint unsigned	NO	NULL	MUL	
+item_pedido	produto_nome_snapshot	varchar(160)	NO	NULL		
+item_pedido	preco_original	decimal(10,2)	NO	NULL		
+item_pedido	preco_oferta	decimal(10,2)	NO	NULL		
+item_pedido	quantidade	int unsigned	NO	NULL		
+item_pedido	subtotal	decimal(10,2)	NO	NULL		
+oferta	id	bigint unsigned	NO	NULL	PRI	auto_increment
+oferta	produto_id	bigint unsigned	NO	NULL	MUL	
+oferta	preco_original	decimal(10,2)	NO	NULL		
+oferta	preco_oferta	decimal(10,2)	NO	NULL		
+oferta	estoque_disponivel	int unsigned	NO	0		
+oferta	inicio_venda	datetime(6)	NO	NULL		
+oferta	venda_ate	datetime(6)	NO	NULL		
+oferta	retirada_ate	datetime(6)	NO	NULL		
+oferta	status	varchar(16)	NO	RASCUNHO	MUL	
+oferta	publicada_em	datetime(6)	YES	NULL		
+oferta	encerrada_em	datetime(6)	YES	NULL		
+oferta	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+oferta	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+oferta	produto_oferta_ativa	bigint unsigned	YES	NULL	UNI	STORED GENERATED
+papel	codigo	varchar(30)	NO	NULL	PRI	
+papel	descricao	varchar(120)	NO	NULL		
+pedido	id	bigint unsigned	NO	NULL	PRI	auto_increment
+pedido	cliente_id	bigint unsigned	NO	NULL	MUL	
+pedido	estabelecimento_id	bigint unsigned	NO	NULL	MUL	
+pedido	status	varchar(24)	NO	PENDENTE		
+pedido	forma_pagamento_declarada	varchar(24)	NO	NULL		
+pedido	idempotency_key	varchar(120)	NO	NULL		
+pedido	payload_hash	char(64)	NO	NULL		
+pedido	total	decimal(10,2)	NO	NULL		
+pedido	estabelecimento_nome_snapshot	varchar(160)	NO	NULL		
+pedido	logradouro_snapshot	varchar(180)	NO	NULL		
+pedido	numero_snapshot	varchar(30)	NO	NULL		
+pedido	complemento_snapshot	varchar(120)	YES	NULL		
+pedido	bairro_snapshot	varchar(100)	NO	NULL		
+pedido	cidade_snapshot	varchar(100)	NO	NULL		
+pedido	estado_snapshot	char(2)	NO	NULL		
+pedido	cep_snapshot	varchar(12)	NO	NULL		
+pedido	fuso_iana_snapshot	varchar(64)	NO	NULL		
+pedido	retirada_ate	datetime(6)	NO	NULL		
+pedido	concluido_em	datetime(6)	YES	NULL	MUL	
+pedido	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+pedido	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+produto	id	bigint unsigned	NO	NULL	PRI	auto_increment
+produto	estabelecimento_id	bigint unsigned	NO	NULL	MUL	
+produto	categoria_id	bigint unsigned	NO	NULL	MUL	
+produto	nome	varchar(160)	NO	NULL		
+produto	descricao	varchar(500)	YES	NULL		
+produto	ativo	tinyint(1)	NO	1		
+produto	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+produto	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+usuario	id	bigint unsigned	NO	NULL	PRI	auto_increment
+usuario	nome	varchar(150)	NO	NULL		
+usuario	email	varchar(320)	NO	NULL		
+usuario	email_normalizado	varchar(320)	NO	NULL	UNI	
+usuario	senha_hash	varchar(255)	NO	NULL		
+usuario	maioridade_confirmada_em	datetime(6)	NO	NULL		
+usuario	ativo	tinyint(1)	NO	1		
+usuario	criado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
+usuario	atualizado_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)
+usuario_papel	usuario_id	bigint unsigned	NO	NULL	PRI	
+usuario_papel	papel_codigo	varchar(30)	NO	NULL	PRI	
+usuario_papel	atribuido_em	datetime(6)	NO	CURRENT_TIMESTAMP(6)		DEFAULT_GENERATED
