@@ -2,6 +2,8 @@
 
 Data: 11/10/2026. Estado: **concluída localmente**, com integração Java/Flyway pendente para a Etapa 3.
 
+Atualização de 13/10/2026: a integração foi concluída e verificada na [Etapa 3](conclusao-etapa-3.md). O texto abaixo preserva o escopo e os resultados originais da Etapa 2.
+
 ## Entregas verificadas
 
 | Entrega | Evidência |

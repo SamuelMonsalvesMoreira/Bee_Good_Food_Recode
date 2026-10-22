@@ -1,18 +1,18 @@
 {
   "status": "PASS",
-  "inicioUtc": "2026-10-11T21:35:57.6475995Z",
-  "fimUtc": "2026-10-11T21:36:06.8240319Z",
+  "inicioUtc": "2026-10-13T19:09:39.0164602Z",
+  "fimUtc": "2026-10-13T19:09:48.1827851Z",
   "mysql": "8.0.46",
   "instancia": "Isolada, loopback, encerrada ao terminar",
   "schema": "bee_good_food_validacao",
   "migrations": [
     {
-      "arquivo": "V1__criar_schema_inicial.sql",
-      "sha256": "07F35F554EF8D275B15B4DB0F8A3C7146503A2D6EF92362B28FF53E337B517F6"
+      "sha256": "07F35F554EF8D275B15B4DB0F8A3C7146503A2D6EF92362B28FF53E337B517F6",
+      "arquivo": "V1__criar_schema_inicial.sql"
     },
     {
-      "arquivo": "V2__cadastrar_papeis.sql",
-      "sha256": "13E023560626F5224AF2B42643A6E0DEABD1D264A41A4B0793F5A3A7F9061FFE"
+      "sha256": "13E023560626F5224AF2B42643A6E0DEABD1D264A41A4B0793F5A3A7F9061FFE",
+      "arquivo": "V2__cadastrar_papeis.sql"
     }
   ],
   "normalizacaoHash": "UTF-8 sem BOM, quebras de linha normalizadas para LF",

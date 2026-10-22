@@ -1,6 +1,6 @@
 # Banco de dados — Bee Good Food Recode
 
-**Etapa 2 concluída localmente em 11/10/2026:** esquema executado em MySQL 8.0.46, dados fictícios e 47 verificações aprovadas. A API Java e sua integração com Flyway são a próxima etapa.
+**Etapa 2 concluída localmente em 11/10/2026:** esquema executado em MySQL 8.0.46, dados fictícios e 47 verificações aprovadas. A integração Java/Flyway foi adicionada na [Etapa 3](../docs/planejamento/conclusao-etapa-3.md), com testes próprios, separados dos testes SQL desta etapa.
 
 ## O que está pronto
 
@@ -68,9 +68,11 @@ Exemplos: o banco exige uma data de confirmação de maioridade, mas não verifi
 
 O teste concorrente comprova o mecanismo SQL de desconto condicional, não a implementação do fluxo completo de pedido. Esses testes serão repetidos através da API Java.
 
-## Integração prevista com Flyway
+## Integração com Flyway
 
-Na etapa Java, configurar o Flyway para executar **apenas** `migrations/`, em ordem V1 e V2. A validação atual executa o SQL diretamente; ainda não executa Flyway. As tabelas de controle do Flyway não são simuladas por estes scripts.
+A API Java empacota **apenas** `migrations/` e aplica V1 e V2 com Flyway. O comando de validação SQL acima continua executando as migrations diretamente, sem simular o histórico do Flyway.
+
+Para testar a integração real, use PowerShell 7, configure `JAVA_HOME` com JDK 21 ou superior e execute `& .\database\scripts\validar-banco.ps1 -Api`. Esse modo entrega um banco vazio à aplicação e registra resultados em `backend/evidencias/`, sem substituir o relatório dos 47 testes SQL. Veja os detalhes no [guia da API](../backend/README.md).
 
 Não misturar o banco montado manualmente no Workbench com um banco novo gerenciado pelo Flyway sem planejar a migração. Os arquivos de `seeds/`, `queries/` e `tests/` não devem rodar automaticamente em produção. Configurar conexões da aplicação em UTC e com modo SQL estrito, mantendo senhas fora do Git.
 

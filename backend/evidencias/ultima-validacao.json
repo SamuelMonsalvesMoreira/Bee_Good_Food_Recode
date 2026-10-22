@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "inicioUtc": "2026-10-13T19:08:05.1172657Z",
+  "fimUtc": "2026-10-13T19:08:41.0193427Z",
+  "springBoot": "4.1.1",
+  "springdoc": "3.1.1",
+  "javaRelease": 21,
+  "testesHttpMySql": 17,
+  "migrations": [
+    "V1__criar_schema_inicial.sql",
+    "V2__cadastrar_papeis.sql"
+  ],
+  "empacotamento": "Somente migrations no JAR; sem seeds ou testes",
+  "reinicializacoes": [
+    "Inicializacao 1 do JAR: health UP e dados preservados",
+    "Inicializacao 2 do JAR: health UP e dados preservados"
+  ],
+  "limites": [
+    "Endpoints somente de leitura.",
+    "Autenticacao e fluxo de pedidos ainda nao implementados.",
+    "Nao valida MySQL externo ou deploy publico."
+  ]
+}

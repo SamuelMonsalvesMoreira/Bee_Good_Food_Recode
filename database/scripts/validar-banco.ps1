@@ -2,7 +2,11 @@
 # PowerShell 5.1+; nao requer Docker, senha do MySQL existente ou privilegio de administrador.
 [CmdletBinding()]
 param(
-    [string]$MySqlBin = 'C:\Program Files\MySQL\MySQL Server 8.0\bin'
+    [string]$MySqlBin = 'C:\Program Files\MySQL\MySQL Server 8.0\bin',
+    [switch]$Api,
+    [string]$JavaHome = $env:JAVA_HOME,
+    [string]$MavenCommand,
+    [string]$MavenRepository
 )
 
 $ErrorActionPreference = 'Stop'
@@ -115,6 +119,14 @@ try {
     $script:dbPassword = $newPassword
     $version = Invoke-Sql -Sql 'SELECT VERSION();' -WithoutDatabase
     $null = Invoke-Sql -Sql 'CREATE DATABASE bee_good_food_validacao CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;' -WithoutDatabase
+    if ($Api) {
+        # A API usa usuario limitado a este schema de teste, sem privilegios globais.
+        $appPassword = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+        $null = Invoke-Sql -Sql "CREATE USER 'bee_api'@'localhost' IDENTIFIED BY '$appPassword'; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, DROP ON bee_good_food_validacao.* TO 'bee_api'@'localhost';" -WithoutDatabase
+        $jdbc = "jdbc:mysql://127.0.0.1:$port/bee_good_food_validacao?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true&sslMode=DISABLED"
+        & (Join-Path $repoDir 'backend\scripts\validar-api.ps1') -JdbcUrl $jdbc -DbUser 'bee_api' -DbPassword $appPassword -JavaHome $JavaHome -MavenCommand $MavenCommand -MavenRepository $MavenRepository
+        return
+    }
     $migrationEvidence = @()
     # Lista explicita: acompanha a ordem do Flyway, sem ordenar V10 antes de V2.
     foreach ($migration in @('V1__criar_schema_inicial.sql', 'V2__cadastrar_papeis.sql')) {
@@ -170,7 +182,7 @@ try {
 } catch {
     $failure = [ordered]@{ status = 'FAIL'; instanteUtc = [DateTime]::UtcNow.ToString('o'); erro = $_.Exception.Message; testesAprovados = @($allTests.ToArray()) }
     [IO.File]::WriteAllText((Join-Path $runDir 'falha.json'), ($failure | ConvertTo-Json -Depth 6), $utf8)
-    [IO.File]::WriteAllText((Join-Path $evidenceDir 'ultima-validacao.json'), ($failure | ConvertTo-Json -Depth 6), $utf8)
+    if (-not $Api) { [IO.File]::WriteAllText((Join-Path $evidenceDir 'ultima-validacao.json'), ($failure | ConvertTo-Json -Depth 6), $utf8) }
     throw
 } finally {
     if ($null -ne $server -and -not $server.HasExited) {
