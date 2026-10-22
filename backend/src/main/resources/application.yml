@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   application:
     name: bee-good-food-api
   datasource:
@@ -42,3 +45,12 @@ springdoc:
     path: /swagger-ui.html
     disable-swagger-default-url: true
   paths-to-match: /api/v1/**
+bee:
+  security:
+    jwt-secret-base64: ${JWT_SECRET_BASE64}
+    auth-requests-per-minute: 20
+logging:
+  level:
+    # Conflitos esperados sao tratados em JSON; SQL pode conter e-mails.
+    org.hibernate.orm.jdbc.error: OFF
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: OFF

@@ -2,7 +2,7 @@
 
 Projeto final do programa Recode Fullstack baseado no TCC [Bee Good Food](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_TCC).
 
-**Status:** Etapas 1, 2 e 3 concluídas localmente — planejamento, banco MySQL e base da API Java/Spring Boot. São 47 verificações do banco e 17 testes HTTP/MySQL aprovados, além de duas inicializações do JAR com dados preservados. Próxima etapa: autenticação e perfis de acesso. O MVP completo ainda está em construção.
+**Status:** Etapas 1 a 4 concluídas localmente — planejamento, banco MySQL, base da API e autenticação/perfis no backend. A validação atual da API tem 52 testes HTTP/MySQL e 6 unitários aprovados, além de cadastro, login e limitação de tentativas no JAR reiniciado. As 47 verificações SQL da Etapa 2 permanecem registradas separadamente. Próxima etapa: estabelecimentos, catálogo e pedidos. O MVP completo e as telas React ainda estão em construção.
 
 ## Sobre o projeto
 
@@ -64,13 +64,15 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [Conclusão da Etapa 2 e evidências](docs/planejamento/conclusao-etapa-2.md)
 - [API Java: execução, rotas e estudos](backend/README.md)
 - [Conclusão da Etapa 3 e evidências](docs/planejamento/conclusao-etapa-3.md)
+- [Autenticação: guia de estudo e administração local](docs/planejamento/autenticacao.md)
+- [Conclusão da Etapa 4 e próximos passos](docs/planejamento/conclusao-etapa-4.md)
 
 ## Etapas
 
 - [x] Etapa 1 — estrutura, escopo e migração seletiva das referências do TCC
 - [x] Etapa 2 — modelagem MySQL, dados fictícios e validação local
 - [x] Etapa 3 — base da API Java/Spring Boot, integração MySQL/Flyway e OpenAPI
-- [ ] Etapa 4 — autenticação e perfis de acesso
+- [x] Etapa 4 — cadastro adulto, autenticação JWT e perfis de acesso na API
 - [ ] Etapa 5 — cadastros e fluxo de pedidos
 - [ ] Etapa 6 — criação e integração do frontend ReactJS
 - [ ] Etapa 7 — testes, documentação final e apresentação
@@ -87,7 +89,7 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 
 A Etapa 1 foi revisada como uma baseline de produto e engenharia. O projeto está alinhado ao **ODS 8 — Trabalho Decente e Crescimento Econômico** e atende às restrições do curso: público adulto, sem saúde, esporte ou religião.
 
-A implementação do banco MySQL foi validada na Etapa 2. A Etapa 3 adicionou a base Java/Spring Boot integrada ao MySQL e Flyway, com consultas públicas de categorias e documentação OpenAPI. Autenticação, operações de escrita, pedidos e frontend ReactJS/TypeScript permanecem nas próximas etapas.
+A implementação do banco MySQL foi validada na Etapa 2. A Etapa 3 adicionou a base Java/Spring Boot integrada ao MySQL e Flyway, com consultas públicas de categorias e documentação OpenAPI. A Etapa 4 adicionou cadastro adulto, login, consulta do próprio perfil e listagem administrativa de usuários. Gestão do catálogo, pedidos e frontend ReactJS/TypeScript permanecem nas próximas etapas.
 
 ### Documentação de decisão
 

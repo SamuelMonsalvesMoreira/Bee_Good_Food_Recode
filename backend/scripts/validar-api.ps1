@@ -23,6 +23,11 @@ $evidenceDir = Join-Path $backendDir 'evidencias'
 New-Item -ItemType Directory -Force -Path $outputDir, $evidenceDir | Out-Null
 $utf8 = [Text.UTF8Encoding]::new($false)
 $startedAt = [DateTime]::UtcNow
+# Chave exclusiva desta execucao; nao aparece na linha de comando nem nas evidencias.
+$jwtBytes = [byte[]]::new(32)
+$jwtRandom = [Security.Cryptography.RandomNumberGenerator]::Create()
+try { $jwtRandom.GetBytes($jwtBytes) } finally { $jwtRandom.Dispose() }
+$jwtSecret = [Convert]::ToBase64String($jwtBytes)
 
 function Start-ApiProcess {
     param([string]$Executable, [string]$Arguments)
@@ -43,6 +48,7 @@ function Start-ApiProcess {
     $info.EnvironmentVariables['BEE_TEST_MYSQL_URL'] = $JdbcUrl
     $info.EnvironmentVariables['BEE_TEST_MYSQL_USER'] = $DbUser
     $info.EnvironmentVariables['BEE_TEST_MYSQL_PASSWORD'] = $DbPassword
+    $info.EnvironmentVariables['JWT_SECRET_BASE64'] = $jwtSecret
     $process = [Diagnostics.Process]::Start($info)
     return @{ Process=$process; Output=$process.StandardOutput.ReadToEndAsync(); Error=$process.StandardError.ReadToEndAsync() }
 }
@@ -82,6 +88,12 @@ try {
         if ([int]$suite.failures -gt 0 -or [int]$suite.errors -gt 0 -or [int]$suite.skipped -gt 0) { throw 'Existem falhas ou testes ignorados.' }
         $total += [int]$suite.tests
     }
+    $unitTests = 0
+    foreach ($file in @(Get-ChildItem -LiteralPath (Join-Path $outputDir 'surefire-reports') -Filter 'TEST-*.xml')) {
+        [xml]$xml = [IO.File]::ReadAllText($file.FullName)
+        if ([int]$xml.testsuite.failures -gt 0 -or [int]$xml.testsuite.errors -gt 0 -or [int]$xml.testsuite.skipped -gt 0) { throw 'Falhas em testes unitarios.' }
+        $unitTests += [int]$xml.testsuite.tests
+    }
 
     $jar = Join-Path $outputDir 'bee-good-food-api-0.1.0-SNAPSHOT.jar'
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -94,6 +106,9 @@ try {
 
     # Testar o JAR pronto duas vezes no mesmo banco: migrations nao podem ser reaplicadas.
     $restarts = @()
+    $jarEmail = 'jar-' + [guid]::NewGuid().ToString('N') + '@example.invalid'
+    $jarPassword = [guid]::NewGuid().ToString('N')
+    $previousToken = $null
     for ($run=1; $run -le 2; $run++) {
         $listener = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, 0)
         $listener.Start(); $port = $listener.LocalEndpoint.Port; $listener.Stop()
@@ -111,12 +126,34 @@ try {
             $categories = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/categorias" -TimeoutSec 5
             if ($categories.totalElementos -ne 2) { throw 'Categorias nao preservadas na reinicializacao.' }
             if ($run -eq 1) {
+                $signupBody = @{nome='Cliente de teste do JAR'; email=$jarEmail; senha=$jarPassword; maiorDeIdade=$true} | ConvertTo-Json
+                $created = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/auth/cadastro" -Method Post -ContentType 'application/json' -Body $signupBody -TimeoutSec 10
+                if ($created.papeis.Count -ne 1 -or $created.papeis[0] -ne 'CLIENTE') { throw 'Cadastro do JAR nao restringiu o papel.' }
+            } else {
+                $persisted = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/auth/me" -Headers @{Authorization="Bearer $previousToken"} -TimeoutSec 5
+                if ($persisted.email -ne $jarEmail) { throw 'Sessao nao preservada com a mesma chave apos reinicio.' }
+            }
+            $loginBody = @{email=$jarEmail; senha=$jarPassword} | ConvertTo-Json
+            $session = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/auth/login" -Method Post -ContentType 'application/json' -Body $loginBody -TimeoutSec 10
+            if ($session.expiraEmSegundos -ne 900) { throw 'Validade inesperada do token.' }
+            $previousToken = $session.accessToken
+            if ($run -eq 1) {
+                # Duas chamadas ja feitas (cadastro/login). Validar o limite padrao 20 via HTTP real.
+                for ($attempt=0; $attempt -lt 18; $attempt++) {
+                    $invalid = Invoke-WebRequest -Uri "http://127.0.0.1:$port/api/v1/auth/login" -Method Post -ContentType 'application/json' -Body '{}' -SkipHttpErrorCheck -TimeoutSec 5
+                    if ($invalid.StatusCode -ne 400) { throw 'Limite foi atingido antes das 20 tentativas.' }
+                }
+                $limited = Invoke-WebRequest -Uri "http://127.0.0.1:$port/api/v1/auth/login" -Method Post -ContentType 'application/json' -Body '{}' -SkipHttpErrorCheck -TimeoutSec 5
+                if ($limited.StatusCode -ne 429 -or $limited.Headers['Retry-After'][0] -ne '60') { throw 'Limite de tentativas nao foi aplicado pelo JAR.' }
+                Write-Host 'PASS | JAR: cadastro, login e limite de 20 tentativas por minuto'
+            }
+            if ($run -eq 1) {
                 $openapi = Invoke-RestMethod -Uri "http://127.0.0.1:$port/v3/api-docs" -TimeoutSec 10
                 # Remove o endereco efemero do servidor antes de registrar o contrato.
                 $openapi.PSObject.Properties.Remove('servers')
                 [IO.File]::WriteAllText((Join-Path $evidenceDir 'openapi.json'), ($openapi | ConvertTo-Json -Depth 40) + "`n", $utf8)
             }
-            $restarts += "Inicializacao $run do JAR: health UP e dados preservados"
+            $restarts += "Inicializacao $run do JAR: health UP, categorias preservadas e login funcional"
             Write-Host "PASS | $($restarts[-1])"
         } finally {
             if (-not $app.Process.HasExited) { $app.Process.Kill(); $app.Process.WaitForExit() }
@@ -125,11 +162,12 @@ try {
     }
     $report = [ordered]@{
         status='PASS'; inicioUtc=$startedAt.ToString('o'); fimUtc=[DateTime]::UtcNow.ToString('o')
-        springBoot='4.1.1'; springdoc='3.1.1'; javaRelease=21; testesHttpMySql=$total
+        springBoot='4.1.1'; springdoc='3.1.1'; javaRelease=21; testesHttpMySql=$total; testesUnitarios=$unitTests
         migrations=@('V1__criar_schema_inicial.sql','V2__cadastrar_papeis.sql')
         empacotamento='Somente migrations no JAR; sem seeds ou testes'
         reinicializacoes=$restarts
-        limites=@('Endpoints somente de leitura.', 'Autenticacao e fluxo de pedidos ainda nao implementados.', 'Nao valida MySQL externo ou deploy publico.')
+        segurancaJar=@('Cadastro restrito a CLIENTE', 'JWT de 900 segundos', 'Conta e sessao persistidas entre reinicios com mesma chave', 'HTTP 429 na tentativa 21 com Retry-After')
+        limites=@('Catalogo somente de leitura; cadastro/login e consulta de perfil implementados.', 'Pedidos e autorizacao por estabelecimento ainda nao implementados.', 'Limite de tentativas local; nao valida deploy publico ou multiplas instancias.')
     }
     [IO.File]::WriteAllText((Join-Path $evidenceDir 'ultima-validacao.json'), ($report | ConvertTo-Json -Depth 6) + "`n", $utf8)
     Write-Host "API VALIDADA: $total testes HTTP/MySQL, empacotamento e duas inicializacoes do JAR."

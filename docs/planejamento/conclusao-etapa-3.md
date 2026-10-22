@@ -2,6 +2,8 @@
 
 Data: 13/10/2026. Estado: **concluída localmente**. Esta etapa entrega a infraestrutura da API e o primeiro recurso de consulta; não representa o backend completo nem uma publicação em produção.
 
+Atualização de 21/10/2026: a [Etapa 4](conclusao-etapa-4.md) adicionou autenticação e ampliou a suíte. Os relatórios em `backend/evidencias/` mostram a execução mais recente; os 17 testes descritos abaixo registram o resultado histórico da Etapa 3.
+
 ## Entregas
 
 - Projeto Java com Spring Boot 4.1.1, código compatível com Java 21 e validação executada com JDK 25.
