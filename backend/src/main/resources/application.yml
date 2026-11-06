@@ -53,6 +53,8 @@ bee:
   security:
     jwt-secret-base64: ${JWT_SECRET_BASE64}
     auth-requests-per-minute: 20
+    # Origens do frontend separadas por virgula (ex.: https://app.exemplo.com). Vazio = CORS desativado.
+    cors-origins: ${CORS_ORIGINS:}
 logging:
   level:
     # Conflitos esperados sao tratados em JSON; SQL pode conter e-mails.

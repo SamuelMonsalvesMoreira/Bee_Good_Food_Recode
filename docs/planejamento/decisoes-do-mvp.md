@@ -33,6 +33,9 @@ Este registro torna explícitas as escolhas que orientam o banco, a API e o fron
 | DEC-025 | Preços enviados pelo carrinho são ignorados | CA08 exige recálculo; o carrinho fica no frontend (DEC-007) e pode reenviar os valores que exibiu | `total`, `subtotal`, `preco*` e `produtoNome` são ignorados; qualquer outro campo desconhecido continua retornando 400 |
 | DEC-026 | Catálogo exige papel `RESPONSAVEL` e oferta exige estabelecimento `ATIVO` | O papel só é concedido na primeira aprovação; CA12 bloqueia novas ofertas em estabelecimento suspenso | Produtos podem ser mantidos após a aprovação mesmo durante suspensão; criar, publicar ou retomar oferta exige `ATIVO` |
 | DEC-027 | Repetir um cancelamento é uma operação sem efeito | CA16 exige devolução única e a repetição pode vir de nova tentativa da rede | Cancelar pedido já `CANCELADO` retorna 200 com o pedido atual, sem nova devolução de estoque |
+| DEC-028 | Carrinho guardado na aba (`sessionStorage`) | DEC-007 deixa o carrinho no frontend; como o token se perde ao recarregar, perder também o carrinho atrapalharia o cliente | O carrinho sobrevive a recarregar a página, não guarda dados pessoais nem token e é limpo no logout ou na troca de conta |
+| DEC-029 | Uma `Idempotency-Key` por tentativa de reserva | Reenviar a mesma compra (rede instável, duplo clique) não pode gerar dois pedidos | A chave é criada ao confirmar e reaproveitada até o carrinho mudar; qualquer mudança gera nova chave |
+| DEC-030 | Acompanhamento por atualização periódica | O TCC previa notificação; push ou WebSocket exigiriam infraestrutura fora do escopo | A página do pedido em andamento consulta a API a cada 30 segundos e anuncia a mudança de situação para leitores de tela |
 
 ## Arquitetura de contêineres
 
