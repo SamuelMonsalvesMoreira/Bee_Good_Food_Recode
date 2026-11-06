@@ -1,1 +1,4 @@
 *.tsbuildinfo
+.demo/
+test-results/
+playwright-report/
