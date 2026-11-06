@@ -48,6 +48,7 @@ abstract class IntegracaoBase {
         registry.add("spring.datasource.password", () -> System.getenv("BEE_TEST_MYSQL_PASSWORD"));
         // Contexto compartilhado pelas classes da Etapa 5; o limite real tem teste proprio.
         registry.add("bee.security.auth-requests-per-minute", () -> 5000);
+        registry.add("bee.security.cors-origins", () -> CorsIT.ORIGEM_FRONTEND);
     }
 
     /** Cada classe comeca do zero. Recusa qualquer banco que nao seja o de validacao. */

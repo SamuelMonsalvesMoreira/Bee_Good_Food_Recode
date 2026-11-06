@@ -22,6 +22,11 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -38,6 +43,28 @@ public class SecurityConfig {
         catch (IllegalArgumentException error) { throw new IllegalStateException("JWT_SECRET_BASE64 deve conter Base64 válido."); }
         if (decoded.length < 32) { throw new IllegalStateException("JWT_SECRET_BASE64 deve conter pelo menos 32 bytes aleatórios."); }
         return new SecretKeySpec(decoded, "HmacSHA256");
+    }
+
+    /** Somente origens explicitas; sem credenciais de navegador (o token vai no cabecalho Authorization). */
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(@Value("${bee.security.cors-origins:}") String origens) {
+        List<String> permitidas = Arrays.stream(origens.split(",")).map(String::strip).filter(o -> !o.isEmpty()).toList();
+        for (String origem : permitidas) {
+            if (origem.equals("*") || !origem.matches("https?://[^/*\s]+")) {
+                throw new IllegalStateException("CORS_ORIGINS aceita apenas origens completas, sem curinga ou caminho.");
+            }
+        }
+        var source = new UrlBasedCorsConfigurationSource();
+        if (permitidas.isEmpty()) { return source; }
+        var config = new CorsConfiguration();
+        config.setAllowedOrigins(permitidas);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key"));
+        config.setExposedHeaders(List.of("Idempotent-Replayed", "Retry-After"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(600L);
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
     }
 
     @Bean JwtEncoder jwtEncoder(SecretKey key) { return new NimbusJwtEncoder(new ImmutableSecret<>(key)); }
@@ -69,6 +96,7 @@ public class SecurityConfig {
         return http
                 // API stateless: sem cookie de autenticacao, sessao, login HTML ou HTTP Basic.
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> { })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requestCache(cache -> cache.disable())
                 .formLogin(form -> form.disable()).httpBasic(basic -> basic.disable()).logout(logout -> logout.disable())
