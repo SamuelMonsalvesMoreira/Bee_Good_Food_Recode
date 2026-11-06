@@ -4,7 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { OfertaPublica } from '../api/types';
 import { SessaoProvider } from '../auth/SessaoContext';
-import { CarrinhoProvider, useCarrinho } from '../carrinho/CarrinhoContext';
+import { CarrinhoProvider } from '../carrinho/CarrinhoContext';
+import { useCarrinho } from '../carrinho/carrinhoContexto';
 import { AdicionarAoCarrinho } from './AdicionarAoCarrinho';
 
 function oferta(id: number, lojaId: number): OfertaPublica {

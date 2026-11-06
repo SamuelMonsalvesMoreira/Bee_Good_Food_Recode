@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { pedidos } from '../api/endpoints';
 import type { Pedido, StatusPedido as Status } from '../api/types';
-import { useSessao } from '../auth/SessaoContext';
+import { useSessao } from '../auth/sessao';
 import { CampoTexto } from '../componentes/Campo';
 import { Dialogo } from '../componentes/Dialogo';
 import { Carregando, ErroCarga, Vazio } from '../componentes/Estados';

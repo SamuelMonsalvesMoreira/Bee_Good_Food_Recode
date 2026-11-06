@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import type { Papel } from '../api/types';
 import { Vazio } from '../componentes/Estados';
-import { useSessao } from './SessaoContext';
+import { useSessao } from './sessao';
 
 /**
  * Protege rotas privadas na interface. A autorizacao real e sempre do servidor;

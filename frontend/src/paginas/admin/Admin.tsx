@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { admin } from '../../api/endpoints';
 import type { CategoriaAdmin, Estabelecimento, StatusEstabelecimento } from '../../api/types';
-import { useSessao } from '../../auth/SessaoContext';
+import { useSessao } from '../../auth/sessao';
 import { Campo, CampoSelecao, CampoTexto, erroDoCampo } from '../../componentes/Campo';
 import { Dialogo } from '../../componentes/Dialogo';
 import { Carregando, ErroCarga, ErroEnvio, Vazio } from '../../componentes/Estados';

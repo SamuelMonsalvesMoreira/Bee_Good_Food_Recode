@@ -1,22 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { OfertaPublica } from '../api/types';
-import { useSessao } from '../auth/SessaoContext';
-import { adicionar, alterarQuantidade, novaChave, VAZIO, type Carrinho, type ResultadoAdicao } from './carrinho';
+import { useSessao } from '../auth/sessao';
+import { adicionar, alterarQuantidade, novaChave, VAZIO, type Carrinho } from './carrinho';
+import { CarrinhoContext, type CarrinhoApi } from './carrinhoContexto';
 
 // Guardado na aba (sessionStorage): nao contem dados pessoais nem token. Limpo no logout.
 const CHAVE = 'bee.carrinho.v1';
-
-interface CarrinhoApi {
-  carrinho: Carrinho;
-  quantidadeTotal: number;
-  adicionar: (oferta: OfertaPublica, quantidade: number, substituirLoja?: boolean) => ResultadoAdicao;
-  alterar: (ofertaId: number, quantidade: number) => void;
-  esvaziar: () => void;
-  /** Mesma compra reenviada usa a mesma chave; qualquer mudanca no carrinho gera outra. */
-  chaveDaTentativa: () => string;
-}
-
-const CarrinhoContext = createContext<CarrinhoApi | null>(null);
 
 function ler(): Carrinho {
   try {
@@ -69,10 +58,4 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
   }), [carrinho, adicionarItem, chaveDaTentativa]);
 
   return <CarrinhoContext.Provider value={valor}>{children}</CarrinhoContext.Provider>;
-}
-
-export function useCarrinho(): CarrinhoApi {
-  const contexto = useContext(CarrinhoContext);
-  if (!contexto) throw new Error('useCarrinho fora do CarrinhoProvider');
-  return contexto;
 }

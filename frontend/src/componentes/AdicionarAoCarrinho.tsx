@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { OfertaPublica } from '../api/types';
-import { useCarrinho } from '../carrinho/CarrinhoContext';
+import { useCarrinho } from '../carrinho/carrinhoContexto';
 import { Dialogo } from './Dialogo';
 
 export function AdicionarAoCarrinho({ oferta }: { oferta: OfertaPublica }) {

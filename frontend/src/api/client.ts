@@ -59,6 +59,10 @@ export async function requisitarCompleto<T>(caminho: string, opcoes: Opcoes = {}
 
   const texto = await resposta.text();
   const corpo = texto ? safeJson(texto) : null;
+  // Resposta que nao e da API (ex.: pagina HTML do servidor do site): a API nao foi alcancada.
+  if (texto && corpo === null) {
+    throw new ApiError(502, 'API indisponível', 'O servidor da API não respondeu. Confira se ele está em execução e tente de novo.');
+  }
   if (!resposta.ok) {
     if (resposta.status === 401 && tinhaSessao && aoExpirar) aoExpirar();
     const problema = (corpo ?? {}) as { title?: string; detail?: string; campos?: Record<string, string> };

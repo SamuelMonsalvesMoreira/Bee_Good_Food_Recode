@@ -249,3 +249,6 @@ address { font-style: normal; margin-bottom: 0.75rem; }
 .linha-categoria .linha-acoes { align-items: flex-end; }
 
 .paginacao { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; }
+
+/* ---------- Falha inesperada ---------- */
+.falha { display: grid; justify-items: start; gap: 0.75rem; padding-block: 4rem; }

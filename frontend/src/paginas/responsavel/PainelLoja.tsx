@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { estabelecimentos } from '../../api/endpoints';
-import { useSessao } from '../../auth/SessaoContext';
+import { useSessao } from '../../auth/sessao';
 import { Carregando, ErroCarga, Sucesso, Vazio } from '../../componentes/Estados';
 import { FormularioLoja } from '../../componentes/FormularioLoja';
 import { StatusLoja } from '../../componentes/StatusLoja';

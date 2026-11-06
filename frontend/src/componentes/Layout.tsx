@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
-import { useSessao } from '../auth/SessaoContext';
-import { useCarrinho } from '../carrinho/CarrinhoContext';
+import { useSessao } from '../auth/sessao';
+import { useCarrinho } from '../carrinho/carrinhoContexto';
 import { Bee } from './Bee';
 
 export function Layout() {
