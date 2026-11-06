@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSessao } from '../auth/SessaoContext';
+import { useSessao } from '../auth/sessao';
 import { Bee } from '../componentes/Bee';
 import { Campo, erroDoCampo } from '../componentes/Campo';
 import { ErroEnvio } from '../componentes/Estados';

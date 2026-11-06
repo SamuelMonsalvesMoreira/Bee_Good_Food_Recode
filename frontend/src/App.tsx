@@ -2,6 +2,7 @@ import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom';
 import { ExigeSessao } from './auth/ExigeSessao';
 import { SessaoProvider } from './auth/SessaoContext';
 import { CarrinhoProvider } from './carrinho/CarrinhoContext';
+import { Bee } from './componentes/Bee';
 import { Vazio } from './componentes/Estados';
 import { Layout } from './componentes/Layout';
 import { Admin, AdminCategorias, AdminLojas } from './paginas/admin/Admin';
@@ -17,6 +18,18 @@ import { MinhasLojas, SolicitarLoja } from './paginas/responsavel/MinhasLojas';
 import { PainelLoja } from './paginas/responsavel/PainelLoja';
 import { ProdutoOfertas } from './paginas/responsavel/ProdutoOfertas';
 
+/** Falha inesperada na interface: nao depende de sessao nem carrinho, para nunca quebrar de novo. */
+function FalhaInesperada() {
+  return (
+    <main className="conteudo falha" role="alert">
+      <Bee tamanho={72} humor="pensativa" />
+      <h1>Algo deu errado nesta tela.</h1>
+      <p>Recarregue a página para continuar. Por segurança, será preciso entrar de novo; o carrinho é mantido.</p>
+      <button className="botao botao-principal" onClick={() => window.location.reload()}>Recarregar a página</button>
+    </main>
+  );
+}
+
 function NaoEncontrada() {
   return <Vazio titulo="Página não encontrada." acao={<Link className="botao botao-principal" to="/">Ver ofertas</Link>} />;
 }
@@ -24,7 +37,7 @@ function NaoEncontrada() {
 const rotas = createBrowserRouter([
   {
     element: <Layout />,
-    errorElement: <Layout />,
+    errorElement: <FalhaInesperada />,
     children: [
       { index: true, element: <Inicio /> },
       { path: 'ofertas/:id', element: <OfertaDetalhe /> },

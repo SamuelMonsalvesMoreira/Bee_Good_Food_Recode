@@ -1,20 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { aoPerderSessao, definirToken } from '../api/client';
 import { auth } from '../api/endpoints';
-import type { Papel, Usuario } from '../api/types';
+import type { Usuario } from '../api/types';
+import { SessaoContext, type Sessao } from './sessao';
 
 // Sessao somente em memoria (CA18): recarregar a pagina exige novo login; logout limpa token e dados privados.
-
-interface Sessao {
-  usuario: Usuario | null;
-  expirou: boolean;
-  entrar: (email: string, senha: string) => Promise<Usuario>;
-  sair: () => void;
-  atualizar: () => Promise<void>;
-  tem: (papel: Papel) => boolean;
-}
-
-const SessaoContext = createContext<Sessao | null>(null);
 
 export function SessaoProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -59,10 +49,4 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   }), [usuario, expirou, entrar, limpar, atualizar]);
 
   return <SessaoContext.Provider value={valor}>{children}</SessaoContext.Provider>;
-}
-
-export function useSessao(): Sessao {
-  const contexto = useContext(SessaoContext);
-  if (!contexto) throw new Error('useSessao fora do SessaoProvider');
-  return contexto;
 }

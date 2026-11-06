@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { estabelecimentos } from '../../api/endpoints';
-import { useSessao } from '../../auth/SessaoContext';
+import { useSessao } from '../../auth/sessao';
 import { Carregando, ErroCarga } from '../../componentes/Estados';
 import { FormularioLoja } from '../../componentes/FormularioLoja';
 import { StatusLoja } from '../../componentes/StatusLoja';

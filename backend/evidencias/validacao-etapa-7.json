@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "etapa": "7 - parte tecnica: testes ponta a ponta, acessibilidade, demonstracao e preparo de deploy",
+  "dataLocal": "2026-11-06 (America/Sao_Paulo)",
+  "ambiente": {
+    "banco": "MySQL 8.0 em conteiner Docker descartavel, porta somente em 127.0.0.1; schemas bee_good_food_validacao (testes HTTP) e bee_good_food_e2e (testes no navegador)",
+    "jdk": "Temurin 25",
+    "node": "24.16.0",
+    "navegador": "Chromium do Playwright 1.65.0 (Desktop Chrome e Pixel 7)",
+    "observacao": "Runner oficial database/scripts/validar-banco.ps1 -Api nao executado: exige PowerShell 7, ausente nesta maquina."
+  },
+  "backend": {
+    "comando": "mvnw -B -Pintegration clean verify",
+    "testesHttpMySql": 159,
+    "testesUnitarios": 6,
+    "suitesHttpMySql": {
+      "ApiMySqlIT": 52,
+      "CatalogoIT": 23,
+      "CatalogoPublicoIT": 13,
+      "CorsIT": 3,
+      "EstabelecimentoIT": 21,
+      "IndicadoresIT": 10,
+      "PedidoIT": 36,
+      "ProxyReversoIT": 1
+    },
+    "empacotamento": "JAR com somente V1 e V2 em db/migration"
+  },
+  "frontend": {
+    "comandos": ["npm run typecheck", "npm test", "npm run build", "npm run e2e"],
+    "testesUnitarios": 14,
+    "testesPontaAPonta": {
+      "total": 11,
+      "desktop": 8,
+      "celular": 3,
+      "cenarios": [
+        "Pagina inicial explica a proposta; busca por cidade sem acento; detalhe com prazos no fuso da loja",
+        "Cadastro com declaracao obrigatoria de maioridade, login, carrinho de uma loja com confirmacao (CA07), reserva, cancelamento com motivo e fim da sessao ao recarregar (CA18)",
+        "Pedido de outra pessoa aparece como nao encontrado (CA03)",
+        "Responsavel avanca o pedido ate a retirada e confere indicadores (CA13, CA14, CA17)",
+        "Responsavel cadastra produto, recebe erro por campo na oferta e publica no catalogo (CA06, CA25)",
+        "Administrador aprova loja com motivo obrigatorio (CA19, CA26)"
+      ],
+      "execucoesSeguidasSemFalha": 3
+    },
+    "acessibilidade": {
+      "ferramenta": "axe-core 4.14 via @axe-core/playwright",
+      "regras": "WCAG 2.0/2.1 A e AA",
+      "telas": 12,
+      "violacoes": 0,
+      "corrigido": "Nome acessivel do link do carrinho diferente do texto visivel (label-content-name-mismatch)"
+    }
+  },
+  "demonstracao": "npm run demo:popular executado em banco vazio: 3 lojas ativas, 1 em analise, 7 ofertas e 1 pedido",
+  "deploy": "Contagem de tentativas por cliente real atras de proxy verificada (ProxyReversoIT); guia em docs/deploy.md com exemplo de Caddy nao executado",
+  "limites": [
+    "Auditoria automatica nao substitui teste com leitor de tela nem com pessoas.",
+    "Nenhuma publicacao em ambiente publico foi feita.",
+    "Rodadas de validacao com consumidores e responsaveis ainda nao realizadas."
+  ]
+}
