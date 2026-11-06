@@ -1,6 +1,6 @@
 # Etapa 7 — Validação e entrega
 
-Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localmente**. Ainda faltam as rodadas com pessoas, o runner oficial e a apresentação (veja o checklist no fim).
+Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localmente**, com o runner oficial aprovado e o material de apresentação pronto. Faltam as rodadas de validação com pessoas (veja o checklist no fim).
 
 ## O que foi entregue
 
@@ -10,6 +10,8 @@ Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localm
 | Acessibilidade | Auditoria axe (WCAG 2.1 A/AA) em 12 telas, sem violações. Corrigido o nome acessível do link do carrinho. |
 | Dados de demonstração | `npm run demo:popular` cria lojas, ofertas e um pedido fictícios pela API, com senhas aleatórias gravadas fora do Git. |
 | Preparo de deploy | Contagem de tentativas por cliente real atrás de proxy (`FORWARD_HEADERS_STRATEGY`, `TRUSTED_PROXIES`, DEC-031) e [guia de publicação](../deploy.md). |
+| Compatibilidade com Java 21 | O relógio de microssegundos dividia por zero no Java 21 (a versão mínima), quebrando cadastro e login fora da máquina de desenvolvimento, que usa Java 25. Corrigido com teste de regressão; a suíte completa passou no Java 21 (159 HTTP/MySQL + 9 unitários). |
+| Publicação | `backend/Dockerfile`, `render.yaml` e `frontend/vercel.json`, com [passo a passo gratuito](../deploy.md#publicação-gratuita-vercel-render-e-aiven) (Vercel, Render e Aiven). Imagem testada localmente. |
 | Robustez da interface | Tela "Algo deu errado" no lugar de página em branco; aviso claro quando a API não responde. Também corrigido o contexto de sessão, que quebrava com o recarregamento automático do servidor de desenvolvimento. |
 
 ## Validação executada
@@ -44,9 +46,11 @@ O Playwright inicia o site na porta 5174. Cada teste cria os próprios dados com
 - [x] Auditoria de acessibilidade automatizada.
 - [x] Script de dados de demonstração.
 - [x] Guia e pré-requisitos de publicação.
-- [ ] Instalar o PowerShell 7 e executar `database/scripts/validar-banco.ps1 -Api`, registrando `ultima-validacao.json`.
+- [x] Executar `database/scripts/validar-banco.ps1 -Api` com PowerShell 7.6: 159 testes HTTP/MySQL, empacotamento e duas inicializações do JAR, registrados em [`ultima-validacao.json`](../../backend/evidencias/ultima-validacao.json).
 - [ ] Rodada 1: pelo menos 5 consumidores adultos (H01, H02, H04), conforme [Métricas e validação](metricas-e-validacao.md).
 - [ ] Rodada 2: pelo menos 3 responsáveis por pequenos negócios (H03, H05).
 - [ ] Registrar os resultados agregados, sem dados identificáveis, e as mudanças decididas a partir deles.
-- [ ] Roteiro de demonstração e apresentação ligada ao ODS 8.
+- [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
+- [x] Slides da apresentação (13 slides, ligados ao ODS 8).
+- [ ] Ensaiar a apresentação e ajustar os slides ao tempo disponível.
 - [ ] (Opcional) Publicar seguindo o [guia](../deploy.md) e repetir os testes no navegador contra o endereço publicado.

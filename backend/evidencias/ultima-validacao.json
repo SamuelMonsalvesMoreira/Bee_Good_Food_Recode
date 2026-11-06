@@ -1,11 +1,11 @@
 {
   "status": "PASS",
-  "inicioUtc": "2026-10-22T01:29:58.3330509Z",
-  "fimUtc": "2026-10-22T01:31:08.7005280Z",
+  "inicioUtc": "2026-11-06T17:45:29.7367565Z",
+  "fimUtc": "2026-11-06T17:47:35.0025674Z",
   "springBoot": "4.1.1",
   "springdoc": "3.1.1",
   "javaRelease": 21,
-  "testesHttpMySql": 52,
+  "testesHttpMySql": 159,
   "testesUnitarios": 6,
   "migrations": [
     "V1__criar_schema_inicial.sql",
@@ -22,9 +22,20 @@
     "Conta e sessao persistidas entre reinicios com mesma chave",
     "HTTP 429 na tentativa 21 com Retry-After"
   ],
+  "suitesHttpMySql": [
+    "ApiMySqlIT",
+    "CatalogoIT",
+    "CatalogoPublicoIT",
+    "CorsIT",
+    "EstabelecimentoIT",
+    "IndicadoresIT",
+    "PedidoIT",
+    "ProxyReversoIT"
+  ],
   "limites": [
-    "Catalogo somente de leitura; cadastro/login e consulta de perfil implementados.",
-    "Pedidos e autorizacao por estabelecimento ainda nao implementados.",
+    "Etapa 5 no backend: estabelecimentos, moderacao, catalogo, busca, pedidos e indicadores.",
+    "Frontend React ainda nao implementado (Etapa 6).",
+    "Concorrencia validada em uma unica instancia local; nao comprova desempenho nem deploy publico.",
     "Limite de tentativas local; nao valida deploy publico ou multiplas instancias."
   ]
 }

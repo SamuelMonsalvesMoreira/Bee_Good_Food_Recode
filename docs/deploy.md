@@ -2,6 +2,28 @@
 
 Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. Ele **não foi executado** em um ambiente público até a data da Etapa 7. Foram validados localmente o JAR, o build do frontend e a contagem de tentativas por cliente atrás de um proxy (teste automatizado com `X-Forwarded-For` no loopback). O exemplo de configuração do Caddy não foi executado.
 
+## Publicação gratuita: Vercel, Render e Aiven
+
+Caminho pensado para uma demonstração de portfólio, sem custo. A interface fica no **Vercel**, a API no **Render** (Docker) e o MySQL na **Aiven**. O Vercel encaminha `/api` para o Render (`frontend/vercel.json`), então o site e a API ficam na mesma origem e não é preciso CORS.
+
+> Limites dos planos gratuitos (conferir nos sites, podem mudar): a API do Render "dorme" após um período sem acesso e leva cerca de um minuto para acordar no primeiro acesso; o MySQL gratuito tem pouco espaço e conexões. Suficiente para demonstração, não para uso real.
+
+### Passo a passo
+
+1. **MySQL (Aiven).** Crie um serviço MySQL no plano gratuito. Na página do serviço, copie host, porta, usuário e senha. Monte a `DB_URL`:
+   `jdbc:mysql://HOST:PORTA/defaultdb?sslMode=REQUIRED&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true`
+2. **API (Render).** Em *New > Blueprint*, conecte este repositório: o `render.yaml` cria o serviço `bee-good-food-api` com o `backend/Dockerfile`. Preencha no painel:
+   - `DB_URL`, `DB_USER`, `DB_PASSWORD`: os dados da Aiven;
+   - `JWT_SECRET_BASE64`: 32 bytes aleatórios em Base64 (gere com o comando do `backend/README.md` e guarde num gerenciador de senhas).
+   Aguarde o deploy e abra `https://<servico>.onrender.com/actuator/health`: deve mostrar `UP`. O Flyway cria as tabelas sozinho.
+3. **Endereço da API no Vercel.** Se o Render der ao serviço um endereço diferente de `bee-good-food-api.onrender.com`, ajuste o `destination` em `frontend/vercel.json` e faça commit.
+4. **Interface (Vercel).** Em *Add New > Project*, importe o repositório e defina **Root Directory = `frontend`**. O Vercel detecta o Vite; não é preciso variável de ambiente.
+5. **Primeiro administrador.** Crie uma conta pelo site publicado e conceda `ADMINISTRADOR` pelo [procedimento controlado](planejamento/autenticacao.md#administração-local-controlada), conectando-se ao MySQL da Aiven.
+6. **Dados de demonstração (opcional).** Na pasta `frontend`, com `BEE_API` apontando para a URL do Render e o administrador do passo 5, rode `npm run demo:popular`.
+7. **Conferir.** Busque ofertas, faça uma reserva e entre como a loja. Depois coloque o link do site no README e na descrição do repositório.
+
+A imagem Docker foi testada localmente com Java 21: saúde, migrations, cadastro, login e limite de tentativas por cliente atrás de proxy.
+
 ## Arquitetura recomendada
 
 ```mermaid

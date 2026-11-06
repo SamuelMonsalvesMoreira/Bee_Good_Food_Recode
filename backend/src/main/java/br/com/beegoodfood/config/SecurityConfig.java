@@ -33,7 +33,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
     // Precisao de microssegundos, igual a DATETIME(6): o valor respondido e o mesmo gravado no MySQL.
-    @Bean Clock clock() { return Clock.tick(Clock.systemUTC(), Duration.ofNanos(1000)); }
+    @Bean Clock clock() { return new RelogioMicrossegundos(Clock.systemUTC()); }
     @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }
 
     @Bean

@@ -1,0 +1,14 @@
+# Somente o necessario para a imagem da API (contexto = raiz do repositorio).
+**/target
+**/node_modules
+frontend
+docs
+.local-mysql
+.git
+.claude
+**/.env
+**/.env.*
+backend/evidencias
+database/seeds
+database/tests
+database/evidencias
