@@ -10,11 +10,13 @@
     "test": "vitest run",
     "typecheck": "tsc -b",
     "demo:popular": "node scripts/popular-demo.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "telas": "node scripts/capturar-telas.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "5.3.0",
     "@fontsource/bricolage-grotesque": "5.3.0",
+    "lucide-react": "1.70.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-router-dom": "7.18.5"

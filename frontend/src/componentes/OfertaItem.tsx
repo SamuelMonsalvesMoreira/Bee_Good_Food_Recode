@@ -1,7 +1,9 @@
+import { MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { OfertaPublica } from '../api/types';
 import { desconto, dinheiro } from '../lib/formato';
 import { FaixaPrazo } from './FaixaPrazo';
+import { IconeCategoria } from './IconeCategoria';
 
 export function OfertaItem({ oferta, mostrarLoja = true }: { oferta: OfertaPublica; mostrarLoja?: boolean }) {
   const pct = desconto(oferta.precoOriginal, oferta.precoOferta);
@@ -9,14 +11,15 @@ export function OfertaItem({ oferta, mostrarLoja = true }: { oferta: OfertaPubli
   return (
     <article className="oferta">
       <div className="oferta-topo">
-        <div>
+        <IconeCategoria slug={oferta.categoria.slug} />
+        <div className="oferta-titulo">
           <h3 className="oferta-nome">
             <Link to={`/ofertas/${oferta.id}`} className="oferta-link">{oferta.produtoNome}</Link>
           </h3>
           {mostrarLoja && (
             <p className="oferta-loja">
               <Link to={`/lojas/${loja.id}`}>{loja.nome}</Link>
-              <span className="suave">{loja.bairro}, {loja.cidade}</span>
+              <span className="suave"><MapPin size={14} aria-hidden="true" /> {loja.bairro}, {loja.cidade}</span>
             </p>
           )}
         </div>
@@ -34,5 +37,20 @@ export function OfertaItem({ oferta, mostrarLoja = true }: { oferta: OfertaPubli
         </span>
       </p>
     </article>
+  );
+}
+
+/** Esboco do cartao enquanto as ofertas carregam (evita a pagina "pular"). */
+export function OfertaEsboco() {
+  return (
+    <div className="oferta oferta-esboco" aria-hidden="true">
+      <div className="oferta-topo">
+        <span className="esboco esboco-icone" />
+        <div className="oferta-titulo"><span className="esboco esboco-linha" /><span className="esboco esboco-linha curta" /></div>
+        <span className="esboco esboco-preco" />
+      </div>
+      <span className="esboco esboco-barra" />
+      <span className="esboco esboco-linha" />
+    </div>
   );
 }

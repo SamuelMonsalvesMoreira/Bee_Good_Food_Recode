@@ -3,6 +3,7 @@ import { catalogo } from '../api/endpoints';
 import { AdicionarAoCarrinho } from '../componentes/AdicionarAoCarrinho';
 import { Carregando, ErroCarga, Vazio } from '../componentes/Estados';
 import { FaixaPrazo } from '../componentes/FaixaPrazo';
+import { IconeCategoria } from '../componentes/IconeCategoria';
 import { desconto, dinheiro } from '../lib/formato';
 import { useCarregar } from '../lib/useCarregar';
 
@@ -28,8 +29,13 @@ export function OfertaDetalhe() {
       <p className="trilha"><Link to="/">Ofertas</Link> / <Link to={`/lojas/${loja.id}`}>{loja.nome}</Link></p>
       <div className="detalhe-grade">
         <div>
-          <p className="etiqueta">{oferta.categoria.nome}</p>
-          <h1>{oferta.produtoNome}</h1>
+          <div className="detalhe-cabeca">
+            <IconeCategoria slug={oferta.categoria.slug} tamanho="grande" />
+            <div>
+              <p className="etiqueta">{oferta.categoria.nome}</p>
+              <h1>{oferta.produtoNome}</h1>
+            </div>
+          </div>
           {oferta.produtoDescricao && <p className="detalhe-descricao">{oferta.produtoDescricao}</p>}
           <div className="detalhe-preco">
             <strong className="numero">{dinheiro(oferta.precoOferta)}</strong>
