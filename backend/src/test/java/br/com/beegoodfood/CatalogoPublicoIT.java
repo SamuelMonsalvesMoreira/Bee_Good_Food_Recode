@@ -109,8 +109,18 @@ class CatalogoPublicoIT extends IntegracaoBase {
         assertThat(tree(get("/api/v1/ofertas?tamanho=1&pagina=9", null)).get("conteudo").size()).isZero();
     }
 
+    @Test
+    void ordenacoesDaVitrineSaoDeterministicas() throws Exception {
+        assertThat(ids(tree(get("/api/v1/ofertas?ordem=PRAZO", null)))).containsExactly(paoFrances, boloCenoura, paoDeMel, sonhoEspecial);
+        assertThat(ids(tree(get("/api/v1/ofertas?ordem=PRECO", null)))).containsExactly(paoFrances, paoDeMel, sonhoEspecial, boloCenoura);
+        // Mesmo desconto (50%): desempate pelo ID.
+        assertThat(ids(tree(get("/api/v1/ofertas?ordem=DESCONTO", null)))).containsExactly(paoFrances, boloCenoura, paoDeMel, sonhoEspecial);
+        assertThat(ids(tree(get("/api/v1/ofertas?ordem=RECENTES", null)))).containsExactly(sonhoEspecial, paoDeMel, boloCenoura, paoFrances);
+        assertThat(ids(tree(get("/api/v1/ofertas?ordem=PRECO&cidade=santos", null)))).containsExactly(paoFrances, boloCenoura);
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {"tamanho=0", "tamanho=101", "pagina=-1", "categoriaId=0", "categoriaId=abc", "estabelecimentoId=-5"})
+    @ValueSource(strings = {"ordem=QUALQUER", "ordem=preco;DROP", "tamanho=0", "tamanho=101", "pagina=-1", "categoriaId=0", "categoriaId=abc", "estabelecimentoId=-5"})
     void parametrosInvalidosRetornam400(String query) throws Exception {
         assertProblem(get("/api/v1/ofertas?" + query, null), 400);
     }

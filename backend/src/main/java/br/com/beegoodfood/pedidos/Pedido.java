@@ -2,6 +2,7 @@ package br.com.beegoodfood.pedidos;
 
 import br.com.beegoodfood.estabelecimentos.EstabelecimentoResumo;
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ class Pedido {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false, updatable = false)
     @OrderBy("id")
+    @BatchSize(size = 100) // listagens carregam os itens de varios pedidos em uma consulta
     private List<ItemPedido> itens = new ArrayList<>();
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)

@@ -30,7 +30,22 @@ public class CatalogoPublicoService {
             + " o.inicio_venda, o.venda_ate, o.retirada_ate, e.id AS estabelecimento_id, e.nome AS estabelecimento_nome,"
             + " en.logradouro, en.numero, en.complemento, en.bairro, en.cidade, en.estado, en.fuso_iana";
 
-    public record Filtros(String texto, Long categoriaId, String cidade, String bairro, Long estabelecimentoId) { }
+    public record Filtros(String texto, Long categoriaId, String cidade, String bairro, Long estabelecimentoId, Ordem ordem) {
+        public Filtros(String texto, Long categoriaId, String cidade, String bairro, Long estabelecimentoId) {
+            this(texto, categoriaId, cidade, bairro, estabelecimentoId, Ordem.PRAZO);
+        }
+    }
+
+    /** Ordenacoes da vitrine; o ID sempre desempata para paginas estaveis. */
+    public enum Ordem {
+        PRAZO("o.venda_ate ASC, o.id ASC"),
+        DESCONTO("(o.preco_original - o.preco_oferta) / o.preco_original DESC, o.id ASC"),
+        PRECO("o.preco_oferta ASC, o.id ASC"),
+        RECENTES("o.publicada_em DESC, o.id DESC");
+
+        private final String sql;
+        Ordem(String sql) { this.sql = sql; }
+    }
 
     private final NamedParameterJdbcTemplate jdbc;
     private final Clock clock;
@@ -58,9 +73,10 @@ public class CatalogoPublicoService {
         }
         long total = jdbc.queryForObject("SELECT COUNT(*)" + FROM + where, params, Long.class);
         params.addValue("limite", tamanho).addValue("deslocamento", (long) pagina * tamanho);
-        // Ordenacao deterministica: encerra antes primeiro, ID desempata.
+        // Ordenacao deterministica escolhida de uma lista fechada (nunca texto do cliente no SQL).
+        var ordem = filtros.ordem() == null ? Ordem.PRAZO : filtros.ordem();
         List<OfertaPublicaResponse> conteudo = total == 0 ? List.of()
-                : jdbc.query(COLUNAS + FROM + where + " ORDER BY o.venda_ate ASC, o.id ASC LIMIT :limite OFFSET :deslocamento",
+                : jdbc.query(COLUNAS + FROM + where + " ORDER BY " + ordem.sql + " LIMIT :limite OFFSET :deslocamento",
                 params, (rs, n) -> mapear(rs));
         int totalPaginas = (int) Math.ceil((double) total / tamanho);
         return new PaginaResponse<>(conteudo, pagina, tamanho, total, totalPaginas, pagina >= totalPaginas - 1);

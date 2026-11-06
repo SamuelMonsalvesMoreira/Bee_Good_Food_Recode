@@ -364,6 +364,8 @@ class PedidoIT extends IntegracaoBase {
         assertThat(meus.get("totalElementos").asInt()).isEqualTo(2);
         assertThat(meus.get("conteudo").get(0).get("id").asLong()).isEqualTo(segundo);
         assertThat(meus.get("conteudo").get(1).get("id").asLong()).isEqualTo(primeiro);
+        // Economia pelos snapshots: (10,00 - 5,00) x 1 em cada pedido.
+        assertThat(meus.get("conteudo").get(0).get("economia").decimalValue()).isEqualByComparingTo("5.00");
         assertThat(get("/api/v1/pedidos?status=CANCELADO", cliente.token()).body()).contains("\"totalElementos\":0");
         assertProblem(get("/api/v1/pedidos/" + deOutro, cliente.token()), 404);
         assertProblem(get("/api/v1/pedidos?status=QUALQUER", cliente.token()), 400);
