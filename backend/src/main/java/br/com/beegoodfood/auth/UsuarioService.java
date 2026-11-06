@@ -55,5 +55,9 @@ public class UsuarioService {
                 .map(UsuarioResponse::from));
     }
 
+    /** Uso interno de outros modulos (ex.: aprovacao de estabelecimento). Nunca exposto a dados do cliente. */
+    @Transactional
+    public void concederResponsavel(long usuarioId) { repository.concederPapel(usuarioId, "RESPONSAVEL"); }
+
     private String normalizar(String email) { return email.strip().toLowerCase(Locale.ROOT); }
 }

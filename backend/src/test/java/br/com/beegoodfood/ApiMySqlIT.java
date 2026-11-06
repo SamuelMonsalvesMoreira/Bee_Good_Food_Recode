@@ -59,6 +59,8 @@ class ApiMySqlIT {
     void fixtures() {
         // Banco exclusivo do runner. Nenhum seed de producao ou banco do usuario e utilizado.
         assertThat(jdbc.queryForObject("SELECT DATABASE()", String.class)).isEqualTo("bee_good_food_validacao");
+        // Outras classes IT usam o mesmo banco isolado; cada classe comeca sem dados.
+        IntegracaoBase.limparBanco(jdbc);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM categoria", Integer.class)).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM usuario", Integer.class)).isZero();
         jdbc.update("INSERT INTO categoria (id,nome,nome_normalizado,slug,ativo) VALUES "

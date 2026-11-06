@@ -21,6 +21,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -40,9 +44,47 @@ public class ApiExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, "JSON inválido", "Confira o formato e os campos permitidos.");
     }
 
+    // Somente o nome da constraint e usado; a mensagem do banco pode conter valores enviados e nunca e devolvida.
+    private static final Map<String, String> CONFLITOS = Map.of(
+            "uk_usuario_email_normalizado", "Não foi possível cadastrar com os dados informados. O e-mail pode já estar em uso.",
+            "uk_categoria_nome_normalizado", "Já existe uma categoria com esse nome.",
+            "uk_categoria_slug", "Já existe uma categoria com esse identificador.",
+            "uk_oferta_produto_ativa", "Este produto já possui uma oferta publicada ou pausada.",
+            "uk_pedido_cliente_idempotencia", "Esta chave de idempotência já foi usada em outro pedido.");
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    ProblemDetail conflito() {
-        return problem(HttpStatus.CONFLICT, "Conflito de cadastro", "Não foi possível cadastrar com os dados informados. O e-mail pode já estar em uso.");
+    ProblemDetail conflito(DataIntegrityViolationException error) {
+        String causa = String.valueOf(error.getMostSpecificCause().getMessage());
+        String detalhe = CONFLITOS.entrySet().stream().filter(e -> causa.contains(e.getKey()))
+                .map(Map.Entry::getValue).findFirst()
+                .orElse("Não foi possível salvar: os dados conflitam com um registro existente.");
+        return problem(HttpStatus.CONFLICT, "Conflito de dados", detalhe);
+    }
+
+    @ExceptionHandler(RegraNegocioException.class)
+    ProblemDetail regraNegocio(RegraNegocioException error) {
+        var body = problem(HttpStatus.valueOf(error.status()), error.titulo(), error.getMessage());
+        if (!error.campos().isEmpty()) { body.setProperty("campos", new LinkedHashMap<>(error.campos())); }
+        return body;
+    }
+
+    @ExceptionHandler({PessimisticLockingFailureException.class, CannotAcquireLockException.class})
+    ProblemDetail recursoOcupado() {
+        return problem(HttpStatus.CONFLICT, "Recurso ocupado", "Outra operação alterou este registro ao mesmo tempo. Tente novamente.");
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    ProblemDetail cabecalhoAusente(MissingRequestHeaderException error) {
+        var body = problem(HttpStatus.BAD_REQUEST, "Cabeçalho obrigatório", "Informe o cabeçalho obrigatório.");
+        body.setProperty("campos", Map.of(error.getHeaderName(), "Cabeçalho obrigatório."));
+        return body;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    ProblemDetail parametroAusente(MissingServletRequestParameterException error) {
+        var body = problem(HttpStatus.BAD_REQUEST, "Parâmetro obrigatório", "Informe os parâmetros obrigatórios.");
+        body.setProperty("campos", Map.of(error.getParameterName(), "Parâmetro obrigatório."));
+        return body;
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -74,8 +116,13 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ProblemDetail tipoInvalido(MethodArgumentTypeMismatchException error) {
-        var body = problem(HttpStatus.BAD_REQUEST, "Parâmetro inválido", "Informe um número inteiro válido.");
-        body.setProperty("campos", Map.of(error.getName(), "Informe um número inteiro válido."));
+        Class<?> tipo = error.getRequiredType();
+        String mensagem = tipo != null && java.time.temporal.Temporal.class.isAssignableFrom(tipo)
+                ? "Informe data e hora no formato AAAA-MM-DDTHH:MM."
+                : tipo != null && tipo.isEnum() ? "Valor não permitido."
+                : "Informe um número inteiro válido.";
+        var body = problem(HttpStatus.BAD_REQUEST, "Parâmetro inválido", mensagem);
+        body.setProperty("campos", Map.of(error.getName(), mensagem));
         return body;
     }
 
