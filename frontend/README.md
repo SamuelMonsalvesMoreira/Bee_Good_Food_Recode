@@ -32,14 +32,19 @@ npm run build   # gera dist/
 
 Se a interface for servida em outra origem que a API, defina `VITE_API_URL` (veja `.env.example`) no build e configure `CORS_ORIGINS` na API com a origem exata do site, por exemplo `https://bee.exemplo.com`. A API recusa curinga.
 
+## Dados de demonstração
+
+`npm run demo:popular` cria lojas, ofertas e um pedido fictícios pela API. Exige `BEE_ADMIN_EMAIL` e `BEE_ADMIN_SENHA` de um administrador (veja `../docs/deploy.md`). As senhas das contas criadas ficam em `.demo/contas.json`, fora do Git.
+
 ## Testes
 
 ```powershell
 npm test          # Vitest
 npm run typecheck # TypeScript
+npm run e2e       # Playwright no navegador (veja docs/planejamento/conclusao-etapa-7.md)
 ```
 
-Os testes cobrem as regras do carrinho (uma loja por pedido, confirmação antes de trocar, limites de estoque e de itens, nova chave de idempotência a cada mudança), a conversão de horários no fuso da loja e o fluxo de troca de loja na interface.
+Os testes no navegador (`e2e/`) percorrem os fluxos de visitante, cliente, responsável e administração contra a API real, em desktop e celular, e auditam a acessibilidade (WCAG 2.1 AA) com axe. Os testes unitários cobrem as regras do carrinho (uma loja por pedido, confirmação antes de trocar, limites de estoque e de itens, nova chave de idempotência a cada mudança), a conversão de horários no fuso da loja e o fluxo de troca de loja na interface.
 
 ## Estrutura para estudar
 

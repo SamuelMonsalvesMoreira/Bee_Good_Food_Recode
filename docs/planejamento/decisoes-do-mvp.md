@@ -36,6 +36,7 @@ Este registro torna explícitas as escolhas que orientam o banco, a API e o fron
 | DEC-028 | Carrinho guardado na aba (`sessionStorage`) | DEC-007 deixa o carrinho no frontend; como o token se perde ao recarregar, perder também o carrinho atrapalharia o cliente | O carrinho sobrevive a recarregar a página, não guarda dados pessoais nem token e é limpo no logout ou na troca de conta |
 | DEC-029 | Uma `Idempotency-Key` por tentativa de reserva | Reenviar a mesma compra (rede instável, duplo clique) não pode gerar dois pedidos | A chave é criada ao confirmar e reaproveitada até o carrinho mudar; qualquer mudança gera nova chave |
 | DEC-030 | Acompanhamento por atualização periódica | O TCC previa notificação; push ou WebSocket exigiriam infraestrutura fora do escopo | A página do pedido em andamento consulta a API a cada 30 segundos e anuncia a mudança de situação para leitores de tela |
+| DEC-031 | Cabeçalhos de proxy só por configuração explícita | Atrás de proxy, todos os clientes teriam o IP do proxy no limite de tentativas; confiar sempre em `X-Forwarded-For` permitiria forjar o IP | Padrão `none` (ignora o cabeçalho); `FORWARD_HEADERS_STRATEGY=native` com `TRUSTED_PROXIES` restrito ao proxy real conta tentativas por cliente |
 
 ## Arquitetura de contêineres
 

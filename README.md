@@ -2,7 +2,7 @@
 
 Projeto final do programa Recode Fullstack baseado no TCC [Bee Good Food](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_TCC).
 
-**Status:** Etapas 1 a 6 concluídas localmente — planejamento, banco MySQL, API Java completa do MVP e interface React integrada (busca, carrinho, reserva para retirada, painel do responsável e moderação). A validação atual tem 158 testes HTTP/MySQL e 6 unitários no backend, 14 testes no frontend e verificação dos fluxos no navegador. Próxima etapa: validação com pessoas, documentação final e apresentação.
+**Status:** Etapas 1 a 6 concluídas e parte técnica da Etapa 7 concluída localmente — API Java completa do MVP, interface React integrada, testes ponta a ponta no navegador e auditoria de acessibilidade. A validação atual tem 159 testes HTTP/MySQL e 6 unitários no backend, 14 testes unitários e 11 testes no navegador no frontend, sem violações WCAG 2.1 AA nas telas auditadas. Faltam as rodadas de validação com pessoas, o runner oficial e a apresentação.
 
 ## Sobre o projeto
 
@@ -68,7 +68,9 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [Conclusão da Etapa 4](docs/planejamento/conclusao-etapa-4.md)
 - [Conclusão da Etapa 5](docs/planejamento/conclusao-etapa-5.md)
 - [Frontend React: execução e estrutura](frontend/README.md)
-- [Conclusão da Etapa 6 e próximos passos](docs/planejamento/conclusao-etapa-6.md)
+- [Conclusão da Etapa 6](docs/planejamento/conclusao-etapa-6.md)
+- [Etapa 7: validação e entrega](docs/planejamento/conclusao-etapa-7.md)
+- [Guia de publicação](docs/deploy.md)
 
 ## Etapas
 
@@ -78,7 +80,7 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [x] Etapa 4 — cadastro adulto, autenticação JWT e perfis de acesso na API
 - [x] Etapa 5 — cadastros, catálogo, pedidos e indicadores no backend
 - [x] Etapa 6 — criação e integração do frontend ReactJS
-- [ ] Etapa 7 — testes, documentação final e apresentação
+- [ ] Etapa 7 — testes, documentação final e apresentação (parte técnica concluída; faltam validação com pessoas e apresentação)
 
 ## Protótipo original
 
