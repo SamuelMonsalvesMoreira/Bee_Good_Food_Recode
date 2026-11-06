@@ -65,5 +65,12 @@
     "Auditoria automatica nao substitui teste com leitor de tela nem com pessoas.",
     "Nenhuma publicacao em ambiente publico foi feita.",
     "Rodadas de validacao com consumidores e responsaveis ainda nao realizadas."
-  ]
+  ],
+  "java21": {
+    "comando": "mvnw -B -Pintegration verify em conteiner eclipse-temurin:21-jdk-jammy (OpenJDK 21.0.13)",
+    "testesHttpMySql": 159,
+    "testesUnitarios": 9,
+    "correcao": "Clock.tick com tique de 1 microssegundo dividia por zero em millis() no Java 21 e quebrava cadastro e login; substituido por RelogioMicrossegundos com teste de regressao",
+    "imagemDocker": "backend/Dockerfile testada: health UP, migrations V1/V2, cadastro 201, login 200, 429 na 21a tentativa do mesmo cliente atras de proxy"
+  }
 }

@@ -10,6 +10,8 @@ Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localm
 | Acessibilidade | Auditoria axe (WCAG 2.1 A/AA) em 12 telas, sem violações. Corrigido o nome acessível do link do carrinho. |
 | Dados de demonstração | `npm run demo:popular` cria lojas, ofertas e um pedido fictícios pela API, com senhas aleatórias gravadas fora do Git. |
 | Preparo de deploy | Contagem de tentativas por cliente real atrás de proxy (`FORWARD_HEADERS_STRATEGY`, `TRUSTED_PROXIES`, DEC-031) e [guia de publicação](../deploy.md). |
+| Compatibilidade com Java 21 | O relógio de microssegundos dividia por zero no Java 21 (a versão mínima), quebrando cadastro e login fora da máquina de desenvolvimento, que usa Java 25. Corrigido com teste de regressão; a suíte completa passou no Java 21 (159 HTTP/MySQL + 9 unitários). |
+| Publicação | `backend/Dockerfile`, `render.yaml` e `frontend/vercel.json`, com [passo a passo gratuito](../deploy.md#publicação-gratuita-vercel-render-e-aiven) (Vercel, Render e Aiven). Imagem testada localmente. |
 | Robustez da interface | Tela "Algo deu errado" no lugar de página em branco; aviso claro quando a API não responde. Também corrigido o contexto de sessão, que quebrava com o recarregamento automático do servidor de desenvolvimento. |
 
 ## Validação executada
