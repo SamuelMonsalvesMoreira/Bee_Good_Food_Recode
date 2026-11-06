@@ -27,7 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Bean Clock clock() { return Clock.systemUTC(); }
+    // Precisao de microssegundos, igual a DATETIME(6): o valor respondido e o mesmo gravado no MySQL.
+    @Bean Clock clock() { return Clock.tick(Clock.systemUTC(), Duration.ofNanos(1000)); }
     @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }
 
     @Bean
@@ -74,6 +75,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/cadastro", "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias", "/api/v1/categorias/*",
+                                "/api/v1/ofertas", "/api/v1/ofertas/*",
                                 "/actuator/health", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMINISTRADOR")
                         .anyRequest().authenticated())

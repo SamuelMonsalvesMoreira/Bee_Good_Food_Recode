@@ -20,6 +20,10 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        # LocalDateTime ja esta em UTC: enviar direto ao driver, sem converter pelo fuso da JVM.
+        # Sem isso o Hibernate gravava o horario deslocado pelo fuso local (ex.: +3h em Sao Paulo).
+        type:
+          java_time_use_direct_jdbc: true
   flyway:
     locations: classpath:db/migration
     clean-disabled: true

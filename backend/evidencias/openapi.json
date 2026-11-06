@@ -2,16 +2,1012 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Bee Good Food API",
-    "description": "Categorias públicas, cadastro de cliente adulto e autenticação JWT. Pedidos ainda não implementados.",
+    "description": "Bee Good Food: ofertas de excedentes para retirada no estabelecimento. Cadastro adulto e JWT, estabelecimentos com moderação, catálogo, busca pública, pedidos idempotentes e indicadores. Pagamento apenas declarado; datas em UTC, apresentadas no fuso do estabelecimento.",
     "version": "v1"
   },
   "tags": [
+    {
+      "name": "Estabelecimentos",
+      "description": "Solicitação e manutenção do estabelecimento pelo proprietário"
+    },
+    {
+      "name": "Gestão do catálogo",
+      "description": "Produtos e ofertas do estabelecimento do responsável autenticado"
+    },
+    {
+      "name": "Pedidos",
+      "description": "Pedido para retirada, acompanhamento, status e cancelamento"
+    },
+    {
+      "name": "Indicadores",
+      "description": "Vendas e aproveitamento de um estabelecimento do responsável"
+    },
+    {
+      "name": "Moderação",
+      "description": "Aprovação, rejeição, suspensão e reativação de estabelecimentos"
+    },
+    {
+      "name": "Catálogo público",
+      "description": "Ofertas compráveis agora, sem autenticação"
+    },
+    {
+      "name": "Categorias (administração)",
+      "description": "Categorias globais; somente administrador altera"
+    },
     {
       "name": "Categorias",
       "description": "Consulta de categorias ativas do catálogo"
     }
   ],
   "paths": {
+    "/api/v1/produtos/{id}": {
+      "get": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Consultar produto próprio",
+        "operationId": "produto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Editar ou desativar produto",
+        "description": "Pedidos existentes preservam o nome registrado.",
+        "operationId": "atualizarProduto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProdutoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}": {
+      "get": {
+        "tags": [
+          "Catálogo público"
+        ],
+        "summary": "Detalhe de oferta comprável",
+        "description": "Oferta indisponível, expirada ou inexistente retorna 404.",
+        "operationId": "detalhe",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaPublicaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Editar oferta em rascunho",
+        "description": "Após a publicação, preço e prazos são imutáveis.",
+        "operationId": "editar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfertaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/{id}": {
+      "get": {
+        "tags": [
+          "Estabelecimentos"
+        ],
+        "summary": "Consultar estabelecimento (proprietário ou administrador)",
+        "operationId": "detalhe_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Estabelecimentos"
+        ],
+        "summary": "Editar estabelecimento",
+        "description": "Rejeitado volta para análise ao ser corrigido. Ativo com novo endereço ou fuso volta para análise. Suspenso não pode ser editado.",
+        "operationId": "atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstabelecimentoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/categorias/{id}": {
+      "put": {
+        "tags": [
+          "Categorias (administração)"
+        ],
+        "summary": "Editar ou desativar categoria",
+        "description": "Não existe exclusão física; desativar preserva o histórico.",
+        "operationId": "atualizar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriaAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/produtos/{produtoId}/ofertas": {
+      "get": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Listar ofertas do produto (mais recentes primeiro)",
+        "operationId": "listarOfertas",
+        "parameters": [
+          {
+            "name": "produtoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseOfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Criar oferta em rascunho",
+        "description": "Exige estabelecimento ativo, inicioVenda < vendaAte <= retiradaAte e fim da venda futuro.",
+        "operationId": "criarOferta",
+        "parameters": [
+          {
+            "name": "produtoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfertaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pedidos": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Histórico de pedidos do cliente (mais recentes primeiro)",
+        "operationId": "meus",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDENTE",
+                "CONFIRMADO",
+                "EM_PREPARO",
+                "PRONTO_PARA_RETIRADA",
+                "CONCLUIDO",
+                "CANCELADO"
+              ]
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponsePedidoResumoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Criar pedido (idempotente)",
+        "description": "Cabeçalho Idempotency-Key obrigatório (8 a 120 caracteres: letras, números, '-' e '_'). Repetir a mesma chave com o mesmo conteúdo devolve o pedido original (200) sem nova baixa de estoque; com conteúdo diferente, 409. Preços e total são sempre calculados pelo servidor.",
+        "operationId": "criar",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "[A-Za-z0-9_-]{8,120}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pedidos/{id}/status": {
+      "post": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Avançar status (responsável)",
+        "description": "PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO, uma etapa por vez.",
+        "operationId": "avancar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pedidos/{id}/cancelar": {
+      "post": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Cancelar pedido",
+        "description": "Cliente: somente PENDENTE. Responsável: qualquer estado não final, com motivo. Repetir o cancelamento não devolve estoque novamente.",
+        "operationId": "cancelar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelamentoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}/retomar": {
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Retomar (PAUSADA → PUBLICADA)",
+        "operationId": "retomar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}/publicar": {
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Publicar (RASCUNHO → PUBLICADA)",
+        "description": "No máximo uma oferta publicada ou pausada por produto (409).",
+        "operationId": "publicar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}/pausar": {
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Pausar (PUBLICADA → PAUSADA)",
+        "operationId": "pausar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}/estoque": {
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Ajustar estoque (relativo)",
+        "description": "Soma o ajuste ao saldo atual sem sobrescrever vendas concorrentes. Nunca fica negativo.",
+        "operationId": "ajustarEstoque",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AjusteEstoqueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas/{id}/encerrar": {
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Encerrar (estado final)",
+        "operationId": "encerrar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos": {
+      "post": {
+        "tags": [
+          "Estabelecimentos"
+        ],
+        "summary": "Solicitar cadastro de estabelecimento",
+        "description": "Nasce em PENDENTE_ANALISE, vinculado ao usuário autenticado. Fuso IANA padrão: America/Sao_Paulo.",
+        "operationId": "solicitar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstabelecimentoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/{estabelecimentoId}/produtos": {
+      "get": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Listar produtos do estabelecimento, inclusive desativados",
+        "operationId": "listarProdutos",
+        "parameters": [
+          {
+            "name": "estabelecimentoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseProdutoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Cadastrar produto",
+        "description": "Categoria precisa estar ativa.",
+        "operationId": "criarProduto",
+        "parameters": [
+          {
+            "name": "estabelecimentoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProdutoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "tags": [
@@ -76,6 +1072,691 @@
         }
       }
     },
+    "/api/v1/admin/estabelecimentos/{id}/suspender": {
+      "post": {
+        "tags": [
+          "Moderação"
+        ],
+        "summary": "Suspender (ATIVO → SUSPENSO)",
+        "description": "Bloqueia novas ofertas e pedidos; pedidos existentes continuam tratáveis.",
+        "operationId": "suspender",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeracaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/estabelecimentos/{id}/rejeitar": {
+      "post": {
+        "tags": [
+          "Moderação"
+        ],
+        "summary": "Rejeitar (PENDENTE_ANALISE → REJEITADO)",
+        "operationId": "rejeitar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeracaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/estabelecimentos/{id}/reativar": {
+      "post": {
+        "tags": [
+          "Moderação"
+        ],
+        "summary": "Reativar (SUSPENSO → ATIVO)",
+        "operationId": "reativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeracaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/estabelecimentos/{id}/aprovar": {
+      "post": {
+        "tags": [
+          "Moderação"
+        ],
+        "summary": "Aprovar (PENDENTE_ANALISE → ATIVO)",
+        "description": "Concede o papel RESPONSAVEL, preservando CLIENTE.",
+        "operationId": "aprovar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeracaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/categorias": {
+      "get": {
+        "tags": [
+          "Categorias (administração)"
+        ],
+        "summary": "Listar todas as categorias, inclusive inativas",
+        "operationId": "listar",
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseCategoriaAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Categorias (administração)"
+        ],
+        "summary": "Criar categoria",
+        "description": "Slug gerado a partir do nome. Nome normalizado e slug são únicos (409).",
+        "operationId": "criar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriaAdminResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/pedidos/{id}": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Detalhe do pedido",
+        "description": "Cliente do pedido ou responsável do estabelecimento; terceiros recebem 404.",
+        "operationId": "detalhe_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ofertas": {
+      "get": {
+        "tags": [
+          "Catálogo público"
+        ],
+        "summary": "Buscar ofertas compráveis",
+        "description": "Filtros combinados (E): texto (produto, descrição ou estabelecimento), categoria, cidade, bairro e estabelecimento. Cidade e bairro ignoram maiúsculas e acentos. Ordenação: fim da venda e ID. Tamanho padrão 20 (1 a 100).",
+        "operationId": "buscar",
+        "parameters": [
+          {
+            "name": "texto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "categoriaId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "cidade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "bairro",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "estabelecimentoId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseOfertaPublicaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/gestao/ofertas/{id}": {
+      "get": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Consultar oferta própria em qualquer estado",
+        "operationId": "oferta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/{id}/historico": {
+      "get": {
+        "tags": [
+          "Estabelecimentos"
+        ],
+        "summary": "Histórico de moderação (proprietário ou administrador)",
+        "operationId": "historico",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HistoricoEstabelecimentoResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/{estabelecimentoId}/pedidos": {
+      "get": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Pedidos do estabelecimento (mais antigos primeiro)",
+        "description": "Filtro opcional por status.",
+        "operationId": "doEstabelecimento",
+        "parameters": [
+          {
+            "name": "estabelecimentoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDENTE",
+                "CONFIRMADO",
+                "EM_PREPARO",
+                "PRONTO_PARA_RETIRADA",
+                "CONCLUIDO",
+                "CANCELADO"
+              ]
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponsePedidoResumoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/{estabelecimentoId}/indicadores": {
+      "get": {
+        "tags": [
+          "Indicadores"
+        ],
+        "summary": "Indicadores do período [inicio, fim)",
+        "description": "inicio e fim em data e hora local do estabelecimento (AAAA-MM-DDTHH:MM). fim omitido = agora; fim não pode estar no futuro. Volume usa concluidoEm; taxas usam a coorte de pedidos criados no período. Taxa null = N/A (sem pedidos no período).",
+        "operationId": "calcular",
+        "parameters": [
+          {
+            "name": "estabelecimentoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "inicio",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndicadoresResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/estabelecimentos/meus": {
+      "get": {
+        "tags": [
+          "Estabelecimentos"
+        ],
+        "summary": "Listar meus estabelecimentos",
+        "operationId": "meus_1",
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseEstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/categorias": {
       "get": {
         "tags": [
@@ -83,7 +1764,7 @@
         ],
         "summary": "Listar categorias ativas",
         "description": "Página começa em zero; tamanho entre 1 e 100. Ordenação por nome e ID.",
-        "operationId": "listar",
+        "operationId": "listar_1",
         "parameters": [
           {
             "name": "pagina",
@@ -130,7 +1811,7 @@
           "Categorias"
         ],
         "summary": "Consultar categoria ativa pelo ID",
-        "operationId": "buscar",
+        "operationId": "buscar_1",
         "parameters": [
           {
             "name": "id",
@@ -190,7 +1871,7 @@
         ],
         "summary": "Listar usuários (administrador)",
         "description": "Somente campos do cadastro e papéis; nunca senha, hash ou token.",
-        "operationId": "listar_1",
+        "operationId": "listar_2",
         "parameters": [
           {
             "name": "pagina",
@@ -235,10 +1916,602 @@
           }
         ]
       }
+    },
+    "/api/v1/admin/estabelecimentos": {
+      "get": {
+        "tags": [
+          "Moderação"
+        ],
+        "summary": "Listar estabelecimentos para moderação",
+        "description": "Filtro opcional por status.",
+        "operationId": "listar_3",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDENTE_ANALISE",
+                "ATIVO",
+                "REJEITADO",
+                "SUSPENSO"
+              ]
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseEstabelecimentoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "ProdutoRequest": {
+        "type": "object",
+        "properties": {
+          "categoriaId": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "descricao": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "categoriaId",
+          "nome"
+        ]
+      },
+      "ProdutoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "estabelecimentoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoriaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OfertaRequest": {
+        "type": "object",
+        "properties": {
+          "precoOriginal": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "precoOferta": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "estoque": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": 0
+          },
+          "inicioVenda": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vendaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retiradaAte": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "estoque",
+          "inicioVenda",
+          "precoOferta",
+          "precoOriginal",
+          "retiradaAte",
+          "vendaAte"
+        ]
+      },
+      "OfertaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "produtoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precoOriginal": {
+            "type": "number"
+          },
+          "precoOferta": {
+            "type": "number"
+          },
+          "estoqueDisponivel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inicioVenda": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vendaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retiradaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RASCUNHO",
+              "PUBLICADA",
+              "PAUSADA",
+              "ENCERRADA"
+            ]
+          },
+          "publicadaEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "encerradaEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EnderecoRequest": {
+        "type": "object",
+        "properties": {
+          "logradouro": {
+            "type": "string",
+            "maxLength": 180,
+            "minLength": 0
+          },
+          "numero": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 0
+          },
+          "complemento": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 0
+          },
+          "bairro": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "cidade": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "estado": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Za-z]{2}"
+          },
+          "cep": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[0-9]{5}-?[0-9]{3}"
+          },
+          "fusoIana": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "bairro",
+          "cep",
+          "cidade",
+          "estado",
+          "logradouro",
+          "numero"
+        ]
+      },
+      "EstabelecimentoRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "descricao": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "endereco": {
+            "$ref": "#/components/schemas/EnderecoRequest"
+          }
+        },
+        "required": [
+          "endereco",
+          "nome"
+        ]
+      },
+      "Endereco": {
+        "type": "object",
+        "properties": {
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          },
+          "fusoIana": {
+            "type": "string"
+          }
+        }
+      },
+      "EstabelecimentoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "responsavelId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE_ANALISE",
+              "ATIVO",
+              "REJEITADO",
+              "SUSPENSO"
+            ]
+          },
+          "endereco": {
+            "$ref": "#/components/schemas/Endereco"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CategoriaAdminRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "CategoriaAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "ofertaId": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "ofertaId",
+          "quantidade"
+        ]
+      },
+      "PedidoRequest": {
+        "type": "object",
+        "properties": {
+          "formaPagamento": {
+            "type": "string",
+            "enum": [
+              "PIX",
+              "DINHEIRO",
+              "CARTAO_NA_RETIRADA"
+            ]
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "maxItems": 20,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "formaPagamento",
+          "itens"
+        ]
+      },
+      "Estabelecimento": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          },
+          "fusoIana": {
+            "type": "string"
+          }
+        }
+      },
+      "Historico": {
+        "type": "object",
+        "properties": {
+          "statusAnterior": {
+            "type": "string"
+          },
+          "statusNovo": {
+            "type": "string"
+          },
+          "atorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PedidoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "estabelecimentoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE",
+              "CONFIRMADO",
+              "EM_PREPARO",
+              "PRONTO_PARA_RETIRADA",
+              "CONCLUIDO",
+              "CANCELADO"
+            ]
+          },
+          "formaPagamento": {
+            "type": "string",
+            "enum": [
+              "PIX",
+              "DINHEIRO",
+              "CARTAO_NA_RETIRADA"
+            ]
+          },
+          "total": {
+            "type": "number"
+          },
+          "estabelecimento": {
+            "$ref": "#/components/schemas/Estabelecimento"
+          },
+          "retiradaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "concluidoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Historico"
+            }
+          }
+        }
+      },
+      "StatusRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE",
+              "CONFIRMADO",
+              "EM_PREPARO",
+              "PRONTO_PARA_RETIRADA",
+              "CONCLUIDO",
+              "CANCELADO"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CancelamentoRequest": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        }
+      },
+      "AjusteEstoqueRequest": {
+        "type": "object",
+        "properties": {
+          "ajuste": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": -100000
+          }
+        },
+        "required": [
+          "ajuste"
+        ]
+      },
       "LoginRequest": {
         "type": "object",
         "properties": {
@@ -331,6 +2604,398 @@
           "senha"
         ]
       },
+      "ModeracaoRequest": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "motivo"
+        ]
+      },
+      "PaginaResponseOfertaResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfertaResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginaResponsePedidoResumoResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PedidoResumoResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PedidoResumoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "estabelecimentoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "estabelecimentoNome": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE",
+              "CONFIRMADO",
+              "EM_PREPARO",
+              "PRONTO_PARA_RETIRADA",
+              "CONCLUIDO",
+              "CANCELADO"
+            ]
+          },
+          "formaPagamento": {
+            "type": "string",
+            "enum": [
+              "PIX",
+              "DINHEIRO",
+              "CARTAO_NA_RETIRADA"
+            ]
+          },
+          "total": {
+            "type": "number"
+          },
+          "retiradaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fusoIana": {
+            "type": "string"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Categoria": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "OfertaPublicaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "produtoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "produtoNome": {
+            "type": "string"
+          },
+          "produtoDescricao": {
+            "type": "string"
+          },
+          "categoria": {
+            "$ref": "#/components/schemas/Categoria"
+          },
+          "precoOriginal": {
+            "type": "number"
+          },
+          "precoOferta": {
+            "type": "number"
+          },
+          "estoqueDisponivel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inicioVenda": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vendaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retiradaAte": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estabelecimento": {
+            "$ref": "#/components/schemas/Estabelecimento"
+          }
+        }
+      },
+      "PaginaResponseOfertaPublicaResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfertaPublicaResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HistoricoEstabelecimentoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "statusAnterior": {
+            "type": "string"
+          },
+          "statusNovo": {
+            "type": "string"
+          },
+          "atorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaginaResponseProdutoResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProdutoResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Coorte": {
+        "type": "object",
+        "properties": {
+          "pedidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "concluidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cancelados": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "emAndamento": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "taxaConclusao": {
+            "type": "number"
+          },
+          "taxaCancelamento": {
+            "type": "number"
+          }
+        }
+      },
+      "IndicadoresResponse": {
+        "type": "object",
+        "properties": {
+          "estabelecimentoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fusoIana": {
+            "type": "string"
+          },
+          "periodo": {
+            "$ref": "#/components/schemas/Periodo"
+          },
+          "consultadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pedidosConcluidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "valorMovimentado": {
+            "type": "number"
+          },
+          "itensComercializados": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "economiaEstimada": {
+            "type": "number"
+          },
+          "estabelecimentoComAtividade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "coorte": {
+            "$ref": "#/components/schemas/Coorte"
+          }
+        }
+      },
+      "Periodo": {
+        "type": "object",
+        "properties": {
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inicioLocal": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fimLocal": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaginaResponseEstabelecimentoResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstabelecimentoResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
       "CategoriaResponse": {
         "type": "object",
         "properties": {
@@ -383,6 +3048,36 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UsuarioResponse"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginaResponseCategoriaAdminResponse": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoriaAdminResponse"
             }
           },
           "pagina": {

@@ -123,8 +123,12 @@ try {
                 } catch { Start-Sleep -Milliseconds 500 }
             }
             if (-not $ready) { throw 'API nao ficou pronta no prazo.' }
+            # Varias classes IT gravam no mesmo banco; o que importa e a mesma contagem antes e depois do reinicio.
             $categories = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/categorias" -TimeoutSec 5
-            if ($categories.totalElementos -ne 2) { throw 'Categorias nao preservadas na reinicializacao.' }
+            $offers = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/ofertas" -TimeoutSec 5
+            if ($null -eq $offers.totalElementos) { throw 'Catalogo publico de ofertas indisponivel no JAR.' }
+            if ($run -eq 1) { $categoryCount = $categories.totalElementos }
+            elseif ($categories.totalElementos -ne $categoryCount) { throw 'Categorias nao preservadas na reinicializacao.' }
             if ($run -eq 1) {
                 $signupBody = @{nome='Cliente de teste do JAR'; email=$jarEmail; senha=$jarPassword; maiorDeIdade=$true} | ConvertTo-Json
                 $created = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api/v1/auth/cadastro" -Method Post -ContentType 'application/json' -Body $signupBody -TimeoutSec 10
@@ -167,7 +171,8 @@ try {
         empacotamento='Somente migrations no JAR; sem seeds ou testes'
         reinicializacoes=$restarts
         segurancaJar=@('Cadastro restrito a CLIENTE', 'JWT de 900 segundos', 'Conta e sessao persistidas entre reinicios com mesma chave', 'HTTP 429 na tentativa 21 com Retry-After')
-        limites=@('Catalogo somente de leitura; cadastro/login e consulta de perfil implementados.', 'Pedidos e autorizacao por estabelecimento ainda nao implementados.', 'Limite de tentativas local; nao valida deploy publico ou multiplas instancias.')
+        suitesHttpMySql=@($reports | ForEach-Object { $_.BaseName -replace '^TEST-br\.com\.beegoodfood\.', '' })
+        limites=@('Etapa 5 no backend: estabelecimentos, moderacao, catalogo, busca, pedidos e indicadores.', 'Frontend React ainda nao implementado (Etapa 6).', 'Concorrencia validada em uma unica instancia local; nao comprova desempenho nem deploy publico.', 'Limite de tentativas local; nao valida deploy publico ou multiplas instancias.')
     }
     [IO.File]::WriteAllText((Join-Path $evidenceDir 'ultima-validacao.json'), ($report | ConvertTo-Json -Depth 6) + "`n", $utf8)
     Write-Host "API VALIDADA: $total testes HTTP/MySQL, empacotamento e duas inicializacoes do JAR."

@@ -1,6 +1,6 @@
 # Bee Good Food — API Java
 
-Base da Etapa 3 com autenticação da Etapa 4: Spring Boot, MySQL, Flyway, Spring Security e OpenAPI. Categorias continuam públicas e somente de leitura. Cadastro de cliente adulto, login e consulta de perfil estão implementados. Escrita do catálogo e pedidos entram na Etapa 5.
+API REST do MVP: Spring Boot, MySQL, Flyway, Spring Security e OpenAPI. Etapas 3 a 5 implementadas: cadastro adulto e JWT, estabelecimentos com moderação, categorias, produtos e ofertas, busca pública, pedidos idempotentes para retirada e indicadores. O frontend React entra na Etapa 6.
 
 ## Tecnologias
 
@@ -19,12 +19,15 @@ Referências de compatibilidade: [Spring Boot](https://docs.spring.io/spring-boo
 src/main/java/br/com/beegoodfood/
 ├── BeeGoodFoodApplication.java   # Inicialização da aplicação
 ├── auth/                        # Cadastro, login, usuários, tokens e limite de tentativas
-├── catalogo/                    # Controller, service, repository, entidade e DTO
-├── comum/                       # Paginação e erros JSON
-└── config/                      # Informações do OpenAPI
+├── estabelecimentos/            # Solicitação, edição pelo proprietário e moderação com histórico
+├── catalogo/                    # Categorias, produtos, ofertas, busca pública e contrato de estoque
+├── pedidos/                     # Pedido transacional, idempotência, status e cancelamento
+├── indicadores/                 # Métricas por período e coorte
+├── comum/                       # Paginação, datas UTC, regras de negócio e erros JSON
+└── config/                      # Segurança, relógio e OpenAPI
 ```
 
-O controller recebe a chamada HTTP; o service organiza a consulta; o repository lê o MySQL. A resposta usa um DTO, expondo apenas os campos públicos. O Hibernate valida o mapeamento; somente o Flyway cria ou altera o esquema.
+O controller recebe a chamada HTTP; o service aplica regras, propriedade e transações; o repository lê o MySQL. A resposta usa um DTO (`record`), expondo apenas os campos necessários. Um módulo usa outro somente por serviços e records públicos. Consultas que cruzam módulos, como a busca, a venda e os indicadores, usam SQL explícito com `NamedParameterJdbcTemplate`. O Hibernate valida o mapeamento; somente o Flyway cria ou altera o esquema.
 
 ## Verificação completa sem configurar seu banco habitual
 
@@ -80,6 +83,20 @@ Por padrão, o servidor escuta em `127.0.0.1:8080`. `SERVER_PORT` permite trocar
 | `POST /api/v1/auth/login` | Retorna JWT Bearer de 15 minutos |
 | `GET /api/v1/auth/me` | Perfil da conta autenticada, sem senha/hash |
 | `GET /api/v1/admin/usuarios` | Consulta paginada exclusiva de ADMINISTRADOR |
+| `POST /api/v1/estabelecimentos` | Cliente solicita estabelecimento (nasce em `PENDENTE_ANALISE`) |
+| `GET /api/v1/estabelecimentos/meus` · `GET/PUT /{id}` · `GET /{id}/historico` | Proprietário (ou administrador) consulta, edita e vê o histórico |
+| `GET /api/v1/admin/estabelecimentos?status=` | Fila de moderação |
+| `POST /api/v1/admin/estabelecimentos/{id}/aprovar\|rejeitar\|suspender\|reativar` | Decisão com motivo; aprovar concede RESPONSAVEL |
+| `GET/POST /api/v1/admin/categorias` · `PUT /{id}` | Administração de categorias (sem exclusão física) |
+| `POST/GET /api/v1/estabelecimentos/{id}/produtos` · `GET/PUT /api/v1/produtos/{id}` | Produtos do responsável |
+| `POST/GET /api/v1/produtos/{id}/ofertas` · `PUT /api/v1/ofertas/{id}` · `GET /api/v1/gestao/ofertas/{id}` | Ofertas (edição só em rascunho) |
+| `POST /api/v1/ofertas/{id}/publicar\|pausar\|retomar\|encerrar` · `POST /{id}/estoque` | Ciclo da oferta e ajuste relativo de estoque |
+| `GET /api/v1/ofertas?texto=&categoriaId=&cidade=&bairro=&estabelecimentoId=` · `GET /{id}` | Busca pública de ofertas compráveis agora |
+| `POST /api/v1/pedidos` (cabeçalho `Idempotency-Key`) | Cria pedido; repetição equivalente devolve o original (200) |
+| `GET /api/v1/pedidos` · `GET /{id}` | Histórico e detalhe (cliente ou responsável) |
+| `GET /api/v1/estabelecimentos/{id}/pedidos?status=` | Fila de pedidos do estabelecimento |
+| `POST /api/v1/pedidos/{id}/status` · `POST /{id}/cancelar` | Avanço uma etapa por vez; cancelamento com devolução única |
+| `GET /api/v1/estabelecimentos/{id}/indicadores?inicio=&fim=` | Indicadores de `[inicio, fim)` no fuso do estabelecimento |
 | `GET /v3/api-docs` | Contrato OpenAPI JSON |
 | `GET /swagger-ui/index.html` | Tela interativa de documentação |
 
@@ -89,21 +106,39 @@ Um banco novo possui os papéis CLIENTE, RESPONSAVEL e ADMINISTRADOR, mas não p
 
 ## Migrations: fonte única
 
-O Maven inclui `../database/migrations/V1__criar_schema_inicial.sql` e `V2__cadastrar_papeis.sql` dentro do JAR em `db/migration`. Não há cópias manuais no código Java. Seeds e testes não são empacotados.
+O Maven inclui `../database/migrations/V1__criar_schema_inicial.sql` e `V2__cadastrar_papeis.sql` dentro do JAR em `db/migration`. A Etapa 5 não precisou de novas migrations. Não há cópias manuais no código Java. Seeds e testes não são empacotados.
 
 Não execute V1/V2 manualmente antes do primeiro uso do Flyway. Ele registra as versões em `flyway_schema_history` e recusa um schema preenchido sem histórico. O banco de estudo montado manualmente na Etapa 2 continua separado; não habilite `baseline-on-migrate` para esconder essa diferença.
 
 ## Formato dos erros
 
-Erros usam `application/problem+json`, com `status`, `title` e `detail`. Parâmetros/campos inválidos também têm `campos`, identificando o que corrigir. A API não devolve stack trace, SQL ou credenciais. Exemplos: `tamanho=101` retorna 400; categoria inativa, 404; conta duplicada, 409; falta de autenticação, 401; falta de permissão, 403; excesso de tentativas, 429. POST de categoria não está implementado: retorna 401 sem token e 405 para usuário autenticado.
+Erros usam `application/problem+json`, com `status`, `title` e `detail`. Parâmetros/campos inválidos também têm `campos`, identificando o que corrigir. A API não devolve stack trace, SQL ou credenciais. Exemplos: `tamanho=101` retorna 400; categoria inativa, 404; conta duplicada, 409; falta de autenticação, 401; falta de permissão, 403; excesso de tentativas, 429. Recurso de outro usuário (estabelecimento, produto, oferta, pedido) retorna 404, sem revelar que existe. Regras de estado, como transição proibida, estoque insuficiente ou oferta já ativa, retornam 409 com uma mensagem explicativa. A administração de categorias fica em `/api/v1/admin/categorias`; `POST /api/v1/categorias` continua 405.
 
 Veja [autenticação: decisões, exemplos e administração local](../docs/planejamento/autenticacao.md).
 
+## Validação alternativa com Docker
+
+O runner oficial exige PowerShell 7. Sem ele, use um MySQL 8 descartável no Docker, ligado apenas ao loopback, com um schema **novo** chamado `bee_good_food_validacao`. No PowerShell:
+
+```powershell
+$senha = [guid]::NewGuid().ToString('N')   # senha de teste, só neste terminal
+docker run -d --name bee-mysql-test -p 127.0.0.1:33099:3306 -e MYSQL_ROOT_PASSWORD=$senha mysql:8.0
+# aguarde o MySQL iniciar e crie o schema vazio de validacao
+docker exec -e MYSQL_PWD=$senha bee-mysql-test mysql -uroot -e "CREATE DATABASE bee_good_food_validacao CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+$env:BEE_TEST_MYSQL_URL = 'jdbc:mysql://127.0.0.1:33099/bee_good_food_validacao?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true'
+$env:BEE_TEST_MYSQL_USER = 'root'; $env:BEE_TEST_MYSQL_PASSWORD = $senha
+$env:DB_URL = $env:BEE_TEST_MYSQL_URL; $env:DB_USER = 'root'; $env:DB_PASSWORD = $senha
+$jwtBytes = [byte[]]::new(32); [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($jwtBytes)
+$env:JWT_SECRET_BASE64 = [Convert]::ToBase64String($jwtBytes)
+.\mvnw.cmd -B -Pintegration clean verify
+docker rm -f bee-mysql-test   # descarta o banco de teste
+```
+
+Cada classe IT limpa o schema de validação antes de começar e recusa qualquer outro banco. O resultado da Etapa 5 está em [`evidencias/validacao-etapa-5.json`](evidencias/validacao-etapa-5.json).
+
 ## O que ainda falta
 
-- Cadastro e moderação de estabelecimentos, escrita do catálogo, ofertas e pedidos: Etapa 5.
-- Autorização por propriedade de cada estabelecimento e pedido será implementada com seus endpoints na Etapa 5; o papel sozinho não basta.
-- Frontend React, incluindo configuração de CORS para suas origens: Etapa 6.
-- Testes de pedidos/estoque através da API serão adicionados junto com essas funcionalidades.
+- Frontend React, incluindo configuração de CORS para origens explícitas: Etapa 6.
+- Executar o runner oficial com PowerShell 7 e registrar `ultima-validacao.json`: Etapa 7.
 - Recuperação de senha por e-mail e refresh token ficam fora do MVP atual, conforme as decisões do projeto.
-- Antes de exposição pública: HTTPS, configuração de origens, armazenamento/rotação de segredos e proteção contra abuso adequada ao ambiente.
+- Antes de exposição pública: HTTPS, configuração de origens, proxy reverso (`AuthRateLimitFilter` usa o IP da conexão), armazenamento/rotação de segredos e proteção contra abuso adequada ao ambiente.
