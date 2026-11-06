@@ -46,7 +46,8 @@ abstract class IntegracaoBase {
         registry.add("spring.datasource.url", () -> url);
         registry.add("spring.datasource.username", () -> System.getenv("BEE_TEST_MYSQL_USER"));
         registry.add("spring.datasource.password", () -> System.getenv("BEE_TEST_MYSQL_PASSWORD"));
-        registry.add("bee.security.auth-requests-per-minute", () -> 300);
+        // Contexto compartilhado pelas classes da Etapa 5; o limite real tem teste proprio.
+        registry.add("bee.security.auth-requests-per-minute", () -> 5000);
     }
 
     /** Cada classe comeca do zero. Recusa qualquer banco que nao seja o de validacao. */
@@ -110,6 +111,53 @@ abstract class IntegracaoBase {
         var aprovado = send("POST", "/api/v1/admin/estabelecimentos/" + id + "/aprovar", admin.token(), Map.of("motivo", "Documentação conferida"));
         assertThat(aprovado.statusCode()).as(aprovado.body()).isEqualTo(200);
         return id;
+    }
+
+    long categoria(Conta admin, String nome) throws Exception {
+        var response = send("POST", "/api/v1/admin/categorias", admin.token(), Map.of("nome", nome));
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
+        return tree(response).get("id").asLong();
+    }
+
+    long produto(Conta dono, long estabelecimentoId, long categoriaId, String nome) throws Exception {
+        var response = send("POST", "/api/v1/estabelecimentos/" + estabelecimentoId + "/produtos", dono.token(),
+                Map.of("categoriaId", categoriaId, "nome", nome, "descricao", "Produzido hoje"));
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
+        return tree(response).get("id").asLong();
+    }
+
+    /** Venda iniciada 1h atras; termina e permite retirada nas horas informadas a partir de agora. */
+    Map<String, Object> oferta(String original, String preco, int estoque, int vendaAteHoras, int retiradaAteHoras) {
+        var agora = java.time.OffsetDateTime.now(java.time.ZoneOffset.ofHours(-3));
+        var body = new LinkedHashMap<String, Object>();
+        body.put("precoOriginal", new java.math.BigDecimal(original));
+        body.put("precoOferta", new java.math.BigDecimal(preco));
+        body.put("estoque", estoque);
+        body.put("inicioVenda", agora.minusHours(1).toString());
+        body.put("vendaAte", agora.plusHours(vendaAteHoras).toString());
+        body.put("retiradaAte", agora.plusHours(retiradaAteHoras).toString());
+        return body;
+    }
+
+    long rascunho(Conta dono, long produtoId, Map<String, Object> oferta) throws Exception {
+        var response = send("POST", "/api/v1/produtos/" + produtoId + "/ofertas", dono.token(), oferta);
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
+        return tree(response).get("id").asLong();
+    }
+
+    long ofertaPublicada(Conta dono, long produtoId, Map<String, Object> oferta) throws Exception {
+        long id = rascunho(dono, produtoId, oferta);
+        var response = send("POST", "/api/v1/ofertas/" + id + "/publicar", dono.token(), null);
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(200);
+        return id;
+    }
+
+    /** Responsavel com estabelecimento ativo e conta renovada (token continua valido; papeis vem do banco). */
+    record Loja(Conta dono, long estabelecimentoId) { }
+
+    Loja loja(Conta admin, String nome, String cidade, String bairro) throws Exception {
+        var dono = conta();
+        return new Loja(dono, estabelecimentoAtivo(dono, admin, nome, cidade, bairro));
     }
 
     // ---- HTTP ----
