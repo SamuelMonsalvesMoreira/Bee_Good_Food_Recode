@@ -26,6 +26,13 @@ Este registro torna explícitas as escolhas que orientam o banco, a API e o fron
 | DEC-018 | Venda e retirada têm prazos separados | O encerramento das vendas não significa encerramento da retirada | O menor prazo de retirada entre os itens determina o prazo do pedido |
 | DEC-019 | Idempotência persistida no pedido | Repetir a mesma requisição não deve gerar novo pedido ou desconto de estoque | Chave única por cliente e hash do payload distinguem repetição de uso indevido da chave |
 | DEC-020 | Histórico de moderação do estabelecimento | Aprovação, rejeição e suspensão precisam ter rastreabilidade | Cada transição, incluindo a criação, gera registro em `HistoricoStatusEstabelecimento` |
+| DEC-021 | Pedido avança uma etapa por vez | Os documentos listavam os estados, mas não a matriz; avançar sem pular etapas torna CA13/CA14 verificáveis | `PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO`, somente pelo responsável; cliente cancela apenas `PENDENTE`; responsável cancela qualquer estado não final, com motivo |
+| DEC-022 | Responsável não compra no próprio estabelecimento | Evita inflar indicadores com pedidos fictícios | A API retorna 409 nesse caso |
+| DEC-023 | Administrador não modera o próprio estabelecimento | Separação de funções na moderação | Outro administrador precisa decidir; a API retorna 403 |
+| DEC-024 | Corrigir cadastro rejeitado reenvia para análise | Simplifica o fluxo de reenvio previsto em DEC-016 | Editar `REJEITADO` volta para `PENDENTE_ANALISE`; editar `SUSPENSO` é bloqueado até a reativação |
+| DEC-025 | Preços enviados pelo carrinho são ignorados | CA08 exige recálculo; o carrinho fica no frontend (DEC-007) e pode reenviar os valores que exibiu | `total`, `subtotal`, `preco*` e `produtoNome` são ignorados; qualquer outro campo desconhecido continua retornando 400 |
+| DEC-026 | Catálogo exige papel `RESPONSAVEL` e oferta exige estabelecimento `ATIVO` | O papel só é concedido na primeira aprovação; CA12 bloqueia novas ofertas em estabelecimento suspenso | Produtos podem ser mantidos após a aprovação mesmo durante suspensão; criar, publicar ou retomar oferta exige `ATIVO` |
+| DEC-027 | Repetir um cancelamento é uma operação sem efeito | CA16 exige devolução única e a repetição pode vir de nova tentativa da rede | Cancelar pedido já `CANCELADO` retorna 200 com o pedido atual, sem nova devolução de estoque |
 
 ## Arquitetura de contêineres
 

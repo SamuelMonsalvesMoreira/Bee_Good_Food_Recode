@@ -153,6 +153,11 @@ class ApiMySqlIT {
         assertThat(paths.has("/api/v1/categorias")).isTrue();
         assertThat(paths.has("/api/v1/categorias/{id}")).isTrue();
         assertThat(paths.get("/api/v1/categorias").has("post")).isFalse();
+        for (var path : List.of("/api/v1/estabelecimentos", "/api/v1/admin/estabelecimentos/{id}/aprovar", "/api/v1/admin/categorias",
+                "/api/v1/produtos/{produtoId}/ofertas", "/api/v1/ofertas", "/api/v1/pedidos", "/api/v1/pedidos/{id}/cancelar",
+                "/api/v1/estabelecimentos/{estabelecimentoId}/indicadores")) {
+            assertThat(paths.has(path)).as(path).isTrue();
+        }
     }
 
     @Test

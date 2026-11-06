@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "etapa": "5 - cadastros, catalogo, pedidos e indicadores (backend)",
+  "inicioUtc": "2026-11-06T02:07:09Z",
+  "fimUtc": "2026-11-06T02:08:52Z",
+  "ambiente": {
+    "banco": "MySQL 8.0 em conteiner Docker descartavel (mysql:8.0), schema bee_good_food_validacao, porta somente em 127.0.0.1",
+    "jdk": "Temurin 25",
+    "springBoot": "4.1.1",
+    "javaRelease": 21,
+    "comando": "mvnw -B -Pintegration clean verify",
+    "observacao": "Runner oficial database/scripts/validar-banco.ps1 -Api nao executado: exige PowerShell 7, ausente nesta maquina."
+  },
+  "testesHttpMySql": 155,
+  "testesUnitarios": 6,
+  "suitesHttpMySql": {
+    "ApiMySqlIT": 52,
+    "CatalogoIT": 23,
+    "CatalogoPublicoIT": 13,
+    "EstabelecimentoIT": 21,
+    "IndicadoresIT": 10,
+    "PedidoIT": 36
+  },
+  "migrations": [
+    "V1__criar_schema_inicial.sql",
+    "V2__cadastrar_papeis.sql"
+  ],
+  "empacotamento": "JAR contem somente V1 e V2 em db/migration; sem seeds, testes SQL ou classes IT",
+  "jar": [
+    "Inicializacao 1: health UP; admin, responsavel e cliente; categoria; estabelecimento solicitado e aprovado com RESPONSAVEL cumulativo; produto; oferta publicada; busca publica; pedido com total do servidor; repeticao idempotente sem nova baixa; conclusao; indicadores do dia",
+    "Inicializacao 2 no mesmo banco: categorias preservadas; pedido concluido e historico de 5 eventos legiveis com token da 1a execucao (mesma chave)",
+    "Logs do JAR sem senha, hash ou token"
+  ],
+  "concorrencia": [
+    "Ultima unidade disputada por 5 clientes: 1 pedido, estoque 0",
+    "6 repeticoes simultaneas da mesma Idempotency-Key: 1 pedido, 1 baixa",
+    "6 cancelamentos simultaneos (cliente e responsavel): estoque devolvido uma vez",
+    "4 publicacoes simultaneas do mesmo produto: 1 oferta ativa",
+    "8 ajustes simultaneos de -1 com saldo 5: 5 aceitos, saldo 0",
+    "3 decisoes de moderacao simultaneas: 1 transicao",
+    "3 categorias equivalentes simultaneas: 1 criada",
+    "4 avancos simultaneos de status: 1 transicao"
+  ],
+  "correcoes": [
+    "LocalDateTime era gravado com deslocamento do fuso da JVM (+3h em America/Sao_Paulo); corrigido com hibernate.type.java_time_use_direct_jdbc e teste de regressao contra UTC_TIMESTAMP()",
+    "Clock com precisao de microssegundos para coincidir com DATETIME(6)"
+  ],
+  "limites": [
+    "Resultados locais em uma unica instancia; nao comprovam desempenho, carga ou seguranca de deploy publico.",
+    "Frontend React ainda nao implementado (Etapa 6).",
+    "Limite de tentativas em memoria local."
+  ]
+}
