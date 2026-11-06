@@ -41,11 +41,15 @@ Se sobrar tempo, mostre a **moderação**: entre como administrador, aprove a "D
 
 ## Plano B
 
-- **Sem internet ou a API caiu:** use as imagens em `docs/imagens` e o README como apresentação.
+- **A API local caiu:** abra a [demonstração online](https://bee-good-food-recode.vercel.app) ou rode `npm run dev:demo` na pasta `frontend`. Os botões da tela de login entram como cliente, loja ou moderação, sem senha para digitar.
+- **Sem internet:** `npm run dev:demo` funciona sem rede depois do `npm install`. Em último caso, use as imagens em `docs/imagens` e o README.
 - **Oferta expirada durante a apresentação:** rode `npm run demo:popular` de novo; ele cria novas lojas e ofertas.
 - **Sessão expirou (15 minutos):** é o comportamento previsto. Explique e entre de novo.
 
 ## Perguntas prováveis
+
+**O que vocês pegaram dos aplicativos que já existem?**
+Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram a vitrine em seções, a ordenação, o código de retirada, a economia acumulada do cliente, o selo de sacola surpresa, a barra inferior no celular e o tema escuro. Favoritos, avaliações e distância ficaram de fora para não sair do escopo ([análise](../planejamento/analise-de-mercado.md)).
 
 **Por que só retirada e não entrega?**
 Entrega exigiria endereço do cliente, taxa, área de cobertura e logística. O MVP foca no essencial para o pequeno negócio (DEC-001).

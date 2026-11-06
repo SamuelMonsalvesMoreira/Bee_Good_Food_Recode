@@ -6,6 +6,7 @@ Interface web do MVP: busca de ofertas, carrinho de uma loja, reserva para retir
 
 - React 19 + TypeScript 5.9, empacotado com Vite 8.
 - React Router 7 para as rotas.
+- lucide-react (ícones) e sonner (avisos rápidos).
 - Vitest 5 + Testing Library para testes.
 - Fontes locais via Fontsource (Bricolage Grotesque e Atkinson Hyperlegible), sem chamadas a serviços externos.
 - Node 24 validado localmente.
@@ -23,6 +24,15 @@ npm run dev
 3. Abra `http://localhost:5173`.
 
 O Vite encaminha `/api` para `http://127.0.0.1:8080`, então não é preciso CORS no desenvolvimento. Para outra porta da API, defina `BEE_API_PROXY` antes de `npm run dev`.
+
+## Modo demonstração (sem API)
+
+```powershell
+npm run dev:demo     # desenvolvimento, sem backend
+npm run build:demo   # build publicada na Vercel do TCC
+```
+
+Liga `VITE_MODO_DEMO=true` (arquivo `.env.demo`). O cliente HTTP passa a responder com `src/demo/servidorDemo.ts`, uma simulação da API no navegador com lojas, ofertas e pedidos fictícios gerados com horários relativos ao momento do acesso. A tela de login mostra atalhos para três contas públicas de demonstração (cliente, dona de loja e moderação), e uma faixa no topo avisa que nada é vendido nem cobrado. Os dados ficam no `sessionStorage` da aba e são gerados de novo depois de 6 horas. A simulação é carregada sob demanda e não entra na build normal. Detalhes e limites em DEC-037.
 
 ## Produção
 
@@ -44,7 +54,7 @@ npm run typecheck # TypeScript
 npm run e2e       # Playwright no navegador (veja docs/planejamento/conclusao-etapa-7.md)
 ```
 
-Os testes no navegador (`e2e/`) percorrem os fluxos de visitante, cliente, responsável e administração contra a API real, em desktop e celular, e auditam a acessibilidade (WCAG 2.1 AA) com axe. Os testes unitários cobrem as regras do carrinho (uma loja por pedido, confirmação antes de trocar, limites de estoque e de itens, nova chave de idempotência a cada mudança), a conversão de horários no fuso da loja e o fluxo de troca de loja na interface.
+Os testes no navegador (`e2e/`) percorrem os fluxos de visitante, cliente, responsável e administração contra a API real, em desktop e celular, e auditam a acessibilidade (WCAG 2.1 AA) com axe. Também auditam o tema escuro e o aviso rápido. Os testes unitários cobrem as regras do carrinho (uma loja por pedido, confirmação antes de trocar, limites de estoque e de itens, nova chave de idempotência a cada mudança), a conversão de horários no fuso da loja, o fluxo de troca de loja na interface e as regras principais da API simulada (busca, ordenação, login, idempotência, avanço do pedido e indicadores).
 
 ## Estrutura para estudar
 
@@ -54,14 +64,17 @@ src/
 ├── auth/           # Sessão em memória e proteção de rotas
 ├── carrinho/       # Regras puras do carrinho e contexto React
 ├── componentes/    # Layout, faixa de prazo, campos, diálogos e estados
-├── lib/            # Formatação (moeda, datas no fuso da loja) e hooks de carga
+├── demo/           # API simulada do modo demonstração (carregada sob demanda)
+├── lib/            # Formatação (moeda, datas no fuso da loja), tema e hooks de carga
 ├── paginas/        # Telas públicas, do cliente, do responsável e da moderação
 └── styles/         # Tokens de cor/tipo e estilos dos componentes
 ```
 
 ## Decisões que a interface respeita
 
-- **Token só em memória** (CA18). Recarregar a página ou passar 15 minutos encerra a sessão. Não há `localStorage` de credenciais nem refresh token.
+- **Token só em memória** (CA18). Recarregar a página ou passar 15 minutos encerra a sessão. Não há `localStorage` de credenciais nem refresh token. Única exceção: a sessão fictícia do modo demonstração (DEC-037).
+- **Tema** (DEC-036): segue o sistema; a escolha manual guarda só a preferência visual.
+- **Vitrine** (DEC-032 a DEC-035): seções, ordenação, selo de sacola surpresa, código de retirada e economia do cliente, a partir da [análise de mercado](../docs/planejamento/analise-de-mercado.md).
 - **Carrinho na aba** (DEC-007, DEC-028): fica em `sessionStorage`, sem dados pessoais, e é limpo no logout.
 - **Uma loja por pedido** (CA07): adicionar oferta de outra loja abre uma confirmação. Nada é removido sem ela.
 - **Idempotência** (CA23, DEC-029): cada tentativa de reserva gera uma `Idempotency-Key`. Reenviar a mesma compra repete a chave, e mudar o carrinho gera outra.

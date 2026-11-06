@@ -1,3 +1,4 @@
+import { PiggyBank } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { pedidos } from '../api/endpoints';
 import { Carregando, ErroCarga, Vazio } from '../componentes/Estados';
@@ -10,10 +11,24 @@ export function Pedidos() {
   const [params, setParams] = useSearchParams();
   const pagina = Number(params.get('pagina') ?? 0) || 0;
   const { dados, erro, carregando, recarregar } = useCarregar(() => pedidos.meus(pagina), [pagina]);
+  // Impacto para o cliente (como Phenix e Too Good To Go): quanto ja economizou nas retiradas.
+  const retirados = useCarregar(() => pedidos.meus(0, 'CONCLUIDO', 100), []);
+  const economia = retirados.dados?.conteudo.reduce((soma, p) => soma + p.economia, 0) ?? 0;
+  const quantidade = retirados.dados?.totalElementos ?? 0;
 
   return (
     <>
       <h1>Meus pedidos</h1>
+      {quantidade > 0 && (
+        <div className="economia-cliente">
+          <PiggyBank aria-hidden="true" />
+          <p>
+            Você já economizou <strong className="numero">{dinheiro(economia)}</strong> em{' '}
+            {quantidade === 1 ? '1 pedido retirado' : `${quantidade} pedidos retirados`}
+            {quantidade > 100 ? ' (últimos 100)' : ''}.
+          </p>
+        </div>
+      )}
       {carregando && !dados && <Carregando />}
       {erro && <ErroCarga erro={erro} tentarDeNovo={recarregar} />}
       {dados && dados.conteudo.length === 0 && (
@@ -31,6 +46,7 @@ export function Pedidos() {
                 <StatusPedido status={p.status} />
                 <div className="linha-pedido-fim">
                   <strong className="numero">{dinheiro(p.total)}</strong>
+                  {p.economia > 0 && p.status !== 'CANCELADO' && <span className="pequeno economia-linha">economia de {dinheiro(p.economia)}</span>}
                   {!['CONCLUIDO', 'CANCELADO'].includes(p.status) && (
                     <span className="pequeno">Retire até {prazo(p.retiradaAte, p.fusoIana)}</span>
                   )}

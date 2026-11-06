@@ -15,6 +15,15 @@
   --linha: #e1dfd4;
   --fundo: #ffffff;
   --ods8: #a21942;
+  --tinta: #2b1d0e;
+  --sobre-mel: #2b1d0e;
+  --alerta-texto: #6b4e00;
+  --icone-mel: #8a5a00; --icone-mel-fundo: #fff4cc;
+  --icone-rosa: #9b2c48; --icone-rosa-fundo: #fbe6ea;
+  --icone-brasa: #a2401a; --icone-brasa-fundo: #fde9df;
+  --esboco-brilho: #ebece5;
+  --sombra: rgb(43 29 14 / 0.14);
+  color-scheme: light;
 
   --fonte-titulo: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
   --fonte-texto: 'Atkinson Hyperlegible', 'Segoe UI', sans-serif;
@@ -33,6 +42,50 @@
   --raio-grande: 18px;
   --largura: 72rem;
   --foco: 0 0 0 3px var(--fundo), 0 0 0 5px var(--propolis);
+}
+
+/* Tema escuro: preferencia do sistema, ou escolha explicita guardada no navegador (data-tema). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --fundo: #16110b;
+    --superficie: #211a12;
+    --linha: #3b3022;
+    --propolis: #f5ecda;
+    --propolis-suave: #c9b89b;
+    --mel-claro: #3a2d0a;
+    --folha: #7cc488;
+    --folha-claro: #1b3021;
+    --brasa: #ff9a90;
+    --brasa-claro: #3d1c18;
+    --tinta: #2c2216;
+    --alerta-texto: #f6d36b;
+    --icone-mel: #f6c445; --icone-mel-fundo: #3a2d0a;
+    --icone-rosa: #f4a3b6; --icone-rosa-fundo: #3a1c24;
+    --icone-brasa: #f7a37c; --icone-brasa-fundo: #3a2116;
+    --esboco-brilho: #2e251a;
+    --sombra: rgb(0 0 0 / 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-tema='escuro'] {
+  --fundo: #16110b;
+  --superficie: #211a12;
+  --linha: #3b3022;
+  --propolis: #f5ecda;
+  --propolis-suave: #c9b89b;
+  --mel-claro: #3a2d0a;
+  --folha: #7cc488;
+  --folha-claro: #1b3021;
+  --brasa: #ff9a90;
+  --brasa-claro: #3d1c18;
+  --tinta: #2c2216;
+  --alerta-texto: #f6d36b;
+  --icone-mel: #f6c445; --icone-mel-fundo: #3a2d0a;
+  --icone-rosa: #f4a3b6; --icone-rosa-fundo: #3a1c24;
+  --icone-brasa: #f7a37c; --icone-brasa-fundo: #3a2116;
+  --esboco-brilho: #2e251a;
+  --sombra: rgb(0 0 0 / 0.45);
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -92,7 +145,7 @@ main.conteudo { padding-block: 2rem 4rem; min-height: 60vh; }
   cursor: pointer; text-decoration: none; white-space: nowrap;
 }
 .botao[disabled] { opacity: 0.55; cursor: not-allowed; }
-.botao-principal { background: var(--mel); color: var(--propolis); }
+.botao-principal { background: var(--mel); color: var(--sobre-mel); }
 .botao-principal:not([disabled]):hover { background: var(--mel-forte); }
 .botao-secundario { background: var(--fundo); color: var(--propolis); border-color: var(--propolis); }
 .botao-secundario:not([disabled]):hover { background: var(--superficie); }
@@ -136,7 +189,7 @@ legend { font-family: var(--fonte-titulo); font-weight: 700; font-size: var(--t1
 }
 .etiqueta::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; opacity: 0.7; }
 .etiqueta-ok { background: var(--folha-claro); color: var(--folha); border-color: transparent; }
-.etiqueta-alerta { background: var(--mel-claro); color: #6b4e00; border-color: transparent; }
+.etiqueta-alerta { background: var(--mel-claro); color: var(--alerta-texto); border-color: transparent; }
 .etiqueta-erro { background: var(--brasa-claro); color: var(--brasa); border-color: transparent; }
 
 /* ---------- Tabelas simples ---------- */

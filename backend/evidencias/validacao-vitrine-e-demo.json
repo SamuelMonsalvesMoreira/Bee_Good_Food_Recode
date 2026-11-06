@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "etapa": "Melhorias a partir da analise de mercado: vitrine em secoes, ordenacao, economia, codigo de retirada, sacola surpresa, tema escuro, barra inferior no celular e modo demonstracao para a Vercel",
+  "dataLocal": "2026-11-06 (America/Sao_Paulo)",
+  "branch": "mercado-e-vitrine",
+  "ambiente": {
+    "banco": "MySQL 8.0 em conteiner Docker descartavel, porta somente em 127.0.0.1; schemas de validacao (testes HTTP) e bee_good_food_e2e (testes no navegador)",
+    "jdk": "Temurin 25 (a imagem Docker usa Java 21; nao reexecutada nesta rodada)",
+    "node": "24.16.0",
+    "navegador": "Chromium do Playwright 1.65.0 (Desktop Chrome e Pixel 7)"
+  },
+  "backend": {
+    "comando": "mvnw -B -Pintegration verify -Dspring-boot.repackage.skip=true",
+    "testesHttpMySql": 162,
+    "testesUnitarios": 9,
+    "falhas": 0,
+    "suitesHttpMySql": {
+      "ApiMySqlIT": 52,
+      "CatalogoIT": 23,
+      "CatalogoPublicoIT": 16,
+      "CorsIT": 3,
+      "EstabelecimentoIT": 21,
+      "IndicadoresIT": 10,
+      "PedidoIT": 36,
+      "ProxyReversoIT": 1
+    },
+    "novo": [
+      "Ordenacoes PRAZO, DESCONTO, PRECO e RECENTES deterministicas (CatalogoPublicoIT)",
+      "Valores de ordem fora da lista retornam 400, inclusive tentativa de injecao (CatalogoPublicoIT)",
+      "Economia do pedido calculada pelo snapshot dos itens (PedidoIT)"
+    ]
+  },
+  "frontend": {
+    "comandos": [
+      "npm run typecheck",
+      "npm test",
+      "npm run build",
+      "npm run build:demo",
+      "npm run e2e"
+    ],
+    "testesUnitarios": 19,
+    "testesApiSimulada": 5,
+    "testesPontaAPonta": {
+      "total": 13,
+      "desktop": 9,
+      "celular": 4,
+      "novo": "Tema escuro e aviso rapido: color-scheme escuro aplicado, aviso com acao 'Ver carrinho' visivel e auditoria axe de inicio, oferta com aviso, meus pedidos e pedido com codigo de retirada"
+    },
+    "acessibilidade": {
+      "ferramenta": "axe-core 4.14 via @axe-core/playwright",
+      "regras": "WCAG 2.0/2.1 A e AA",
+      "telasAuditadas": 16,
+      "violacoes": 0,
+      "observacao": "12 telas no tema claro e 4 no tema escuro, em desktop e celular"
+    },
+    "buildNormal": "Nao contem a API simulada nem as contas de demonstracao (verificado no dist)",
+    "buildDemonstracao": "API simulada em arquivo separado, carregado sob demanda (cerca de 25 kB)",
+    "conferenciaManual": "Build de demonstracao conferida no navegador: vitrine, login pelos atalhos, sessao ficticia apos recarregar, reserva com codigo de retirada, fila da loja, indicadores, tema escuro e celular"
+  },
+  "limites": [
+    "Resultados locais; a Vercel ainda nao foi publicada nesta data.",
+    "A API simulada reproduz as regras principais para demonstracao, mas nao e o sistema avaliado nos testes HTTP/MySQL.",
+    "A auditoria automatica nao substitui leitor de tela nem testes com pessoas."
+  ]
+}

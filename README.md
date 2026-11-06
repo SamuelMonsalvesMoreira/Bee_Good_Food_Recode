@@ -13,11 +13,18 @@ Projeto final do programa **Recode Fullstack**, evoluído a partir do meu TCC. A
 ![React 19](https://img.shields.io/badge/React-19-2b1d0e?logo=react&logoColor=61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-2b1d0e?logo=typescript&logoColor=white)
 ![MySQL 8](https://img.shields.io/badge/MySQL-8-2b1d0e?logo=mysql&logoColor=white)
-![Testes](https://img.shields.io/badge/testes-190_automatizados-2f6b3a)
+![Testes](https://img.shields.io/badge/testes-203_automatizados-2f6b3a)
 ![Acessibilidade](https://img.shields.io/badge/WCAG_2.1_AA-0_viola%C3%A7%C3%B5es-2f6b3a)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-f2b705)
 
+### [▶ Abrir a demonstração online](https://bee-good-food-recode.vercel.app)
+
+Entre como **cliente**, **dona de loja** ou **moderação** com um clique, sem cadastro.
+
 </div>
+
+> [!NOTE]
+> **Projeto acadêmico, sem fins lucrativos.** O site publicado na Vercel existe apenas para avaliação do TCC e para portfólio. Lojas, ofertas e pedidos são fictícios e ficam só no navegador de quem acessa: nada é vendido, cobrado ou entregue, e nenhum dado pessoal é coletado. A demonstração roda a interface real com uma API simulada no navegador ([DEC-037](docs/planejamento/decisoes-do-mvp.md)); o sistema completo, com a API Java e o MySQL, roda localmente pelos passos de [Como executar](#como-executar-localmente).
 
 ![Página inicial do Bee Good Food com uma oferta em destaque, busca e filtros por categoria](docs/imagens/inicio.png)
 
@@ -33,25 +40,42 @@ O foco é o pequeno negócio local. Ele ganha um canal de venda simples, recuper
 | **Responsável pela loja** | Cadastro da loja com moderação; produtos e ofertas com preço, estoque e prazos; fila de pedidos; indicadores de vendas e cancelamentos. |
 | **Administração** | Aprovação, pedido de ajustes, suspensão e reativação de lojas, sempre com motivo registrado; categorias. |
 
+## Comparado com o mercado
+
+Antes de fechar a interface, comparei o Bee Good Food com Too Good To Go, Food To Save, Phenix, Karma e Flashfood ([análise completa](docs/planejamento/analise-de-mercado.md)). O que entrou no MVP, sem sair do escopo:
+
+| Ideia do mercado | Como ficou no Bee Good Food |
+|---|---|
+| Vitrine em seções | Trilhos "Terminam logo" e "Maiores descontos" antes da lista completa |
+| Ordenar resultados | Termina antes, maior desconto, menor preço ou mais recentes ([DEC-032](docs/planejamento/decisoes-do-mvp.md)) |
+| Comprovante no balcão | Código de retirada (`BG-0042`) em destaque no pedido, verde quando está pronto |
+| Impacto para o cliente | "Você já economizou R$ X" em Meus pedidos e economia em cada pedido |
+| Sacola surpresa | Selo próprio na vitrine para sacolas com o excedente variado do dia |
+| Urgência honesta | "faltam 45 min" quando a venda termina em até 3 horas |
+| Uso no celular | Barra de navegação inferior, avisos rápidos e tema escuro |
+
+O que ficou de fora e por quê (favoritos, avaliações, distância, entrega, pagamento no app) está na mesma análise.
+
 ## Veja em ação
 
 As telas abaixo usam apenas dados fictícios, criados pelo [script de demonstração](frontend/scripts/popular-demo.mjs).
 
 | | |
 |---|---|
-| ![Lista de ofertas com ícone da categoria, desconto, preço e faixa de prazo](docs/imagens/ofertas.png) | ![Detalhe de uma oferta com prazos de compra e retirada e endereço da loja](docs/imagens/detalhe-oferta.png) |
-| **Ofertas:** cada cartão mostra o desconto e a faixa de prazo, com "Compre até" e "Retire até" separados. | **Detalhe da oferta:** quantidade limitada ao estoque e endereço de retirada. |
-| ![Carrinho com itens de uma loja, total estimado e forma de pagamento](docs/imagens/carrinho.png) | ![Pedido com etapas, prazo de retirada, itens e histórico](docs/imagens/pedido.png) |
-| **Carrinho:** um pedido é sempre de uma única loja, e o total final é calculado pela API. | **Pedido:** etapas, prazo de retirada no fuso da loja e atualização automática. |
+| ![Vitrine com a seção Maiores descontos, selo de sacola surpresa e a lista com ordenação](docs/imagens/ofertas.png) | ![Detalhe de uma oferta com prazos de compra e retirada e endereço da loja](docs/imagens/detalhe-oferta.png) |
+| **Vitrine:** seções "Terminam logo" e "Maiores descontos", selo de sacola surpresa e ordenação. Cada cartão mostra o desconto e a faixa de prazo, com "Compre até" e "Retire até" separados. | **Detalhe da oferta:** quantidade limitada ao estoque e endereço de retirada. |
+| ![Carrinho com itens de uma loja, total estimado e forma de pagamento](docs/imagens/carrinho.png) | ![Pedido com código de retirada, etapas, prazo, itens e histórico](docs/imagens/pedido.png) |
+| **Carrinho:** um pedido é sempre de uma única loja, e o total final é calculado pela API. | **Pedido:** código de retirada para mostrar no balcão, etapas, prazo no fuso da loja e atualização automática. |
 | ![Painel do responsável com indicadores do período](docs/imagens/indicadores.png) | ![Moderação de loja com motivo obrigatório](docs/imagens/moderacao.png) |
 | **Indicadores:** pedidos retirados, valor, unidades e taxas da coorte do período. | **Moderação:** toda decisão exige motivo e fica no histórico da loja. |
 
 <details>
-<summary>Mais telas: fila de pedidos, gestão de ofertas e celular</summary>
+<summary>Mais telas: tema escuro, fila de pedidos, gestão de ofertas e celular</summary>
 
+![Página inicial no tema escuro](docs/imagens/inicio-escuro.png)
 ![Fila de pedidos do estabelecimento](docs/imagens/painel-pedidos.png)
 ![Gestão das ofertas de um produto](docs/imagens/ofertas-gestao.png)
-<img src="docs/imagens/celular.png" alt="Lista de ofertas na tela de um celular" width="360" />
+<img src="docs/imagens/celular.png" alt="Vitrine no celular com a seção Terminam logo e a barra de navegação inferior" width="360" />
 
 </details>
 
@@ -88,17 +112,19 @@ A API é um monólito modular, com um pacote por área: `auth`, `estabelecimento
 
 | Suíte | Quantidade | O que cobre |
 |---|---|---|
-| Backend HTTP/MySQL | 159 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa e cenários simultâneos. |
-| Backend unitários | 6 | Limite de tentativas e chave JWT. |
-| Frontend unitários | 14 | Regras do carrinho, conversão de fusos e confirmação ao trocar de loja. |
-| Navegador (Playwright) | 11 | Fluxos de cliente, responsável e administração, no desktop e no celular. |
-| Acessibilidade (axe) | 12 telas | WCAG 2.1 A/AA, sem violações. |
+| Backend HTTP/MySQL | 162 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa, cenários simultâneos e ordenação da vitrine. |
+| Backend unitários | 9 | Limite de tentativas, chave JWT e relógio com precisão de microssegundos. |
+| Frontend unitários | 19 | Regras do carrinho, conversão de fusos, confirmação ao trocar de loja e a API simulada da demonstração. |
+| Navegador (Playwright) | 13 | Fluxos de cliente, responsável e administração, no desktop e no celular, nos temas claro e escuro. |
+| Acessibilidade (axe) | 16 telas | WCAG 2.1 A/AA, sem violações, inclusive no tema escuro. |
 
-Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`validacao-etapa-7.json`](backend/evidencias/validacao-etapa-7.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
+Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`validacao-vitrine-e-demo.json`](backend/evidencias/validacao-vitrine-e-demo.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
 
 ## Como executar localmente
 
-Pré-requisitos: JDK 21 ou superior, Node 20 ou superior e MySQL 8.
+Para só ver a interface, sem Java nem MySQL: `cd frontend; npm install; npm run dev:demo` abre a mesma demonstração da Vercel em `http://localhost:5173`.
+
+Sistema completo. Pré-requisitos: JDK 21 ou superior, Node 20 ou superior e MySQL 8.
 
 1. Crie um schema vazio e um usuário no MySQL. O passo a passo está em [`backend/README.md`](backend/README.md#executar-para-desenvolvimento).
 2. Inicie a API. O Flyway cria as tabelas na primeira execução.
@@ -139,6 +165,7 @@ Bee_Good_Food_Recode/
 
 - [Escopo](docs/planejamento/escopo.md) e [requisitos](docs/planejamento/requisitos-iniciais.md)
 - [Decisões do MVP e arquitetura](docs/planejamento/decisoes-do-mvp.md)
+- [Análise de mercado e melhorias](docs/planejamento/analise-de-mercado.md)
 - [Critérios de aceitação](docs/planejamento/criterios-de-aceitacao.md)
 - [Modelo de dados](docs/planejamento/modelo-de-dados.md)
 - [Métricas e validação](docs/planejamento/metricas-e-validacao.md)

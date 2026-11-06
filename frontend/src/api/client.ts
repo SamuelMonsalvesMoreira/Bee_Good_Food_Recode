@@ -1,5 +1,7 @@
 // Cliente HTTP unico. O token vive somente em memoria (DEC: sem refresh token, sem localStorage).
 
+import { MODO_DEMO } from '../lib/demo';
+
 const BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 export class ApiError extends Error {
@@ -46,7 +48,8 @@ export async function requisitarCompleto<T>(caminho: string, opcoes: Opcoes = {}
 
   let resposta: Response;
   try {
-    resposta = await fetch(BASE + caminho, {
+    // Modo demonstracao: a mesma interface fala com uma API simulada no navegador (carregada sob demanda).
+    resposta = MODO_DEMO ? await respostaDemo(caminho, opcoes, cabecalhos) : await fetch(BASE + caminho, {
       method: opcoes.metodo ?? 'GET',
       headers: cabecalhos,
       body: opcoes.corpo === undefined ? undefined : JSON.stringify(opcoes.corpo),
@@ -78,6 +81,20 @@ export async function requisitarCompleto<T>(caminho: string, opcoes: Opcoes = {}
 
 export async function requisitar<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   return (await requisitarCompleto<T>(caminho, opcoes)).dados;
+}
+
+// Condicao literal no proprio import: na build normal o Vite a resolve como falsa e a simulacao nem e empacotada.
+const carregarDemo = import.meta.env.VITE_MODO_DEMO === 'true' ? () => import('../demo/servidorDemo') : null;
+
+async function respostaDemo(caminho: string, opcoes: Opcoes, cabecalhos: Record<string, string>): Promise<Response> {
+  const { responder } = await carregarDemo!();
+  opcoes.sinal?.throwIfAborted();
+  const r = await responder(opcoes.metodo ?? 'GET', caminho, opcoes.corpo, cabecalhos);
+  opcoes.sinal?.throwIfAborted();
+  return new Response(JSON.stringify(r.dados), {
+    status: r.status,
+    headers: { 'Content-Type': r.status >= 400 ? 'application/problem+json' : 'application/json', ...r.cabecalhos },
+  });
 }
 
 function safeJson(texto: string): unknown {

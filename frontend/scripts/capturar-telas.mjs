@@ -44,6 +44,9 @@ async function sair() {
 // Visitante
 await pagina.goto(SITE);
 await foto('inicio');
+await pagina.emulateMedia({ colorScheme: 'dark' });
+await foto('inicio-escuro');
+await pagina.emulateMedia({ colorScheme: 'light' });
 await pagina.getByRole('heading', { name: 'Ofertas disponíveis agora' }).scrollIntoViewIfNeeded();
 await pagina.mouse.wheel(0, -120);
 await foto('ofertas');
@@ -91,7 +94,7 @@ const celular = await navegador.newContext({ ...devices['Pixel 7'], locale: 'pt-
 const pc = await celular.newPage();
 await pc.goto(SITE);
 await pc.waitForLoadState('networkidle');
-await pc.getByRole('heading', { name: 'Ofertas disponíveis agora' }).scrollIntoViewIfNeeded();
+await pc.getByRole('heading', { name: 'Terminam logo' }).evaluate((h) => window.scrollTo(0, h.getBoundingClientRect().top + window.scrollY - 140));
 await pc.evaluate(() => document.fonts.ready);
 await pc.screenshot({ path: join(SAIDA, 'celular.png') });
 console.log('docs/imagens/celular.png');

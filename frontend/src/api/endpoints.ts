@@ -20,9 +20,12 @@ export interface FiltrosBusca {
   cidade?: string;
   bairro?: string;
   estabelecimentoId?: number;
+  ordem?: OrdemCatalogo;
   pagina?: number;
   tamanho?: number;
 }
+
+export type OrdemCatalogo = 'PRAZO' | 'DESCONTO' | 'PRECO' | 'RECENTES';
 
 export const catalogo = {
   categorias: () => requisitar<Pagina<Categoria>>('/api/v1/categorias?tamanho=100'),
@@ -87,8 +90,8 @@ export const pedidos = {
     });
     return { pedido: r.dados, repetido: r.status === 200 };
   },
-  meus: (pagina: number, status?: StatusPedido) =>
-    requisitar<Pagina<PedidoResumo>>(`/api/v1/pedidos${query({ pagina, tamanho: 20, status })}`),
+  meus: (pagina: number, status?: StatusPedido, tamanho = 20) =>
+    requisitar<Pagina<PedidoResumo>>(`/api/v1/pedidos${query({ pagina, tamanho, status })}`),
   detalhe: (id: number) => requisitar<Pedido>(`/api/v1/pedidos/${id}`),
   doEstabelecimento: (estabelecimentoId: number, pagina: number, status?: StatusPedido) =>
     requisitar<Pagina<PedidoResumo>>(
