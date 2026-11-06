@@ -1,3 +1,4 @@
+import { ShoppingBag } from 'lucide-react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { useSessao } from '../auth/sessao';
@@ -34,9 +35,7 @@ export function Layout() {
           </nav>
           <div className="cabecalho-acoes">
             <NavLink to="/carrinho" className="carrinho-link">
-              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 7h14l-1.5 11.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5z" /><path d="M9 7a3 3 0 0 1 6 0" />
-              </svg>
+              <ShoppingBag size={22} aria-hidden="true" />
               <span>Carrinho</span>
               {quantidadeTotal > 0 && (
                 <span className="carrinho-contador">

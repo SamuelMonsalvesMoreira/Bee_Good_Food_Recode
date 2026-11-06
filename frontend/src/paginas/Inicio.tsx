@@ -1,11 +1,14 @@
+import { BarChart3, Clock, Search, Store } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { catalogo } from '../api/endpoints';
 import { Bee } from '../componentes/Bee';
 import { Campo, CampoSelecao } from '../componentes/Campo';
-import { Carregando, ErroCarga, Vazio } from '../componentes/Estados';
-import { OfertaItem } from '../componentes/OfertaItem';
+import { ErroCarga, Vazio } from '../componentes/Estados';
+import { IconeCategoria } from '../componentes/IconeCategoria';
+import { OfertaEsboco, OfertaItem } from '../componentes/OfertaItem';
 import { Paginacao } from '../componentes/Paginacao';
+import { dinheiro, prazo } from '../lib/formato';
 import { useCarregar } from '../lib/useCarregar';
 
 export function Inicio() {
@@ -38,12 +41,22 @@ export function Inicio() {
     setParams(novos);
   }
 
+  function filtrarCategoria(id: string) {
+    // Filtro rapido: aplica na hora, mantendo os demais filtros ja buscados.
+    setRascunho({ ...rascunho, categoriaId: id });
+    const novos = new URLSearchParams(params);
+    novos.delete('pagina');
+    if (id) novos.set('categoria', id); else novos.delete('categoria');
+    setParams(novos);
+  }
+
   function irParaPagina(pagina: number) {
     const novos = new URLSearchParams(params);
     novos.set('pagina', String(pagina));
     setParams(novos);
   }
 
+  const destaque = busca.dados && !params.toString() ? busca.dados.conteudo[0] : undefined;
   const filtrando = Boolean(filtros.texto || filtros.cidade || filtros.bairro || filtros.categoriaId);
 
   return (
@@ -61,7 +74,23 @@ export function Inicio() {
             <li><strong>Retire e pague</strong> no balcão, dentro do prazo.</li>
           </ol>
         </div>
-        <div className="abertura-bee" aria-hidden="true"><Bee tamanho={170} /></div>
+        <div className="abertura-vitrine">
+          <div className="abertura-bee" aria-hidden="true"><Bee tamanho={150} /></div>
+          {destaque && (
+            <Link to={`/ofertas/${destaque.id}`} className="destaque">
+              <span className="sr-only">Oferta em destaque: </span>
+              <IconeCategoria slug={destaque.categoria.slug} />
+              <span className="destaque-texto">
+                <span className="destaque-nome">{destaque.produtoNome}</span>
+                <span className="destaque-loja">{destaque.estabelecimento.nome}</span>
+                <span className="destaque-preco">
+                  <strong>{dinheiro(destaque.precoOferta)}</strong> <s>{dinheiro(destaque.precoOriginal)}</s>
+                </span>
+                <span className="destaque-prazo"><Clock size={14} aria-hidden="true" /> Retire até {prazo(destaque.retiradaAte, destaque.estabelecimento.fusoIana)}</span>
+              </span>
+            </Link>
+          )}
+        </div>
       </section>
 
       <form className="busca" role="search" aria-label="Buscar ofertas" onSubmit={buscar}>
@@ -76,8 +105,19 @@ export function Inicio() {
           <option value="">Todas</option>
           {categorias.dados?.conteudo.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
         </CampoSelecao>
-        <button className="botao botao-principal busca-botao" type="submit">Buscar ofertas</button>
+        <button className="botao botao-principal busca-botao" type="submit"><Search size={18} aria-hidden="true" />Buscar ofertas</button>
       </form>
+
+      {categorias.dados && categorias.dados.conteudo.length > 0 && (
+        <div className="atalhos" role="group" aria-label="Filtrar por categoria">
+          <button className="atalho" aria-pressed={!filtros.categoriaId} onClick={() => filtrarCategoria('')}>Todas</button>
+          {categorias.dados.conteudo.map((c) => (
+            <button key={c.id} className="atalho" aria-pressed={filtros.categoriaId === String(c.id)} onClick={() => filtrarCategoria(String(c.id))}>
+              <IconeCategoria slug={c.slug} />{c.nome}
+            </button>
+          ))}
+        </div>
+      )}
 
       <section aria-labelledby="titulo-resultados" aria-busy={busca.carregando}>
         <div className="resultados-topo">
@@ -88,7 +128,11 @@ export function Inicio() {
             </p>
           )}
         </div>
-        {busca.carregando && !busca.dados && <Carregando texto="Procurando ofertas…" />}
+        {busca.carregando && !busca.dados && (
+          <div className="ofertas" role="status" aria-label="Procurando ofertas">
+            {[0, 1, 2, 3].map((i) => <OfertaEsboco key={i} />)}
+          </div>
+        )}
         {busca.erro && <ErroCarga erro={busca.erro} tentarDeNovo={busca.recarregar} />}
         {busca.dados && busca.dados.conteudo.length === 0 && (
           <Vazio titulo={filtrando ? 'Nenhuma oferta com esses filtros.' : 'Nenhuma oferta disponível agora.'}>
@@ -105,6 +149,19 @@ export function Inicio() {
             <Paginacao pagina={busca.dados} aoMudar={irParaPagina} />
           </>
         )}
+      </section>
+
+      <section className="negocios" aria-labelledby="titulo-negocios">
+        <div className="negocios-texto">
+          <h2 id="titulo-negocios">Tem um negócio de comida? Transforme o excedente do dia em venda.</h2>
+          <p>Padarias, hortifrutis, confeitarias e restaurantes publicam ofertas em poucos minutos e recebem os pedidos com o prazo de retirada já combinado.</p>
+          <Link className="botao botao-principal" to="/minhas-lojas/nova">Cadastrar minha loja</Link>
+        </div>
+        <ul className="negocios-lista">
+          <li><Store aria-hidden="true" /><span><strong>Sem taxa de entrega</strong> O cliente retira no balcão e paga na hora.</span></li>
+          <li><Clock aria-hidden="true" /><span><strong>Prazos claros</strong> Você define até quando vende e até quando o cliente pode retirar.</span></li>
+          <li><BarChart3 aria-hidden="true" /><span><strong>Indicadores</strong> Acompanhe pedidos retirados, valor e cancelamentos por período.</span></li>
+        </ul>
       </section>
     </>
   );
