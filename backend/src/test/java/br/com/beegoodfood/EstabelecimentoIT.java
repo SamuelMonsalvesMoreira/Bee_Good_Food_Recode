@@ -39,6 +39,17 @@ class EstabelecimentoIT extends IntegracaoBase {
     }
 
     @Test
+    void instantesSaoGravadosEmUtcIndependenteDoFusoDaJvm() throws Exception {
+        var dono = conta();
+        long id = solicitarEstabelecimento(dono, "Relógio", "Santos", "Centro");
+        // Diferenca para o relogio UTC do proprio MySQL deve ser de segundos, nunca horas.
+        assertThat(count("SELECT ABS(TIMESTAMPDIFF(SECOND, criado_em, UTC_TIMESTAMP(6))) FROM estabelecimento WHERE id=?", id)).isLessThan(60);
+        assertThat(count("SELECT ABS(TIMESTAMPDIFF(SECOND, maioridade_confirmada_em, UTC_TIMESTAMP(6))) FROM usuario WHERE id=?", dono.id())).isLessThan(60);
+        var resposta = java.time.Instant.parse(tree(get("/api/v1/estabelecimentos/" + id, dono.token())).get("criadoEm").asText());
+        assertThat(java.time.Duration.between(resposta, java.time.Instant.now()).abs().toSeconds()).isLessThan(60);
+    }
+
+    @Test
     void fusoPadraoQuandoOmitido() throws Exception {
         var dono = conta();
         var body = estabelecimento("Sem fuso", "Campinas", "Centro");
