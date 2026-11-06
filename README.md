@@ -2,7 +2,7 @@
 
 Projeto final do programa Recode Fullstack baseado no TCC [Bee Good Food](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_TCC).
 
-**Status:** Etapas 1 a 5 concluídas localmente — planejamento, banco MySQL, base da API, autenticação/perfis e, no backend, estabelecimentos com moderação, catálogo, busca pública, pedidos idempotentes e indicadores. A validação atual da API tem 155 testes HTTP/MySQL e 6 unitários aprovados, incluindo cenários concorrentes, além de um fluxo ponta a ponta no JAR reiniciado. As 47 verificações SQL da Etapa 2 permanecem registradas separadamente. Próxima etapa: telas React.
+**Status:** Etapas 1 a 6 concluídas localmente — planejamento, banco MySQL, API Java completa do MVP e interface React integrada (busca, carrinho, reserva para retirada, painel do responsável e moderação). A validação atual tem 158 testes HTTP/MySQL e 6 unitários no backend, 14 testes no frontend e verificação dos fluxos no navegador. Próxima etapa: validação com pessoas, documentação final e apresentação.
 
 ## Sobre o projeto
 
@@ -29,7 +29,7 @@ A redução do desperdício é um benefício adicional da solução. O projeto n
 ```text
 Bee_Good_Food_Recode/
 ├── backend/                 # API Java/Spring Boot
-├── frontend/                # Aplicação ReactJS
+├── frontend/                # Aplicação ReactJS (Vite + TypeScript)
 ├── database/                # Modelo e scripts MySQL
 ├── docs/
 │   ├── diagramas/           # Diagramas do sistema
@@ -66,7 +66,9 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [Conclusão da Etapa 3 e evidências](docs/planejamento/conclusao-etapa-3.md)
 - [Autenticação: guia de estudo e administração local](docs/planejamento/autenticacao.md)
 - [Conclusão da Etapa 4](docs/planejamento/conclusao-etapa-4.md)
-- [Conclusão da Etapa 5 e próximos passos](docs/planejamento/conclusao-etapa-5.md)
+- [Conclusão da Etapa 5](docs/planejamento/conclusao-etapa-5.md)
+- [Frontend React: execução e estrutura](frontend/README.md)
+- [Conclusão da Etapa 6 e próximos passos](docs/planejamento/conclusao-etapa-6.md)
 
 ## Etapas
 
@@ -75,7 +77,7 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 - [x] Etapa 3 — base da API Java/Spring Boot, integração MySQL/Flyway e OpenAPI
 - [x] Etapa 4 — cadastro adulto, autenticação JWT e perfis de acesso na API
 - [x] Etapa 5 — cadastros, catálogo, pedidos e indicadores no backend
-- [ ] Etapa 6 — criação e integração do frontend ReactJS
+- [x] Etapa 6 — criação e integração do frontend ReactJS
 - [ ] Etapa 7 — testes, documentação final e apresentação
 
 ## Protótipo original
@@ -90,7 +92,7 @@ O MVP apenas registrará a forma de pagamento escolhida. Não haverá integraç�
 
 A Etapa 1 foi revisada como uma baseline de produto e engenharia. O projeto está alinhado ao **ODS 8 — Trabalho Decente e Crescimento Econômico** e atende às restrições do curso: público adulto, sem saúde, esporte ou religião.
 
-A implementação do banco MySQL foi validada na Etapa 2. A Etapa 3 adicionou a base Java/Spring Boot integrada ao MySQL e Flyway, com consultas públicas de categorias e documentação OpenAPI. A Etapa 4 adicionou cadastro adulto, login, consulta do próprio perfil e listagem administrativa de usuários. A Etapa 5 adicionou estabelecimentos com moderação, catálogo, busca, pedidos e indicadores na API. O frontend ReactJS/TypeScript permanece na próxima etapa.
+A implementação do banco MySQL foi validada na Etapa 2. A Etapa 3 adicionou a base Java/Spring Boot integrada ao MySQL e Flyway, com consultas públicas de categorias e documentação OpenAPI. A Etapa 4 adicionou cadastro adulto, login, consulta do próprio perfil e listagem administrativa de usuários. A Etapa 5 adicionou estabelecimentos com moderação, catálogo, busca, pedidos e indicadores na API. A Etapa 6 adicionou a interface ReactJS/TypeScript integrada a essas rotas.
 
 ### Documentação de decisão
 

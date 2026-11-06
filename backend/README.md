@@ -69,7 +69,7 @@ $env:JWT_SECRET_BASE64 = [Convert]::ToBase64String($jwtBytes)
 
 O segredo JWT é obrigatório, em Base64, com pelo menos 32 bytes aleatórios. O exemplo gera uma chave nova a cada execução: isso invalida tokens anteriores, mas não apaga usuários ou senhas. Para manter sessões entre reinícios, reutilize a chave por um gerenciador de segredos/configuração local protegida. Não há chave padrão nem conta administrativa automática.
 
-Por padrão, o servidor escuta em `127.0.0.1:8080`. `SERVER_PORT` permite trocar a porta. Para encerrar, pressione `Ctrl+C` no terminal da aplicação.
+Por padrão, o servidor escuta em `127.0.0.1:8080`. Para servir o frontend em outra origem, defina `CORS_ORIGINS` com a origem exata (ex.: `https://bee.exemplo.com`); vazio mantém o CORS desligado e curinga é recusado. `SERVER_PORT` permite trocar a porta. Para encerrar, pressione `Ctrl+C` no terminal da aplicação.
 
 ## Rotas disponíveis
 
@@ -138,7 +138,6 @@ Cada classe IT limpa o schema de validação antes de começar e recusa qualquer
 
 ## O que ainda falta
 
-- Frontend React, incluindo configuração de CORS para origens explícitas: Etapa 6.
 - Executar o runner oficial com PowerShell 7 e registrar `ultima-validacao.json`: Etapa 7.
 - Recuperação de senha por e-mail e refresh token ficam fora do MVP atual, conforme as decisões do projeto.
 - Antes de exposição pública: HTTPS, configuração de origens, proxy reverso (`AuthRateLimitFilter` usa o IP da conexão), armazenamento/rotação de segredos e proteção contra abuso adequada ao ambiente.

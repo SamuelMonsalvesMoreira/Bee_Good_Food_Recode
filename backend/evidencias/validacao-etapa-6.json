@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "etapa": "6 - frontend React integrado a API",
+  "dataLocal": "2026-11-05 (America/Sao_Paulo)",
+  "ambiente": {
+    "banco": "MySQL 8.0 em conteiner Docker descartavel, porta somente em 127.0.0.1; schemas bee_good_food_validacao (testes) e bee_good_food_dev (demonstracao)",
+    "jdk": "Temurin 25",
+    "node": "24.16.0",
+    "navegador": "Navegador embutido do Claude (Chromium), 1025x768 e emulacao 375x812",
+    "observacao": "Runner oficial database/scripts/validar-banco.ps1 -Api nao executado: exige PowerShell 7, ausente nesta maquina."
+  },
+  "backend": {
+    "comando": "mvnw -B -Pintegration verify",
+    "testesHttpMySql": 158,
+    "testesUnitarios": 6,
+    "suitesHttpMySql": {
+      "ApiMySqlIT": 52,
+      "CatalogoIT": 23,
+      "CatalogoPublicoIT": 13,
+      "CorsIT": 3,
+      "EstabelecimentoIT": 21,
+      "IndicadoresIT": 10,
+      "PedidoIT": 36
+    }
+  },
+  "frontend": {
+    "comandos": ["npm run typecheck", "npm test", "npm run build"],
+    "testes": 14,
+    "suites": {
+      "carrinho.test.ts": 7,
+      "formato.test.ts": 5,
+      "AdicionarAoCarrinho.test.tsx": 2
+    },
+    "build": "dist gerado sem erros (JS 389 kB, 118 kB gzip)"
+  },
+  "verificacaoManualNoNavegador": [
+    "Inicio com explicacao da proposta antes da primeira acao, busca e lista de ofertas com faixa de prazo",
+    "Detalhe da oferta: quantidade limitada ao estoque, endereco de retirada e prazos no fuso da loja",
+    "Carrinho mantido ao recarregar a aba; login a partir do carrinho volta ao carrinho",
+    "Reserva criada com total do servidor; carrinho esvaziado; pedido com etapas e prazo de retirada",
+    "Recarregar a pagina encerra a sessao (token so em memoria) e o login retorna ao destino pedido",
+    "Responsavel: fila de pedidos, avanco PENDENTE ate CONCLUIDO com historico, indicadores (1 retirado, coorte 50%)",
+    "Responsavel: erro por campo (preco da oferta maior que o original) e conflito 409 de segunda oferta publicada",
+    "Administrador: aprovacao com motivo obrigatorio em dialogo; fila vazia com estado vazio",
+    "Largura de celular (375 px): navegacao em uma linha com rolagem e abertura sem estouro horizontal",
+    "Console do navegador sem erros durante os fluxos"
+  ],
+  "correcoesDuranteAValidacao": [
+    "Logout passou a navegar antes de limpar a sessao: o login seguinte nao volta para a pagina privada da conta anterior",
+    "Contorno de foco removido do destino de foco programatico (troca de pagina)",
+    "Abas sem barra de rolagem vertical indevida; navegacao movel sem quebra de linha"
+  ],
+  "limites": [
+    "Testes manuais feitos pelo desenvolvimento, nao com participantes; nao substituem as rodadas de validacao previstas em metricas-e-validacao.md.",
+    "Sem auditoria automatizada de acessibilidade (ex.: axe) nem teste ponta a ponta automatizado no navegador.",
+    "Resultados locais em uma unica instancia; nao comprovam desempenho nem deploy publico."
+  ]
+}
