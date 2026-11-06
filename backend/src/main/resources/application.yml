@@ -32,6 +32,13 @@ spring:
 server:
   address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8080}
+  # Atras de proxy reverso (HTTPS): FORWARD_HEADERS_STRATEGY=native e TRUSTED_PROXIES com o IP do proxy.
+  # Padrao "none": X-Forwarded-For e ignorado e o limite de tentativas usa o IP da conexao (nao forjavel).
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
+  tomcat:
+    remoteip:
+      # Expressao regular dos proxies confiaveis. Padrao: somente o proprio servidor (loopback).
+      internal-proxies: ${TRUSTED_PROXIES:127\.0\.0\.1|0:0:0:0:0:0:0:1}
   error:
     include-message: never
     include-stacktrace: never
