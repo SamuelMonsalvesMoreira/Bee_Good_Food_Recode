@@ -26,7 +26,12 @@
     "empacotamento": "JAR com somente V1 e V2 em db/migration"
   },
   "frontend": {
-    "comandos": ["npm run typecheck", "npm test", "npm run build", "npm run e2e"],
+    "comandos": [
+      "npm run typecheck",
+      "npm test",
+      "npm run build",
+      "npm run e2e"
+    ],
     "testesUnitarios": 14,
     "testesPontaAPonta": {
       "total": 11,
@@ -47,8 +52,12 @@
       "regras": "WCAG 2.0/2.1 A e AA",
       "telas": 12,
       "violacoes": 0,
-      "corrigido": "Nome acessivel do link do carrinho diferente do texto visivel (label-content-name-mismatch)"
-    }
+      "corrigido": [
+        "Nome acessivel do link do carrinho diferente do texto visivel (label-content-name-mismatch)",
+        "Nome acessivel do destaque da pagina inicial (mesma regra), apos a revisao visual de 06/11/2026"
+      ]
+    },
+    "revisaoVisual": "Icones por categoria (lucide-react), filtros rapidos, esbocos de carregamento, oferta em destaque e secao para pequenos negocios; 11 testes no navegador e axe sem violacoes apos a revisao (2 execucoes seguidas)"
   },
   "demonstracao": "npm run demo:popular executado em banco vazio: 3 lojas ativas, 1 em analise, 7 ofertas e 1 pedido",
   "deploy": "Contagem de tentativas por cliente real atras de proxy verificada (ProxyReversoIT); guia em docs/deploy.md com exemplo de Caddy nao executado",
