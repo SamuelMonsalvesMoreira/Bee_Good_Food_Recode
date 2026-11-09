@@ -51,6 +51,9 @@ Se sobrar tempo, mostre a **moderação**: entre como administrador, aprove a "D
 **O que vocês pegaram dos aplicativos que já existem?**
 Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram a vitrine em seções, a ordenação, o código de retirada, a economia acumulada do cliente, o selo de sacola surpresa, a barra inferior no celular e o tema escuro. Favoritos, avaliações e distância ficaram de fora para não sair do escopo ([análise](../planejamento/analise-de-mercado.md)).
 
+**Onde estão os 3 CRUDs completos?**
+Categorias (Moderação > Categorias), produtos e ofertas (Minhas lojas > loja > Produtos e ofertas). Os três criam, listam, atualizam e removem pela tela. O que já tem pedido não é apagado, para não quebrar o histórico: a tela explica e sugere desativar ou encerrar.
+
 **Por que só retirada e não entrega?**
 Entrega exigiria endereço do cliente, taxa, área de cobertura e logística. O MVP foca no essencial para o pequeno negócio (DEC-001).
 

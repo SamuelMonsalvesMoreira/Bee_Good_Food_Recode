@@ -63,7 +63,63 @@ test.describe('responsável pela loja', () => {
     await irPeloMenu(page, 'Ofertas');
     await page.getByLabel('O que você procura').fill(produto);
     await page.getByRole('button', { name: 'Buscar ofertas' }).click();
+    await expect(page.getByRole('heading', { name: 'Resultado da busca' })).toBeVisible();
     await expect(page.getByRole('link', { name: produto })).toBeVisible();
+  });
+});
+
+test.describe('remoção pela interface (DEC-038)', () => {
+  test('responsável remove oferta em rascunho e produto', async ({ page }) => {
+    const loja = await lojaAtiva();
+    await categoria('Padaria');
+    const produto = unico('Remover E2E');
+
+    await entrar(page, loja.dono);
+    await irPeloMenu(page, 'Minhas lojas');
+    await page.getByRole('link', { name: loja.nome }).click();
+    await page.getByRole('button', { name: 'Produtos e ofertas' }).click();
+    await page.getByLabel('Categoria').selectOption({ label: 'Padaria' });
+    await page.getByLabel('Nome').fill(produto);
+    await page.getByRole('button', { name: 'Cadastrar produto' }).click();
+    await page.getByRole('link', { name: produto, exact: true }).first().click();
+
+    await page.getByLabel('Preço original (R$)').fill('8,00');
+    await page.getByLabel('Preço da oferta (R$)').fill('3,50');
+    await page.getByLabel('Estoque').fill('3');
+    await page.getByRole('button', { name: 'Criar rascunho' }).click();
+    await page.getByRole('button', { name: /^Remover oferta/ }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Remover de vez' }).click();
+    await expect(page.getByRole('heading', { name: 'Nenhuma oferta criada.' })).toBeVisible();
+
+    await page.getByRole('link', { name: loja.nome }).click();
+    await page.getByRole('button', { name: `Remover ${produto}` }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Manter' }).click();
+    await expect(page.getByRole('link', { name: produto, exact: true })).toBeVisible();
+    await page.getByRole('button', { name: `Remover ${produto}` }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Remover de vez' }).click();
+    await expect(page.getByRole('link', { name: produto, exact: true })).toHaveCount(0);
+  });
+
+  test('moderação remove categoria sem produtos e recebe explicação quando há produtos', async ({ page }) => {
+    const { admin } = await import('./apoio');
+    const conta = await admin();
+    const livre = unico('Categoria E2E');
+    await entrar(page, conta);
+    await irPeloMenu(page, 'Moderação');
+    await page.getByRole('link', { name: 'Categorias' }).click();
+    await page.getByRole('form', { name: 'Nova categoria' }).getByLabel('Nome').fill(livre);
+    await page.getByRole('button', { name: 'Criar categoria' }).click();
+    await page.getByRole('button', { name: `Remover ${livre}` }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Remover de vez' }).click();
+    await expect(page.getByRole('button', { name: `Remover ${livre}` })).toHaveCount(0);
+
+    await categoria('Padaria');
+    const loja = await lojaAtiva();
+    await ofertaPublicada(loja);
+    await page.getByRole('button', { name: 'Remover Padaria' }).click();
+    const dialogo = page.getByRole('dialog');
+    await dialogo.getByRole('button', { name: 'Remover de vez' }).click();
+    await expect(dialogo.getByText('Desative a categoria em vez de remover.')).toBeVisible();
   });
 });
 

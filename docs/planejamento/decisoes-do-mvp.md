@@ -17,7 +17,7 @@ Este registro torna explícitas as escolhas que orientam o banco, a API e o fron
 | DEC-009 | Total calculado no backend | O cliente não é fonte confiável de preço | Checkout sempre relê ofertas e recalcula valores |
 | DEC-010 | Snapshot no pedido e nos itens | Alterações futuras não podem modificar o histórico | Preserva nome e preços dos itens, nome e endereço do estabelecimento, fuso e prazo de retirada |
 | DEC-011 | Pagamento apenas declarado | O MVP prioriza catálogo, estoque, pedidos e retirada; integração financeira exigiria conciliação e novos fluxos | Não existe confirmação de recebimento no sistema |
-| DEC-012 | Desativação lógica | Exclusão física pode quebrar histórico e auditoria | Consultas operacionais filtram registros inativos |
+| DEC-012 | Desativação lógica (ajustada por DEC-038) | Exclusão física pode quebrar histórico e auditoria | Consultas operacionais filtram registros inativos. Registro sem histórico pode ser removido de verdade |
 | DEC-013 | Monólito modular | É suficiente para o MVP e mais simples de executar e observar | Limites entre módulos devem ser respeitados no código |
 | DEC-014 | Autodeclaração de maioridade | Atende à restrição com minimização de dados | Não é verificação documental de idade |
 | DEC-015 | Busca local por cidade e bairro | Geolocalização adicionaria APIs, consentimento e cálculo de distância | O MVP não promete ofertas ordenadas por proximidade |
@@ -43,6 +43,7 @@ Este registro torna explícitas as escolhas que orientam o banco, a API e o fron
 | DEC-035 | "Sacola surpresa" por convenção de nome | Modelo popular no mercado para excedente variado; uma nova coluna exigiria migration e telas de gestão | Produto com "surpresa" no nome ganha um selo na vitrine; nenhuma regra de negócio muda |
 | DEC-036 | Tema escuro segue o sistema, com escolha local | Conforto visual à noite, horário em que as ofertas costumam aparecer | Sem escolha salva, segue `prefers-color-scheme`; a escolha manual fica em `localStorage` (`bee.tema`), que guarda só a preferência visual, nunca dados da conta |
 | DEC-037 | Modo demonstração para a publicação do TCC | A banca e quem visita o portfólio precisam abrir o site sem esperar uma API gratuita "acordar" e sem criar conta | `VITE_MODO_DEMO=true` (build `npm run build:demo`) troca a API por uma simulação no navegador com dados fictícios e três contas públicas de demonstração. A simulação reproduz as regras principais, mas a segurança real (JWT, BCrypt, transações, constraints) existe só no backend. Nessa build a sessão fictícia fica no `sessionStorage` da aba; a build normal continua com token só em memória. Uma faixa avisa que nada é vendido nem cobrado |
+| DEC-038 | Remoção real de categorias, produtos e ofertas sem histórico | O desafio do Programa Transforma Futuros exige ao menos 3 CRUDs completos, com remoção pela interface; DEC-012 só previa desativar | `DELETE` remove categoria sem produtos, oferta em rascunho ou encerrada sem pedidos e produto sem pedidos (com suas ofertas). Oferta publicada ou pausada precisa ser encerrada antes. O que tem pedido nunca é apagado: as FKs do MySQL recusam, inclusive sob concorrência, e a API responde 409 orientando a desativar ou encerrar. Pedidos, lojas e contas seguem sem remoção |
 
 ## Arquitetura de contêineres
 

@@ -1,6 +1,7 @@
 package br.com.beegoodfood.catalogo;
 
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,11 @@ interface OfertaRepository extends JpaRepository<Oferta, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select o from Oferta o where o.id = :id")
     Optional<Oferta> bloquear(@Param("id") long id);
+
+    // Bloqueio em ordem de ID, como na venda, para nao criar deadlock com pedidos simultaneos.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select o from Oferta o where o.produtoId = :produtoId order by o.id")
+    List<Oferta> bloquearDoProduto(@Param("produtoId") long produtoId);
 
     // Ajuste relativo e atomico: nao sobrescreve baixas concorrentes nem deixa o saldo negativo.
     // CAST evita aritmetica UNSIGNED com ajuste negativo.

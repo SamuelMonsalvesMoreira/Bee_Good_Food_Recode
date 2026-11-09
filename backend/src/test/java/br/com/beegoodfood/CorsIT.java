@@ -22,6 +22,13 @@ class CorsIT extends IntegracaoBase {
     }
 
     @Test
+    void preflightLiberaRemocaoParaOFrontend() throws Exception {
+        var response = preflight(ORIGEM_FRONTEND, "DELETE", "authorization");
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Access-Control-Allow-Methods").orElse("")).contains("DELETE");
+    }
+
+    @Test
     void outraOrigemNaoRecebeLiberacao() throws Exception {
         var response = preflight("https://site-malicioso.example", "POST", "authorization");
         assertThat(response.statusCode()).isEqualTo(403);

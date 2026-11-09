@@ -61,6 +61,9 @@ test.describe('acessibilidade @celular', () => {
     await auditar(page, 'fila de pedidos');
     await page.getByRole('button', { name: 'Produtos e ofertas' }).click();
     await auditar(page, 'produtos');
+    await page.getByRole('button', { name: /^Remover/ }).first().click();
+    await auditar(page, 'confirmação de remoção');
+    await page.getByRole('dialog').getByRole('button', { name: 'Manter' }).click();
     await page.getByRole('button', { name: 'Indicadores' }).click();
     await auditar(page, 'indicadores');
     await page.getByRole('button', { name: 'Dados da loja' }).click();

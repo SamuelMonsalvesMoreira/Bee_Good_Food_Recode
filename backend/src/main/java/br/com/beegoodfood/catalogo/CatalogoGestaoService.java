@@ -8,8 +8,10 @@ import br.com.beegoodfood.estabelecimentos.EstabelecimentoService;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import static br.com.beegoodfood.catalogo.StatusOferta.*;
 public class CatalogoGestaoService {
     private static final String PRODUTO_NAO_ENCONTRADO = "Produto não encontrado.";
     private static final String OFERTA_NAO_ENCONTRADA = "Oferta não encontrada.";
+    private static final String COM_PEDIDOS = "Há pedidos com esta oferta, e eles precisam ficar no histórico. Encerre a oferta ou desative o produto.";
 
     public enum Acao { PUBLICAR, PAUSAR, RETOMAR, ENCERRAR }
 
@@ -67,6 +70,23 @@ public class CatalogoGestaoService {
         return ProdutoResponse.from(produtos.saveAndFlush(produto));
     }
 
+    /**
+     * Remove o produto e as ofertas dele que nunca venderam (DEC-038). Oferta com pedido fica no historico:
+     * a FK item_pedido -> oferta recusa e a transacao inteira e desfeita (409).
+     */
+    @Transactional
+    public void removerProduto(long produtoId, long usuarioId) {
+        var produto = produtoDoProprietario(produtoId, usuarioId);
+        var doProduto = ofertas.bloquearDoProduto(produtoId);
+        if (doProduto.stream().anyMatch(CatalogoGestaoService::emVenda)) {
+            throw RegraNegocioException.conflito("Encerre as ofertas publicadas ou pausadas antes de remover o produto.");
+        }
+        ofertas.deleteAll(doProduto);
+        confirmarRemocao(ofertas, COM_PEDIDOS);
+        produtos.delete(produto);
+        confirmarRemocao(produtos, "Uma oferta foi criada para este produto agora há pouco. Atualize a página e tente de novo.");
+    }
+
     // ---- Ofertas ----
 
     @Transactional
@@ -103,6 +123,15 @@ public class CatalogoGestaoService {
         validarCondicoes(valores);
         oferta.editarRascunho(valores);
         return OfertaResponse.from(ofertas.saveAndFlush(oferta));
+    }
+
+    /** Remove rascunho ou oferta encerrada sem pedidos (DEC-038). Oferta em venda precisa ser encerrada antes. */
+    @Transactional
+    public void removerOferta(long ofertaId, long usuarioId) {
+        var oferta = ofertaBloqueada(ofertaId, usuarioId);
+        if (emVenda(oferta)) { throw RegraNegocioException.conflito("Encerre a oferta antes de remover."); }
+        ofertas.delete(oferta);
+        confirmarRemocao(ofertas, COM_PEDIDOS);
     }
 
     @Transactional
@@ -146,6 +175,19 @@ public class CatalogoGestaoService {
     }
 
     // ---- Regras ----
+
+    // A FK do MySQL e quem decide, inclusive sob concorrencia; aqui so se escolhe a explicacao para a pessoa.
+    private static void confirmarRemocao(JpaRepository<?, ?> repositorio, String motivoDaRecusa) {
+        try {
+            repositorio.flush();
+        } catch (DataIntegrityViolationException error) {
+            throw RegraNegocioException.conflito(motivoDaRecusa);
+        }
+    }
+
+    private static boolean emVenda(Oferta oferta) {
+        return oferta.status() == PUBLICADA || oferta.status() == PAUSADA;
+    }
 
     private void exigirPublicavel(Oferta oferta, boolean publicacao) {
         var produto = produtos.findById(oferta.produtoId()).orElseThrow();

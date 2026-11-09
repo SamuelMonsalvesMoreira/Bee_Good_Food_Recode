@@ -7,12 +7,12 @@
   },
   "tags": [
     {
-      "name": "Estabelecimentos",
-      "description": "Solicitação e manutenção do estabelecimento pelo proprietário"
-    },
-    {
       "name": "Gestão do catálogo",
       "description": "Produtos e ofertas do estabelecimento do responsável autenticado"
+    },
+    {
+      "name": "Estabelecimentos",
+      "description": "Solicitação e manutenção do estabelecimento pelo proprietário"
     },
     {
       "name": "Pedidos",
@@ -123,6 +123,36 @@
             "bearerAuth": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Remover produto",
+        "description": "Remove também as ofertas sem pedidos. Com oferta em venda ou com pedidos: 409.",
+        "operationId": "removerProduto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/v1/ofertas/{id}": {
@@ -197,6 +227,36 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Gestão do catálogo"
+        ],
+        "summary": "Remover oferta",
+        "description": "Somente rascunho ou encerrada e sem pedidos (409).",
+        "operationId": "removerOferta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         },
         "security": [
@@ -297,7 +357,7 @@
           "Categorias (administração)"
         ],
         "summary": "Editar ou desativar categoria",
-        "description": "Não existe exclusão física; desativar preserva o histórico.",
+        "description": "Desativar preserva o histórico e tira a categoria das buscas.",
         "operationId": "atualizar_1",
         "parameters": [
           {
@@ -331,6 +391,36 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Categorias (administração)"
+        ],
+        "summary": "Remover categoria",
+        "description": "Somente categoria sem produtos (409). Com produtos, desative.",
+        "operationId": "remover",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         },
         "security": [
@@ -1398,7 +1488,7 @@
           "Catálogo público"
         ],
         "summary": "Buscar ofertas compráveis",
-        "description": "Filtros combinados (E): texto (produto, descrição ou estabelecimento), categoria, cidade, bairro e estabelecimento. Cidade e bairro ignoram maiúsculas e acentos. Ordenação: fim da venda e ID. Tamanho padrão 20 (1 a 100).",
+        "description": "Filtros combinados (E): texto (produto, descrição ou estabelecimento), categoria, cidade, bairro e estabelecimento. Cidade e bairro ignoram maiúsculas e acentos. Ordem: PRAZO (termina antes, padrão), DESCONTO (maior primeiro), PRECO (menor primeiro) ou RECENTES. Tamanho padrão 20 (1 a 100).",
         "operationId": "buscar",
         "parameters": [
           {
@@ -1449,6 +1539,21 @@
               "type": "integer",
               "format": "int64",
               "minimum": 1
+            }
+          },
+          {
+            "name": "ordem",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "PRAZO",
+              "enum": [
+                "PRAZO",
+                "DESCONTO",
+                "PRECO",
+                "RECENTES"
+              ]
             }
           },
           {
@@ -2715,6 +2820,9 @@
             ]
           },
           "total": {
+            "type": "number"
+          },
+          "economia": {
             "type": "number"
           },
           "retiradaAte": {

@@ -37,8 +37,15 @@ public class AdminCategoriaController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Editar ou desativar categoria", description = "Não existe exclusão física; desativar preserva o histórico.")
+    @Operation(summary = "Editar ou desativar categoria", description = "Desativar preserva o histórico e tira a categoria das buscas.")
     public CategoriaAdminResponse atualizar(@PathVariable @Min(1) long id, @Valid @RequestBody CategoriaAdminRequest request) {
         return service.atualizar(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Remover categoria", description = "Somente categoria sem produtos (409). Com produtos, desative.")
+    public void remover(@PathVariable @Min(1) long id) {
+        service.remover(id);
     }
 }

@@ -1,12 +1,12 @@
 {
   "status": "PASS",
-  "inicioUtc": "2026-11-06T17:45:29.7367565Z",
-  "fimUtc": "2026-11-06T17:47:35.0025674Z",
+  "inicioUtc": "2026-11-09T23:35:51.9485426Z",
+  "fimUtc": "2026-11-09T23:38:05.1380873Z",
   "springBoot": "4.1.1",
   "springdoc": "3.1.1",
   "javaRelease": 21,
-  "testesHttpMySql": 159,
-  "testesUnitarios": 6,
+  "testesHttpMySql": 171,
+  "testesUnitarios": 9,
   "migrations": [
     "V1__criar_schema_inicial.sql",
     "V2__cadastrar_papeis.sql"

@@ -28,7 +28,7 @@ export function aoPerderSessao(callback: (() => void) | null) {
 }
 
 interface Opcoes {
-  metodo?: 'GET' | 'POST' | 'PUT';
+  metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   corpo?: unknown;
   cabecalhos?: Record<string, string>;
   sinal?: AbortSignal;
@@ -91,7 +91,8 @@ async function respostaDemo(caminho: string, opcoes: Opcoes, cabecalhos: Record<
   opcoes.sinal?.throwIfAborted();
   const r = await responder(opcoes.metodo ?? 'GET', caminho, opcoes.corpo, cabecalhos);
   opcoes.sinal?.throwIfAborted();
-  return new Response(JSON.stringify(r.dados), {
+  // 204 nao aceita corpo no construtor de Response.
+  return new Response(r.status === 204 ? null : JSON.stringify(r.dados), {
     status: r.status,
     headers: { 'Content-Type': r.status >= 400 ? 'application/problem+json' : 'application/json', ...r.cabecalhos },
   });

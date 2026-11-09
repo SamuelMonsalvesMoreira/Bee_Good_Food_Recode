@@ -425,9 +425,21 @@ function validarOferta(corpo: Record<string, unknown>) {
     inicioVenda: new Date(inicio).toISOString(), vendaAte: new Date(venda).toISOString(), retiradaAte: new Date(retirada).toISOString() };
 }
 
+const HISTORICO = 'Há pedidos com esta oferta, e eles precisam ficar no histórico. Encerre a oferta ou desative o produto.';
+const emVenda = (o: Oferta) => o.status === 'PUBLICADA' || o.status === 'PAUSADA';
+const temPedido = (o: Oferta) => estado.pedidos.some((p) => p.itens.some((i) => i.ofertaId === o.id));
+
 function produtoRotas(ctx: Contexto, id: number, sub?: string): RespostaDemo {
   const p = produtoDoDono(ctx, id);
   if (!sub && ctx.metodo === 'GET') return ok(p);
+  if (!sub && ctx.metodo === 'DELETE') {
+    const doProduto = estado.ofertas.filter((o) => o.produtoId === p.id);
+    if (doProduto.some(emVenda)) throw conflito('Encerre as ofertas publicadas ou pausadas antes de remover o produto.');
+    if (doProduto.some(temPedido)) throw new Erro(409, 'Conflito de dados', HISTORICO);
+    estado.ofertas = estado.ofertas.filter((o) => o.produtoId !== p.id);
+    estado.produtos = estado.produtos.filter((x) => x.id !== p.id);
+    return ok(null, 204);
+  }
   if (!sub && ctx.metodo === 'PUT') {
     const c = ctx.corpo as { categoriaId?: number; nome?: string; descricao?: string; ativo?: boolean };
     if (!c.nome?.trim()) throw invalido({ nome: 'não deve estar em branco' });
@@ -459,6 +471,12 @@ function ofertaRotas(ctx: Contexto, id: number, acao?: string): RespostaDemo {
       throw new Erro(409, 'Conflito de dados', 'Este produto já possui uma oferta publicada ou pausada.');
     }
   };
+  if (!acao && ctx.metodo === 'DELETE') {
+    if (emVenda(o)) throw conflito('Encerre a oferta antes de remover.');
+    if (temPedido(o)) throw new Erro(409, 'Conflito de dados', HISTORICO);
+    estado.ofertas = estado.ofertas.filter((x) => x.id !== o.id);
+    return ok(null, 204);
+  }
   if (!acao && ctx.metodo === 'PUT') {
     if (o.status !== 'RASCUNHO') throw conflito('Preço e prazos não mudam após a publicação. Encerre esta oferta e crie outra.');
     Object.assign(o, validarOferta(ctx.corpo));
@@ -611,6 +629,12 @@ function administracao(ctx: Contexto, recurso?: string, id?: string, acao?: stri
     const nome = String((ctx.corpo as { nome?: string }).nome ?? '').trim().replace(/\s+/g, ' ');
     const slug = semAcento(nome).replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '');
     if (ctx.metodo === 'GET') return ok(pagina([...estado.categorias].sort((x, y) => x.nome.localeCompare(y.nome)), ctx.params));
+    if (ctx.metodo === 'DELETE') {
+      if (!estado.categorias.some((x) => x.id === Number(id))) throw naoEncontrado('Categoria não encontrada.');
+      if (estado.produtos.some((x) => x.categoriaId === Number(id))) throw new Erro(409, 'Conflito de dados', 'Esta categoria tem produtos. Desative a categoria em vez de remover.');
+      estado.categorias = estado.categorias.filter((x) => x.id !== Number(id));
+      return ok(null, 204);
+    }
     if (!nome) throw invalido({ nome: 'não deve estar em branco' });
     if (!slug) throw invalido({ nome: 'Use ao menos uma letra ou número no nome.' });
     const outra = estado.categorias.find((c) => c.slug === slug && c.id !== Number(id));

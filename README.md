@@ -6,14 +6,14 @@
 
 **Excedentes do dia de pequenos negócios de comida, com desconto, para reservar pelo site e retirar no balcão.**
 
-Projeto final do programa **Recode Fullstack**, evoluído a partir do meu TCC. Alinhado ao **ODS 8**: trabalho decente e crescimento econômico.
+Projeto final do **Programa Transforma Futuros** (Recode Fullstack), evoluído a partir do meu TCC. Alinhado ao **ODS 8**: trabalho decente e crescimento econômico.
 
 ![Java 21](https://img.shields.io/badge/Java-21-2b1d0e?logo=openjdk&logoColor=white)
 ![Spring Boot 4](https://img.shields.io/badge/Spring_Boot-4.1-2f6b3a?logo=springboot&logoColor=white)
 ![React 19](https://img.shields.io/badge/React-19-2b1d0e?logo=react&logoColor=61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-2b1d0e?logo=typescript&logoColor=white)
 ![MySQL 8](https://img.shields.io/badge/MySQL-8-2b1d0e?logo=mysql&logoColor=white)
-![Testes](https://img.shields.io/badge/testes-203_automatizados-2f6b3a)
+![Testes](https://img.shields.io/badge/testes-215_automatizados-2f6b3a)
 ![Acessibilidade](https://img.shields.io/badge/WCAG_2.1_AA-0_viola%C3%A7%C3%B5es-2f6b3a)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-f2b705)
 
@@ -39,6 +39,17 @@ O foco é o pequeno negócio local. Ele ganha um canal de venda simples, recuper
 | **Cliente** (18 anos ou mais) | Busca por texto, cidade, bairro e categoria; carrinho de uma loja; reserva; acompanhamento do pedido; histórico. |
 | **Responsável pela loja** | Cadastro da loja com moderação; produtos e ofertas com preço, estoque e prazos; fila de pedidos; indicadores de vendas e cancelamentos. |
 | **Administração** | Aprovação, pedido de ajustes, suspensão e reativação de lojas, sempre com motivo registrado; categorias. |
+
+| No desafio | No projeto |
+|---|---|
+| **Problema** | Pequenos negócios de comida perdem o excedente do dia por falta de um canal simples de venda. |
+| **ODS** | ODS 8: Trabalho Decente e Crescimento Econômico. |
+| **Público-alvo** | Responsáveis por pequenos negócios de comida e consumidores adultos. |
+| **Impacto esperado** | Receita extra para a loja e comida mais barata perto de casa. Ainda não medido com pessoas reais. |
+| **Tecnologias** | MySQL, API em Java e interface em ReactJS. |
+| **CRUDs completos pela interface** | Categorias, produtos e ofertas: criar, listar, atualizar e remover. |
+
+[Como cada exigência do desafio foi atendida](docs/planejamento/atendimento-ao-desafio.md).
 
 ## Comparado com o mercado
 
@@ -112,11 +123,11 @@ A API é um monólito modular, com um pacote por área: `auth`, `estabelecimento
 
 | Suíte | Quantidade | O que cobre |
 |---|---|---|
-| Backend HTTP/MySQL | 162 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa, cenários simultâneos e ordenação da vitrine. |
+| Backend HTTP/MySQL | 171 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa, cenários simultâneos, ordenação da vitrine e remoção. |
 | Backend unitários | 9 | Limite de tentativas, chave JWT e relógio com precisão de microssegundos. |
-| Frontend unitários | 19 | Regras do carrinho, conversão de fusos, confirmação ao trocar de loja e a API simulada da demonstração. |
-| Navegador (Playwright) | 13 | Fluxos de cliente, responsável e administração, no desktop e no celular, nos temas claro e escuro. |
-| Acessibilidade (axe) | 16 telas | WCAG 2.1 A/AA, sem violações, inclusive no tema escuro. |
+| Frontend unitários | 20 | Regras do carrinho, conversão de fusos, confirmação ao trocar de loja e a API simulada da demonstração. |
+| Navegador (Playwright) | 15 | Fluxos de cliente, responsável e administração, no desktop e no celular, nos temas claro e escuro. |
+| Acessibilidade (axe) | 17 telas | WCAG 2.1 A/AA, sem violações, inclusive no tema escuro. |
 
 Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`validacao-vitrine-e-demo.json`](backend/evidencias/validacao-vitrine-e-demo.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
 
@@ -164,6 +175,7 @@ Bee_Good_Food_Recode/
 ## Documentação
 
 - [Escopo](docs/planejamento/escopo.md) e [requisitos](docs/planejamento/requisitos-iniciais.md)
+- [Atendimento ao desafio](docs/planejamento/atendimento-ao-desafio.md)
 - [Decisões do MVP e arquitetura](docs/planejamento/decisoes-do-mvp.md)
 - [Análise de mercado e melhorias](docs/planejamento/analise-de-mercado.md)
 - [Critérios de aceitação](docs/planejamento/criterios-de-aceitacao.md)

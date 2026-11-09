@@ -14,6 +14,7 @@ Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localm
 | Publicação | `backend/Dockerfile`, `render.yaml` e `frontend/vercel.json`, com [passo a passo gratuito](../deploy.md#publicação-gratuita-vercel-render-e-aiven) (Vercel, Render e Aiven). Imagem testada localmente. |
 | Comparação com o mercado | [Análise](analise-de-mercado.md) de Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram vitrine em seções, ordenação, código de retirada, economia do cliente, selo de sacola surpresa, contagem regressiva, barra inferior no celular, avisos rápidos e tema escuro (DEC-032 a DEC-036). |
 | Demonstração online | Modo demonstração com API simulada no navegador e contas fictícias de um clique, para publicar só a interface na Vercel ([DEC-037](decisoes-do-mvp.md), [passo a passo](../deploy.md#demonstração-do-tcc-só-vercel-modo-demonstração)). Aviso de projeto acadêmico, sem fins lucrativos. |
+| CRUDs completos | Remoção de categorias, produtos e ofertas pela interface, preservando o que tem pedido ([DEC-038](decisoes-do-mvp.md), [atendimento ao desafio](atendimento-ao-desafio.md)). |
 | Robustez da interface | Tela "Algo deu errado" no lugar de página em branco; aviso claro quando a API não responde. Também corrigido o contexto de sessão, que quebrava com o recarregamento automático do servidor de desenvolvimento. |
 
 ## Validação executada
@@ -24,7 +25,7 @@ Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localm
 
 [Relatório da validação da Etapa 7](../../backend/evidencias/validacao-etapa-7.json)
 
-**Depois das melhorias de mercado** ([relatório](../../backend/evidencias/validacao-vitrine-e-demo.json)): 162 testes HTTP/MySQL e 9 unitários no backend; 19 unitários (5 da API simulada), as duas builds e 13 testes no navegador no frontend; axe sem violações em 16 telas, incluindo o tema escuro.
+**Depois das melhorias de mercado e da remoção nos CRUDs** ([relatório](../../backend/evidencias/validacao-vitrine-e-demo.json)): runner oficial aprovado com 171 testes HTTP/MySQL e 9 unitários; 20 unitários (6 da API simulada), as duas builds e 15 testes no navegador no frontend; axe sem violações em 17 telas, incluindo o tema escuro.
 
 Esses resultados são locais. A auditoria automática encontra parte dos problemas de acessibilidade, mas não substitui o uso com leitor de tela nem os testes com pessoas.
 

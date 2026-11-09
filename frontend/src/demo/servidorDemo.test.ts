@@ -62,6 +62,37 @@ describe('API simulada da demonstração', () => {
     expect(outro.status).toBe(409);
   });
 
+  it('remove categoria, produto e oferta respeitando o histórico', async () => {
+    const admin = await entrar(2);
+    const criada = await chamar('POST', '/api/v1/admin/categorias', { nome: 'Temporária' }, admin);
+    const idCategoria = (criada.dados as { id: number }).id;
+    expect((await chamar('DELETE', `/api/v1/admin/categorias/${idCategoria}`, undefined, admin)).status).toBe(204);
+    expect((await chamar('DELETE', `/api/v1/admin/categorias/${idCategoria}`, undefined, admin)).status).toBe(404);
+    const emUso = ((await chamar('GET', '/api/v1/categorias')).dados as Pagina).conteudo[0]!;
+    expect((await chamar('DELETE', `/api/v1/admin/categorias/${emUso.id}`, undefined, admin)).status).toBe(409);
+
+    const loja = await entrar(1);
+    expect((await chamar('DELETE', `/api/v1/admin/categorias/${emUso.id}`, undefined, loja)).status).toBe(403);
+    const lojaId = ((await chamar('GET', '/api/v1/estabelecimentos/meus', undefined, loja)).dados as Pagina).conteudo[0]!.id;
+    const produto = await chamar('POST', `/api/v1/estabelecimentos/${lojaId}/produtos`, { categoriaId: emUso.id, nome: 'Novo' }, loja);
+    const produtoId = (produto.dados as { id: number }).id;
+    const agora = Date.now();
+    const rascunho = await chamar('POST', `/api/v1/produtos/${produtoId}/ofertas`, {
+      precoOriginal: 10, precoOferta: 5, estoque: 2, inicioVenda: new Date(agora - 60_000).toISOString(),
+      vendaAte: new Date(agora + 3_600_000).toISOString(), retiradaAte: new Date(agora + 7_200_000).toISOString(),
+    }, loja);
+    const ofertaId = (rascunho.dados as { id: number }).id;
+    expect((await chamar('POST', `/api/v1/ofertas/${ofertaId}/publicar`, undefined, loja)).status).toBe(200);
+    expect((await chamar('DELETE', `/api/v1/produtos/${produtoId}`, undefined, loja)).status).toBe(409);
+    expect((await chamar('DELETE', `/api/v1/ofertas/${ofertaId}`, undefined, loja)).status).toBe(409);
+    expect((await chamar('POST', `/api/v1/ofertas/${ofertaId}/encerrar`, undefined, loja)).status).toBe(200);
+    expect((await chamar('DELETE', `/api/v1/produtos/${produtoId}`, undefined, loja)).status).toBe(204);
+    expect((await chamar('GET', `/api/v1/produtos/${produtoId}`, undefined, loja)).status).toBe(404);
+
+    const comPedido = ((await chamar('GET', `/api/v1/estabelecimentos/${lojaId}/produtos`, undefined, loja)).dados as Pagina).conteudo[0]!;
+    expect((await chamar('DELETE', `/api/v1/produtos/${comPedido.id}`, undefined, loja)).status).toBe(409);
+  });
+
   it('loja avança o pedido e consulta indicadores', async () => {
     const loja = await entrar(1);
     const lojas = (await chamar('GET', '/api/v1/estabelecimentos/meus', undefined, loja)).dados as Pagina;

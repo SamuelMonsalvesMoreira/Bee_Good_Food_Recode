@@ -69,11 +69,13 @@ export const gestao = {
     requisitar<Produto>(`/api/v1/estabelecimentos/${estabelecimentoId}/produtos`, { metodo: 'POST', corpo: dados }),
   atualizarProduto: (id: number, dados: { categoriaId: number; nome: string; descricao: string; ativo: boolean }) =>
     requisitar<Produto>(`/api/v1/produtos/${id}`, { metodo: 'PUT', corpo: dados }),
+  removerProduto: (id: number) => requisitar<void>(`/api/v1/produtos/${id}`, { metodo: 'DELETE' }),
   ofertas: (produtoId: number) => requisitar<Pagina<Oferta>>(`/api/v1/produtos/${produtoId}/ofertas?tamanho=100`),
   criarOferta: (produtoId: number, dados: OfertaForm) =>
     requisitar<Oferta>(`/api/v1/produtos/${produtoId}/ofertas`, { metodo: 'POST', corpo: dados }),
   editarOferta: (id: number, dados: OfertaForm) =>
     requisitar<Oferta>(`/api/v1/ofertas/${id}`, { metodo: 'PUT', corpo: dados }),
+  removerOferta: (id: number) => requisitar<void>(`/api/v1/ofertas/${id}`, { metodo: 'DELETE' }),
   acaoOferta: (id: number, acao: 'publicar' | 'pausar' | 'retomar' | 'encerrar') =>
     requisitar<Oferta>(`/api/v1/ofertas/${id}/${acao}`, { metodo: 'POST' }),
   ajustarEstoque: (id: number, ajuste: number) =>
@@ -118,4 +120,5 @@ export const admin = {
     requisitar<CategoriaAdmin>('/api/v1/admin/categorias', { metodo: 'POST', corpo: { nome } }),
   atualizarCategoria: (id: number, nome: string, ativo: boolean) =>
     requisitar<CategoriaAdmin>(`/api/v1/admin/categorias/${id}`, { metodo: 'PUT', corpo: { nome, ativo } }),
+  removerCategoria: (id: number) => requisitar<void>(`/api/v1/admin/categorias/${id}`, { metodo: 'DELETE' }),
 };

@@ -87,7 +87,7 @@ Por padrão, o servidor escuta em `127.0.0.1:8080`. Para servir o frontend em ou
 | `GET /api/v1/estabelecimentos/meus` · `GET/PUT /{id}` · `GET /{id}/historico` | Proprietário (ou administrador) consulta, edita e vê o histórico |
 | `GET /api/v1/admin/estabelecimentos?status=` | Fila de moderação |
 | `POST /api/v1/admin/estabelecimentos/{id}/aprovar\|rejeitar\|suspender\|reativar` | Decisão com motivo; aprovar concede RESPONSAVEL |
-| `GET/POST /api/v1/admin/categorias` · `PUT /{id}` | Administração de categorias (sem exclusão física) |
+| `GET/POST /api/v1/admin/categorias` · `PUT/DELETE /{id}` | Administração de categorias; remover só sem produtos (DEC-038) |
 | `POST/GET /api/v1/estabelecimentos/{id}/produtos` · `GET/PUT /api/v1/produtos/{id}` | Produtos do responsável |
 | `POST/GET /api/v1/produtos/{id}/ofertas` · `PUT /api/v1/ofertas/{id}` · `GET /api/v1/gestao/ofertas/{id}` | Ofertas (edição só em rascunho) |
 | `POST /api/v1/ofertas/{id}/publicar\|pausar\|retomar\|encerrar` · `POST /{id}/estoque` | Ciclo da oferta e ajuste relativo de estoque |

@@ -47,6 +47,7 @@ test.describe('visitante e cliente', () => {
     // Navegacao interna: a sessao vive so em memoria.
     await page.getByLabel('O que você procura').fill(ofertaA.produto);
     await page.getByRole('button', { name: 'Buscar ofertas' }).click();
+    await expect(page.getByRole('heading', { name: 'Resultado da busca' })).toBeVisible();
     await page.getByRole('link', { name: ofertaA.produto }).click();
     await page.getByRole('button', { name: 'Aumentar quantidade' }).click();
     await page.getByRole('button', { name: 'Adicionar ao carrinho' }).click();
@@ -55,6 +56,7 @@ test.describe('visitante e cliente', () => {
     await irPeloMenu(page, 'Ofertas');
     await page.getByLabel('O que você procura').fill(ofertaB.produto);
     await page.getByRole('button', { name: 'Buscar ofertas' }).click();
+    await expect(page.getByRole('heading', { name: 'Resultado da busca' })).toBeVisible();
     await page.getByRole('link', { name: ofertaB.produto }).click();
     await page.getByRole('button', { name: 'Adicionar ao carrinho' }).click();
     const dialogo = page.getByRole('dialog', { name: 'Trocar de loja?' });

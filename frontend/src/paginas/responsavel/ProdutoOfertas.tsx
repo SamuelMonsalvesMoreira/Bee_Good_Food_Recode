@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { catalogo, estabelecimentos, gestao, type OfertaForm } from '../../api/endpoints';
 import type { Oferta, Produto } from '../../api/types';
+import { BotaoRemover } from '../../componentes/BotaoRemover';
 import { Campo, CampoSelecao, erroDoCampo } from '../../componentes/Campo';
 import { Carregando, ErroCarga, ErroEnvio, Sucesso, Vazio } from '../../componentes/Estados';
 import { FaixaPrazo } from '../../componentes/FaixaPrazo';
@@ -76,6 +77,10 @@ function CartaoOferta({ oferta, fuso, lojaAtiva, aoMudar }: { oferta: Oferta; fu
         {s === 'PUBLICADA' && <button className="botao botao-secundario botao-pequeno" disabled={acao.enviando} onClick={() => executar(() => gestao.acaoOferta(oferta.id, 'pausar'))}>Pausar</button>}
         {s === 'PAUSADA' && lojaAtiva && <button className="botao botao-principal botao-pequeno" disabled={acao.enviando} onClick={() => executar(() => gestao.acaoOferta(oferta.id, 'retomar'))}>Retomar</button>}
         {s !== 'ENCERRADA' && <button className="botao botao-perigo botao-pequeno" disabled={acao.enviando} onClick={() => executar(() => gestao.acaoOferta(oferta.id, 'encerrar'))}>Encerrar</button>}
+        {(s === 'RASCUNHO' || s === 'ENCERRADA') && (
+          <BotaoRemover nome={`oferta de ${dinheiro(oferta.precoOferta)}`} explicacao="A oferta sai da sua lista. Se já teve pedidos, ela fica no histórico e não pode ser removida."
+            remover={() => gestao.removerOferta(oferta.id)} aoRemover={aoMudar} />
+        )}
       </div>
       {s !== 'ENCERRADA' && (
         <form className="ajuste" onSubmit={(e) => { e.preventDefault(); void executar(() => gestao.ajustarEstoque(oferta.id, Number(ajuste))); }}>

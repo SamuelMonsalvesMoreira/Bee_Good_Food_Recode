@@ -238,6 +238,117 @@ class CatalogoIT extends IntegracaoBase {
         assertThat(count("SELECT estoque_disponivel FROM oferta WHERE id=?", id)).isZero();
     }
 
+    // ---- Remocao (CRUD completo, DEC-038) ----
+
+    @Test
+    void administradorRemoveCategoriaSemProdutosEBloqueiaComProdutos() throws Exception {
+        long livre = categoria(admin, "Para Remover");
+        assertThat(send("DELETE", "/api/v1/admin/categorias/" + livre, admin.token(), null).statusCode()).isEqualTo(204);
+        assertThat(count("SELECT COUNT(*) FROM categoria WHERE id=?", livre)).isZero();
+        assertProblem(send("DELETE", "/api/v1/admin/categorias/" + livre, admin.token(), null), 404);
+
+        long usada = categoria(admin, "Em Uso");
+        var loja = loja(admin, "Loja Categoria", "Santos", "Centro");
+        produto(loja.dono(), loja.estabelecimentoId(), usada, "Item");
+        var recusa = send("DELETE", "/api/v1/admin/categorias/" + usada, admin.token(), null);
+        assertProblem(recusa, 409);
+        assertThat(tree(recusa).get("detail").asText()).contains("Desative a categoria");
+        assertThat(count("SELECT COUNT(*) FROM categoria WHERE id=?", usada)).isOne();
+    }
+
+    @Test
+    void somenteAdministradorRemoveCategoria() throws Exception {
+        long id = categoria(admin, "Protegida");
+        assertProblem(send("DELETE", "/api/v1/admin/categorias/" + id, null, null), 401);
+        assertProblem(send("DELETE", "/api/v1/admin/categorias/" + id, conta().token(), null), 403);
+        assertThat(count("SELECT COUNT(*) FROM categoria WHERE id=?", id)).isOne();
+    }
+
+    @Test
+    void responsavelRemoveProdutoESuasOfertasSemPedidos() throws Exception {
+        var loja = loja(admin, "Loja Remove", "Santos", "Centro");
+        long produto = produto(loja.dono(), loja.estabelecimentoId(), categoria, "Descartável");
+        long encerrada = ofertaPublicada(loja.dono(), produto, oferta("10.00", "5.00", 2, 4, 6));
+        assertThat(send("POST", "/api/v1/ofertas/" + encerrada + "/encerrar", loja.dono().token(), null).statusCode()).isEqualTo(200);
+        var rascunho = send("POST", "/api/v1/produtos/" + produto + "/ofertas", loja.dono().token(), oferta("10.00", "6.00", 2, 4, 6));
+        assertThat(rascunho.statusCode()).isEqualTo(201);
+
+        assertThat(send("DELETE", "/api/v1/produtos/" + produto, loja.dono().token(), null).statusCode()).isEqualTo(204);
+        assertThat(count("SELECT COUNT(*) FROM produto WHERE id=?", produto)).isZero();
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE produto_id=?", produto)).isZero();
+        assertProblem(get("/api/v1/produtos/" + produto, loja.dono().token()), 404);
+    }
+
+    @Test
+    void produtoEOfertaEmVendaNaoSaoRemovidos() throws Exception {
+        var loja = loja(admin, "Loja Em Venda", "Santos", "Centro");
+        long produto = produto(loja.dono(), loja.estabelecimentoId(), categoria, "Em venda");
+        long oferta = ofertaPublicada(loja.dono(), produto, oferta("10.00", "5.00", 2, 4, 6));
+        assertProblem(send("DELETE", "/api/v1/produtos/" + produto, loja.dono().token(), null), 409);
+        assertProblem(send("DELETE", "/api/v1/ofertas/" + oferta, loja.dono().token(), null), 409);
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE id=?", oferta)).isOne();
+    }
+
+    @Test
+    void ofertaEProdutoComPedidoFicamNoHistorico() throws Exception {
+        var loja = loja(admin, "Loja Historico", "Santos", "Centro");
+        long produto = produto(loja.dono(), loja.estabelecimentoId(), categoria, "Vendido");
+        long oferta = ofertaPublicada(loja.dono(), produto, oferta("10.00", "5.00", 3, 4, 6));
+        var pedido = send("POST", "/api/v1/pedidos", conta().token(), Map.of("formaPagamento", "PIX",
+                "itens", List.of(Map.of("ofertaId", oferta, "quantidade", 1))), "Idempotency-Key", "remocao-historico-1");
+        assertThat(pedido.statusCode()).isEqualTo(201);
+        assertThat(send("POST", "/api/v1/ofertas/" + oferta + "/encerrar", loja.dono().token(), null).statusCode()).isEqualTo(200);
+
+        var recusaOferta = send("DELETE", "/api/v1/ofertas/" + oferta, loja.dono().token(), null);
+        assertProblem(recusaOferta, 409);
+        assertThat(tree(recusaOferta).get("detail").asText()).contains("histórico");
+        assertProblem(send("DELETE", "/api/v1/produtos/" + produto, loja.dono().token(), null), 409);
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE id=?", oferta)).isOne();
+        assertThat(count("SELECT COUNT(*) FROM produto WHERE id=?", produto)).isOne();
+        assertThat(count("SELECT COUNT(*) FROM item_pedido WHERE oferta_id=?", oferta)).isOne();
+    }
+
+    @Test
+    void remocaoDeProdutoComUmaOfertaVendidaDesfazTudo() throws Exception {
+        var loja = loja(admin, "Loja Transacao", "Santos", "Centro");
+        long produto = produto(loja.dono(), loja.estabelecimentoId(), categoria, "Parcial");
+        long vendida = ofertaPublicada(loja.dono(), produto, oferta("10.00", "5.00", 3, 4, 6));
+        var pedido = send("POST", "/api/v1/pedidos", conta().token(), Map.of("formaPagamento", "PIX",
+                "itens", List.of(Map.of("ofertaId", vendida, "quantidade", 1))), "Idempotency-Key", "remocao-transacao-1");
+        assertThat(pedido.statusCode()).isEqualTo(201);
+        send("POST", "/api/v1/ofertas/" + vendida + "/encerrar", loja.dono().token(), null);
+        long rascunho = tree(send("POST", "/api/v1/produtos/" + produto + "/ofertas", loja.dono().token(), oferta("10.00", "6.00", 2, 4, 6))).get("id").asLong();
+
+        assertProblem(send("DELETE", "/api/v1/produtos/" + produto, loja.dono().token(), null), 409);
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE id=?", rascunho)).isOne();
+    }
+
+    @Test
+    void responsavelRemoveRascunhoEProdutoSegueNoCatalogo() throws Exception {
+        var loja = loja(admin, "Loja Rascunho", "Santos", "Centro");
+        long produto = produto(loja.dono(), loja.estabelecimentoId(), categoria, "Com rascunho");
+        var rascunho = send("POST", "/api/v1/produtos/" + produto + "/ofertas", loja.dono().token(), oferta("10.00", "6.00", 2, 4, 6));
+        long oferta = tree(rascunho).get("id").asLong();
+        assertThat(send("DELETE", "/api/v1/ofertas/" + oferta, loja.dono().token(), null).statusCode()).isEqualTo(204);
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE id=?", oferta)).isZero();
+        assertThat(count("SELECT COUNT(*) FROM produto WHERE id=?", produto)).isOne();
+    }
+
+    @Test
+    void outroResponsavelNaoRemoveProdutoNemOferta() throws Exception {
+        var dona = loja(admin, "Loja Dona", "Santos", "Centro");
+        var outra = loja(admin, "Loja Outra", "Santos", "Centro");
+        long produto = produto(dona.dono(), dona.estabelecimentoId(), categoria, "Alheio");
+        var rascunho = send("POST", "/api/v1/produtos/" + produto + "/ofertas", dona.dono().token(), oferta("10.00", "6.00", 2, 4, 6));
+        long oferta = tree(rascunho).get("id").asLong();
+        assertProblem(send("DELETE", "/api/v1/produtos/" + produto, outra.dono().token(), null), 404);
+        assertProblem(send("DELETE", "/api/v1/ofertas/" + oferta, outra.dono().token(), null), 404);
+        assertProblem(send("DELETE", "/api/v1/produtos/" + produto, null, null), 401);
+        assertProblem(send("DELETE", "/api/v1/ofertas/" + oferta, conta().token(), null), 403);
+        assertThat(count("SELECT COUNT(*) FROM produto WHERE id=?", produto)).isOne();
+        assertThat(count("SELECT COUNT(*) FROM oferta WHERE id=?", oferta)).isOne();
+    }
+
     @Test
     void outroResponsavelNaoAlteraOfertas() throws Exception {
         var loja = loja(admin, "Dona", "Santos", "Centro");
