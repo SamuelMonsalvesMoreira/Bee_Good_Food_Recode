@@ -1,6 +1,6 @@
 # Guia de publicação
 
-Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. Ele **não foi executado** em um ambiente público até a data da Etapa 7. Foram validados localmente o JAR, o build do frontend e a contagem de tentativas por cliente atrás de um proxy (teste automatizado com `X-Forwarded-For` no loopback). O exemplo de configuração do Caddy não foi executado.
+Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. A demonstração só com interface foi publicada na Vercel em 09/11/2026. O **sistema completo** (API e MySQL) **não foi executado** em um ambiente público. Foram validados localmente o JAR, o build do frontend e a contagem de tentativas por cliente atrás de um proxy (teste automatizado com `X-Forwarded-For` no loopback). O exemplo de configuração do Caddy não foi executado.
 
 ## Demonstração do TCC: só Vercel (modo demonstração)
 
@@ -12,6 +12,8 @@ Este guia descreve como publicar o Bee Good Food em um servidor próprio para de
 4. Clique em *Deploy*. A cada push na `main`, a Vercel publica de novo.
 
 Para conferir antes, sem publicar: `cd frontend; npm run build:demo; npx vite preview`.
+
+**Situação atual:** publicada em [bee-good-food-recode.vercel.app](https://bee-good-food-recode.vercel.app) a partir da `main`. O projeto da Vercel ainda não está vinculado ao repositório, então um novo push não publica sozinho. Para isso, instale o [aplicativo da Vercel no GitHub](https://github.com/apps/vercel) e conecte o repositório em *Settings > Git*. O passo 4 acima só vale depois desse vínculo.
 
 ## Publicação gratuita: Vercel, Render e Aiven
 

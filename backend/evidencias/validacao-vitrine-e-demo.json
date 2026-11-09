@@ -62,8 +62,17 @@
     "conferenciaManual": "Build de demonstracao conferida no navegador: vitrine, login pelos atalhos, sessao ficticia apos recarregar, reserva com codigo de retirada, fila da loja, indicadores, tema escuro e celular; confirmacao e recusa explicada de remocao"
   },
   "limites": [
-    "Resultados locais; a Vercel ainda nao foi publicada nesta data.",
+    "Testes automatizados executados localmente. A demonstracao foi publicada na Vercel; o sistema completo (API e MySQL) nao foi publicado.",
     "A API simulada reproduz as regras principais para demonstracao, mas nao e o sistema avaliado nos testes HTTP/MySQL.",
     "A auditoria automatica nao substitui leitor de tela nem testes com pessoas."
-  ]
+  ],
+  "publicacaoVercel": {
+    "dataLocal": "2026-11-09 (America/Sao_Paulo)",
+    "endereco": "https://bee-good-food-recode.vercel.app",
+    "origem": "main, commit 20d9ebfe8fe2db764660d2e6841e6ff63dc07370 (PR 6)",
+    "build": "npm run build:demo",
+    "conferencia": "Script Playwright contra o endereco publico, execucao unica, sem erros de pagina nem respostas 4xx/5xx: pagina inicial com faixa de demonstracao, rota interna aberta direto, login por atalho, busca, reserva com codigo de retirada, sessao ficticia apos recarregar, categoria criada e removida, sem rolagem horizontal no Pixel 7 e nenhuma chamada a /api real",
+    "cabecalhos": "X-Content-Type-Options, Referrer-Policy e Permissions-Policy presentes",
+    "limite": "Projeto ainda sem vinculo com o GitHub: novo push nao publica automaticamente"
+  }
 }

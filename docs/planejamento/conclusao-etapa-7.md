@@ -58,5 +58,5 @@ O Playwright inicia o site na porta 5174. Cada teste cria os próprios dados com
 - [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
 - [x] Slides da apresentação (13 slides, ligados ao ODS 8).
 - [ ] Ensaiar a apresentação e ajustar os slides ao tempo disponível.
-- [ ] Publicar a demonstração na Vercel ([passo a passo](../deploy.md#demonstração-do-tcc-só-vercel-modo-demonstração)) e conferir o link do README.
+- [x] Publicar a demonstração na Vercel e conferir o link do README: [bee-good-food-recode.vercel.app](https://bee-good-food-recode.vercel.app), publicada em 09/11/2026 a partir da `main`.
 - [ ] (Opcional) Publicar o sistema completo (Vercel, Render e Aiven) seguindo o [guia](../deploy.md) e repetir os testes no navegador contra o endereço publicado.
