@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import type { OfertaPublica } from '../api/types';
 import { useCarrinho } from '../carrinho/carrinhoContexto';
 import { Dialogo } from './Dialogo';
 
 export function AdicionarAoCarrinho({ oferta }: { oferta: OfertaPublica }) {
   const { adicionar, carrinho } = useCarrinho();
+  const navegar = useNavigate();
   const [quantidade, setQuantidade] = useState(1);
   const [lojaAtual, setLojaAtual] = useState<string>();
   const [mensagem, setMensagem] = useState<{ tipo: 'ok' | 'erro'; texto: string }>();
@@ -18,6 +20,7 @@ export function AdicionarAoCarrinho({ oferta }: { oferta: OfertaPublica }) {
     setLojaAtual(undefined);
     if (resultado.tipo === 'limite') { setMensagem({ tipo: 'erro', texto: resultado.motivo }); return; }
     setMensagem({ tipo: 'ok', texto: 'Adicionado ao carrinho.' });
+    toast.success(`${oferta.produtoNome} no carrinho`, { action: { label: 'Ver carrinho', onClick: () => navegar('/carrinho') } });
   }
 
   return (

@@ -167,6 +167,7 @@ export interface PedidoResumo {
   status: StatusPedido;
   formaPagamento: FormaPagamento;
   total: number;
+  economia: number;
   retiradaAte: string;
   fusoIana: string;
   criadoEm: string;

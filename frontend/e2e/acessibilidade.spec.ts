@@ -27,6 +27,29 @@ test.describe('acessibilidade @celular', () => {
     await auditar(page, 'entrar');
   });
 
+  test('tema escuro e aviso rápido', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    const loja = await lojaAtiva();
+    const oferta = await ofertaPublicada(loja);
+    const cliente = await criarConta();
+    const pedido = await pedidoPelaApi(cliente, oferta.id);
+
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+    await auditar(page, 'início no tema escuro');
+    await page.goto(`/ofertas/${oferta.id}`);
+    await page.getByRole('button', { name: 'Adicionar ao carrinho' }).click();
+    // O aviso rapido (toast) aparece com acao para o carrinho e tambem passa na auditoria.
+    await expect(page.getByRole('button', { name: 'Ver carrinho' })).toBeVisible();
+    await auditar(page, 'detalhe da oferta com aviso no tema escuro');
+    await entrar(page, cliente);
+    await irPeloMenu(page, 'Meus pedidos');
+    await auditar(page, 'meus pedidos no tema escuro');
+    await page.getByRole('link', { name: new RegExp(`Pedido ${pedido}\\b`) }).click();
+    await expect(page.getByText('Código de retirada')).toBeVisible();
+    await auditar(page, 'pedido no tema escuro');
+  });
+
   test('telas privadas do responsável e da moderação', async ({ page }) => {
     const loja = await lojaAtiva();
     const oferta = await ofertaPublicada(loja);
@@ -38,6 +61,9 @@ test.describe('acessibilidade @celular', () => {
     await auditar(page, 'fila de pedidos');
     await page.getByRole('button', { name: 'Produtos e ofertas' }).click();
     await auditar(page, 'produtos');
+    await page.getByRole('button', { name: /^Remover/ }).first().click();
+    await auditar(page, 'confirmação de remoção');
+    await page.getByRole('dialog').getByRole('button', { name: 'Manter' }).click();
     await page.getByRole('button', { name: 'Indicadores' }).click();
     await auditar(page, 'indicadores');
     await page.getByRole('button', { name: 'Dados da loja' }).click();

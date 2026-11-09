@@ -11,6 +11,14 @@ interface Props {
  * Elemento-assinatura: dois prazos lado a lado, sempre separados (DEC-018, criterio de interface).
  * O trecho mel vai de agora ate o fim da venda; o trecho folha, do fim da venda ao fim da retirada.
  */
+/** Contagem regressiva curta, como nos apps do setor: "faltam 45 min", "faltam 2 h". */
+function faltam(minutos: number): string {
+  if (minutos < 60) return `faltam ${minutos} min`;
+  const horas = Math.floor(minutos / 60);
+  const resto = minutos % 60;
+  return resto >= 15 ? `faltam ${horas} h ${resto} min` : `faltam ${horas} h`;
+}
+
 export function FaixaPrazo({ vendaAte, retiradaAte, fuso, compacta = false }: Props) {
   const agora = Date.now();
   const venda = Math.max(new Date(vendaAte).getTime() - agora, 0);
@@ -31,7 +39,7 @@ export function FaixaPrazo({ vendaAte, retiradaAte, fuso, compacta = false }: Pr
           <dt>Compre até</dt>
           <dd>
             {prazo(vendaAte, fuso)}
-            {restante > 0 && restante <= 90 && <span className="faixa-urgente">faltam {restante} min</span>}
+            {restante > 0 && restante <= 180 && <span className="faixa-urgente">{faltam(restante)}</span>}
           </dd>
         </div>
         <div className="faixa-direita">

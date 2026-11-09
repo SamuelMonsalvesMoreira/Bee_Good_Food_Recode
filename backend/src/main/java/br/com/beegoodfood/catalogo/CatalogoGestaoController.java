@@ -53,6 +53,13 @@ public class CatalogoGestaoController {
         return service.atualizarProduto(id, Usuarios.id(auth), request);
     }
 
+    @DeleteMapping("/produtos/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Remover produto", description = "Remove também as ofertas sem pedidos. Com oferta em venda ou com pedidos: 409.")
+    public void removerProduto(@PathVariable @Min(1) long id, Authentication auth) {
+        service.removerProduto(id, Usuarios.id(auth));
+    }
+
     @PostMapping("/produtos/{produtoId}/ofertas")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Criar oferta em rascunho", description = "Exige estabelecimento ativo, inicioVenda < vendaAte <= retiradaAte e fim da venda futuro.")
@@ -78,6 +85,13 @@ public class CatalogoGestaoController {
     @Operation(summary = "Editar oferta em rascunho", description = "Após a publicação, preço e prazos são imutáveis.")
     public OfertaResponse editar(@PathVariable @Min(1) long id, @Valid @RequestBody OfertaRequest request, Authentication auth) {
         return service.editarRascunho(id, Usuarios.id(auth), request);
+    }
+
+    @DeleteMapping("/ofertas/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Remover oferta", description = "Somente rascunho ou encerrada e sem pedidos (409).")
+    public void removerOferta(@PathVariable @Min(1) long id, Authentication auth) {
+        service.removerOferta(id, Usuarios.id(auth));
     }
 
     @PostMapping("/ofertas/{id}/publicar")

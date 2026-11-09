@@ -1,4 +1,6 @@
+import { TicketCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { pedidos } from '../api/endpoints';
 import type { Pedido, StatusPedido as Status } from '../api/types';
@@ -16,6 +18,11 @@ const PROXIMO: Partial<Record<Status, { status: Status; acao: string }>> = {
   EM_PREPARO: { status: 'PRONTO_PARA_RETIRADA', acao: 'Marcar como pronto' },
   PRONTO_PARA_RETIRADA: { status: 'CONCLUIDO', acao: 'Registrar retirada' },
 };
+
+/** Codigo curto para conferencia no balcao (inspirado no comprovante de retirada dos apps do setor). */
+export function codigoRetirada(id: number): string {
+  return `BG-${String(id).padStart(4, '0')}`;
+}
 
 export function PedidoDetalhe() {
   const id = Number(useParams().id);
@@ -54,12 +61,12 @@ export function PedidoDetalhe() {
   async function avancar() {
     if (!proximo) return;
     const atualizado = await acao.executar(() => pedidos.avancar(pedido!.id, proximo.status));
-    if (atualizado) setPedido(atualizado);
+    if (atualizado) { setPedido(atualizado); toast.success(`Pedido ${atualizado.id}: ${ROTULO_STATUS_PEDIDO[atualizado.status]}.`); }
   }
 
   async function cancelar() {
     const atualizado = await acao.executar(() => pedidos.cancelar(pedido!.id, motivo.trim() || undefined));
-    if (atualizado) { setPedido(atualizado); setCancelando(false); setMotivo(''); }
+    if (atualizado) { setPedido(atualizado); setCancelando(false); setMotivo(''); toast.success('Pedido cancelado. Os itens voltaram a ficar disponíveis.'); }
   }
 
   return (
@@ -86,10 +93,19 @@ export function PedidoDetalhe() {
       <div className="pedido-grade">
         <section className="pilha">
           {pedido.status !== 'CANCELADO' && pedido.status !== 'CONCLUIDO' && (
-            <div className="painel painel-retirada">
-              <p className="pequeno">Retire até</p>
-              <p className="retirada-prazo">{prazo(pedido.retiradaAte, fuso)}</p>
-              <p className="pequeno suave">No {nomeFuso(fuso)}.</p>
+            <div className={`painel painel-retirada${pedido.status === 'PRONTO_PARA_RETIRADA' ? ' pronto' : ''}`}>
+              <div className="retirada-codigo">
+                <TicketCheck aria-hidden="true" />
+                <div>
+                  <p className="pequeno">Código de retirada</p>
+                  <p className="codigo numero" aria-label={`Código de retirada ${codigoRetirada(pedido.id)}`}>{codigoRetirada(pedido.id)}</p>
+                </div>
+              </div>
+              <div className="retirada-quando">
+                <p className="pequeno">{pedido.status === 'PRONTO_PARA_RETIRADA' ? 'Pronto! Retire até' : 'Retire até'}</p>
+                <p className="retirada-prazo">{prazo(pedido.retiradaAte, fuso)}</p>
+                <p className="pequeno suave">No {nomeFuso(fuso)}. {souCliente ? 'Mostre o código no balcão.' : 'Confira o código com o cliente.'}</p>
+              </div>
             </div>
           )}
           <div>

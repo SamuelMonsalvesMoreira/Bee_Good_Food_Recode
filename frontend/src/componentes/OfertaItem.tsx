@@ -1,9 +1,14 @@
-import { MapPin } from 'lucide-react';
+import { Gift, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { OfertaPublica } from '../api/types';
 import { desconto, dinheiro } from '../lib/formato';
 import { FaixaPrazo } from './FaixaPrazo';
 import { IconeCategoria } from './IconeCategoria';
+
+/** Sacola surpresa (modelo popular no setor): a loja monta uma sacola com o excedente variado do dia. */
+export function ehSacolaSurpresa(oferta: Pick<OfertaPublica, 'produtoNome'>): boolean {
+  return /sacola surpresa|surpresa/i.test(oferta.produtoNome);
+}
 
 export function OfertaItem({ oferta, mostrarLoja = true }: { oferta: OfertaPublica; mostrarLoja?: boolean }) {
   const pct = desconto(oferta.precoOriginal, oferta.precoOferta);
@@ -13,6 +18,7 @@ export function OfertaItem({ oferta, mostrarLoja = true }: { oferta: OfertaPubli
       <div className="oferta-topo">
         <IconeCategoria slug={oferta.categoria.slug} />
         <div className="oferta-titulo">
+          {ehSacolaSurpresa(oferta) && <p className="selo-surpresa"><Gift size={14} aria-hidden="true" />Sacola surpresa</p>}
           <h3 className="oferta-nome">
             <Link to={`/ofertas/${oferta.id}`} className="oferta-link">{oferta.produtoNome}</Link>
           </h3>

@@ -58,7 +58,7 @@ public class SecurityConfig {
         if (permitidas.isEmpty()) { return source; }
         var config = new CorsConfiguration();
         config.setAllowedOrigins(permitidas);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key"));
         config.setExposedHeaders(List.of("Idempotent-Replayed", "Retry-After"));
         config.setAllowCredentials(false);

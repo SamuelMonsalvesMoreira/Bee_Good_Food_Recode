@@ -67,6 +67,7 @@ const LOJAS = [
     produtos: [
       ['Padaria', 'Pão de fermentação natural', 'Pão de 600 g assado hoje cedo.', 24, 12, 6, 6, 8],
       ['Padaria', 'Pão francês (saco com 10)', null, 9.5, 4.5, 12, 4, 6],
+      ['Padaria', 'Sacola surpresa da padaria', 'Pães e salgados variados do dia. O conteúdo muda conforme o que sobrou.', 35, 14, 5, 5, 7],
       ['Confeitaria', 'Bolo de cenoura com chocolate', 'Bolo inteiro, 1,2 kg.', 48, 26, 2, 7, 9],
     ],
   },

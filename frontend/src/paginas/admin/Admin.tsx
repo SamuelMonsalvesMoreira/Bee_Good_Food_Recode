@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { admin } from '../../api/endpoints';
 import type { CategoriaAdmin, Estabelecimento, StatusEstabelecimento } from '../../api/types';
 import { useSessao } from '../../auth/sessao';
+import { BotaoRemover } from '../../componentes/BotaoRemover';
 import { Campo, CampoSelecao, CampoTexto, erroDoCampo } from '../../componentes/Campo';
 import { Dialogo } from '../../componentes/Dialogo';
 import { Carregando, ErroCarga, ErroEnvio, Vazio } from '../../componentes/Estados';
@@ -158,6 +159,8 @@ function LinhaCategoria({ categoria, aoSalvar }: { categoria: CategoriaAdmin; ao
           disabled={acao.enviando} onClick={() => salvar(!categoria.ativo)}>
           {categoria.ativo ? 'Desativar' : 'Reativar'}
         </button>
+        <BotaoRemover nome={categoria.nome} explicacao="A categoria sai da plataforma. Só é possível remover quando nenhum produto usa."
+          remover={() => admin.removerCategoria(categoria.id)} aoRemover={aoSalvar} />
         {!categoria.ativo && <span className="etiqueta">Desativada</span>}
       </form>
     </li>

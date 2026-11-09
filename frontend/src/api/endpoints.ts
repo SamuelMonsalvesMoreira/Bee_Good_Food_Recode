@@ -20,9 +20,12 @@ export interface FiltrosBusca {
   cidade?: string;
   bairro?: string;
   estabelecimentoId?: number;
+  ordem?: OrdemCatalogo;
   pagina?: number;
   tamanho?: number;
 }
+
+export type OrdemCatalogo = 'PRAZO' | 'DESCONTO' | 'PRECO' | 'RECENTES';
 
 export const catalogo = {
   categorias: () => requisitar<Pagina<Categoria>>('/api/v1/categorias?tamanho=100'),
@@ -66,11 +69,13 @@ export const gestao = {
     requisitar<Produto>(`/api/v1/estabelecimentos/${estabelecimentoId}/produtos`, { metodo: 'POST', corpo: dados }),
   atualizarProduto: (id: number, dados: { categoriaId: number; nome: string; descricao: string; ativo: boolean }) =>
     requisitar<Produto>(`/api/v1/produtos/${id}`, { metodo: 'PUT', corpo: dados }),
+  removerProduto: (id: number) => requisitar<void>(`/api/v1/produtos/${id}`, { metodo: 'DELETE' }),
   ofertas: (produtoId: number) => requisitar<Pagina<Oferta>>(`/api/v1/produtos/${produtoId}/ofertas?tamanho=100`),
   criarOferta: (produtoId: number, dados: OfertaForm) =>
     requisitar<Oferta>(`/api/v1/produtos/${produtoId}/ofertas`, { metodo: 'POST', corpo: dados }),
   editarOferta: (id: number, dados: OfertaForm) =>
     requisitar<Oferta>(`/api/v1/ofertas/${id}`, { metodo: 'PUT', corpo: dados }),
+  removerOferta: (id: number) => requisitar<void>(`/api/v1/ofertas/${id}`, { metodo: 'DELETE' }),
   acaoOferta: (id: number, acao: 'publicar' | 'pausar' | 'retomar' | 'encerrar') =>
     requisitar<Oferta>(`/api/v1/ofertas/${id}/${acao}`, { metodo: 'POST' }),
   ajustarEstoque: (id: number, ajuste: number) =>
@@ -87,8 +92,8 @@ export const pedidos = {
     });
     return { pedido: r.dados, repetido: r.status === 200 };
   },
-  meus: (pagina: number, status?: StatusPedido) =>
-    requisitar<Pagina<PedidoResumo>>(`/api/v1/pedidos${query({ pagina, tamanho: 20, status })}`),
+  meus: (pagina: number, status?: StatusPedido, tamanho = 20) =>
+    requisitar<Pagina<PedidoResumo>>(`/api/v1/pedidos${query({ pagina, tamanho, status })}`),
   detalhe: (id: number) => requisitar<Pedido>(`/api/v1/pedidos/${id}`),
   doEstabelecimento: (estabelecimentoId: number, pagina: number, status?: StatusPedido) =>
     requisitar<Pagina<PedidoResumo>>(
@@ -115,4 +120,5 @@ export const admin = {
     requisitar<CategoriaAdmin>('/api/v1/admin/categorias', { metodo: 'POST', corpo: { nome } }),
   atualizarCategoria: (id: number, nome: string, ativo: boolean) =>
     requisitar<CategoriaAdmin>(`/api/v1/admin/categorias/${id}`, { metodo: 'PUT', corpo: { nome, ativo } }),
+  removerCategoria: (id: number) => requisitar<void>(`/api/v1/admin/categorias/${id}`, { metodo: 'DELETE' }),
 };

@@ -19,16 +19,17 @@ public class CatalogoPublicoController {
     @GetMapping
     @Operation(summary = "Buscar ofertas compráveis",
             description = "Filtros combinados (E): texto (produto, descrição ou estabelecimento), categoria, cidade, bairro e estabelecimento. "
-                    + "Cidade e bairro ignoram maiúsculas e acentos. Ordenação: fim da venda e ID. Tamanho padrão 20 (1 a 100).")
+                    + "Cidade e bairro ignoram maiúsculas e acentos. Ordem: PRAZO (termina antes, padrão), DESCONTO (maior primeiro), PRECO (menor primeiro) ou RECENTES. Tamanho padrão 20 (1 a 100).")
     public PaginaResponse<OfertaPublicaResponse> buscar(
             @RequestParam(required = false) @Size(max = 100) String texto,
             @RequestParam(required = false) @Min(1) Long categoriaId,
             @RequestParam(required = false) @Size(max = 100) String cidade,
             @RequestParam(required = false) @Size(max = 100) String bairro,
             @RequestParam(required = false) @Min(1) Long estabelecimentoId,
+            @RequestParam(defaultValue = "PRAZO") CatalogoPublicoService.Ordem ordem,
             @RequestParam(defaultValue = "0") @Min(0) @Max(1000000) int pagina,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int tamanho) {
-        var filtros = new CatalogoPublicoService.Filtros(limpar(texto), categoriaId, limpar(cidade), limpar(bairro), estabelecimentoId);
+        var filtros = new CatalogoPublicoService.Filtros(limpar(texto), categoriaId, limpar(cidade), limpar(bairro), estabelecimentoId, ordem);
         return service.buscar(filtros, pagina, tamanho);
     }
 

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { catalogo, gestao } from '../../api/endpoints';
+import { BotaoRemover } from '../../componentes/BotaoRemover';
 import { Campo, CampoSelecao, erroDoCampo } from '../../componentes/Campo';
 import { Carregando, ErroCarga, ErroEnvio, Vazio } from '../../componentes/Estados';
 import { useAcao, useCarregar } from '../../lib/useCarregar';
@@ -38,9 +39,13 @@ export function AbaCatalogo({ estabelecimentoId, ativa }: { estabelecimentoId: n
                   <p className="pequeno suave">{nomesCategoria.get(p.categoriaId) ?? 'Categoria desativada'}</p>
                 </div>
                 {!p.ativo && <span className="etiqueta">Desativado</span>}
-                <Link className="botao botao-secundario botao-pequeno" to={`/minhas-lojas/${estabelecimentoId}/produtos/${p.id}`}>
-                  Ofertas<span className="sr-only"> de {p.nome}</span>
-                </Link>
+                <div className="linha-acoes">
+                  <Link className="botao botao-secundario botao-pequeno" to={`/minhas-lojas/${estabelecimentoId}/produtos/${p.id}`}>
+                    Ofertas<span className="sr-only"> de {p.nome}</span>
+                  </Link>
+                  <BotaoRemover nome={p.nome} explicacao="O produto e as ofertas dele que nunca venderam saem do catálogo."
+                    remover={() => gestao.removerProduto(p.id)} aoRemover={produtos.recarregar} />
+                </div>
               </li>
             ))}
           </ul>

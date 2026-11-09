@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:demo": "vite --mode demo",
     "build": "tsc -b && vite build",
+    "build:demo": "tsc -b && vite build --mode demo",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
@@ -19,7 +21,8 @@
     "lucide-react": "1.70.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "react-router-dom": "7.18.5"
+    "react-router-dom": "7.18.5",
+    "sonner": "2.0.8"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
