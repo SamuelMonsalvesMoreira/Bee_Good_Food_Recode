@@ -5,7 +5,7 @@ API REST do MVP: Spring Boot, MySQL, Flyway, Spring Security e OpenAPI. Etapas 3
 ## Tecnologias
 
 - Java 21 como versão mínima do código; execução local com JDK 25 LTS.
-- Spring Boot 4.1.1, Spring MVC, Spring Data JPA e Bean Validation.
+- Spring Boot 4.1.2, Spring MVC, Spring Data JPA e Bean Validation.
 - MySQL 8.0.46 validado no ambiente local.
 - Flyway, com versões gerenciadas pelo Spring Boot.
 - Springdoc 3.1.1 para OpenAPI e Swagger UI.

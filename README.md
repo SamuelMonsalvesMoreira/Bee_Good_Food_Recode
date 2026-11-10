@@ -182,6 +182,7 @@ Bee_Good_Food_Recode/
 - [Modelo de dados](docs/planejamento/modelo-de-dados.md)
 - [Métricas e validação](docs/planejamento/metricas-e-validacao.md)
 - [Riscos e premissas](docs/planejamento/riscos-e-premissas.md)
+- [Revisão de segurança](docs/planejamento/revisao-de-seguranca.md)
 - [API: execução, rotas e erros](backend/README.md)
 - [Frontend: execução e estrutura](frontend/README.md)
 - [Guia de publicação](docs/deploy.md)

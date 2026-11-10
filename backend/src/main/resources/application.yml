@@ -52,7 +52,11 @@ management:
     health:
       show-details: never
 springdoc:
+  # Documentacao da API: ligada para estudo local; desligue em publicacao com OPENAPI_ENABLED=false.
+  api-docs:
+    enabled: ${OPENAPI_ENABLED:true}
   swagger-ui:
+    enabled: ${OPENAPI_ENABLED:true}
     path: /swagger-ui.html
     disable-swagger-default-url: true
   paths-to-match: /api/v1/**
