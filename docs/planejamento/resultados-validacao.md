@@ -1,6 +1,6 @@
 # Resultados da validação com pessoas
 
-**Situação: ainda não realizada.** Este arquivo recebe só resultados agregados e sem identificação, conforme o [kit de validação](../validacao/README.md). Não preencha com estimativas.
+**Situação: ainda não realizada; adiada para depois da entrega ([DEC-039](decisoes-do-mvp.md)).** Este arquivo recebe só resultados agregados e sem identificação, conforme o [kit de validação](../validacao/README.md). Não preencha com estimativas.
 
 ## Rodada 1: consumidores
 

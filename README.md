@@ -196,9 +196,14 @@ Bee_Good_Food_Recode/
 - [x] Etapa 4: cadastro adulto, JWT e perfis de acesso
 - [x] Etapa 5: lojas, moderação, catálogo, busca, pedidos e indicadores
 - [x] Etapa 6: interface React integrada
-- [x] Etapa 7: parte técnica (testes no navegador, acessibilidade, CRUDs completos e demonstração publicada)
-- [ ] Validação com pessoas (5 consumidores e 3 responsáveis por lojas)
-- [ ] Apresentação final
+- [x] Etapa 7: testes no navegador, acessibilidade, CRUDs completos, revisão de segurança e demonstração publicada
+
+**Projeto concluído para entrega em 09/11/2026.** O roteiro e os slides da apresentação estão prontos.
+
+**Próximos passos**
+- Testar com pelo menos 5 consumidores e 3 responsáveis por lojas. O [kit](docs/validacao/README.md) está pronto; a rodada ficou para depois da entrega ([DEC-039](docs/planejamento/decisoes-do-mvp.md)).
+- Publicar o sistema completo, com a API e o MySQL ([guia](docs/deploy.md)).
+- Fotos dos produtos e ajustes a partir dos testes com pessoas.
 
 Fora do escopo do MVP: entrega, pagamento online, geolocalização e refresh token. Todos os motivos estão nas [decisões](docs/planejamento/decisoes-do-mvp.md).
 

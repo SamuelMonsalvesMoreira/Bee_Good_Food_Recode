@@ -86,6 +86,8 @@ Uma avaliação de impacto posterior deverá combinar métricas do sistema com e
 - Validar limites de período, conversão de fuso, coortes e denominador zero.
 - Validar responsividade e acessibilidade dos fluxos principais.
 
+**Situação em 09/11/2026:** as rodadas 1 e 2 não foram realizadas antes da entrega ([DEC-039](decisoes-do-mvp.md)). A rodada 3 está coberta pelos testes automatizados registrados em `backend/evidencias`.
+
 ## Proteção dos participantes
 
 - Participação voluntária e informada.
