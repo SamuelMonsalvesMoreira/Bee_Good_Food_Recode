@@ -32,6 +32,9 @@ target/
 .DS_Store
 Thumbs.db
 
+# Registros brutos da validacao com pessoas (nunca publicar)
+docs/validacao/registros/
+
 # Arquivos locais do banco
 *.sql.bak
 *.sqlite

@@ -57,7 +57,11 @@ export function Layout() {
               {contador}
             </NavLink>
             {usuario ? (
-              <button className="botao botao-secundario botao-pequeno" onClick={() => { navegar('/'); sair(); }}>
+              <button className="botao botao-secundario botao-pequeno" onClick={() => {
+                // Sai da pagina privada antes de limpar a sessao: a proxima pessoa nao volta para ela ao entrar.
+                void navegar('/', { replace: true, flushSync: true });
+                sair();
+              }}>
                 Sair
               </button>
             ) : (

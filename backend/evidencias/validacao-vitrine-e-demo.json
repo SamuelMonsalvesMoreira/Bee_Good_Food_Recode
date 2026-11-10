@@ -74,5 +74,13 @@
     "conferencia": "Script Playwright contra o endereco publico, execucao unica, sem erros de pagina nem respostas 4xx/5xx: pagina inicial com faixa de demonstracao, rota interna aberta direto, login por atalho, busca, reserva com codigo de retirada, sessao ficticia apos recarregar, categoria criada e removida, sem rolagem horizontal no Pixel 7 e nenhuma chamada a /api real",
     "cabecalhos": "X-Content-Type-Options, Referrer-Policy e Permissions-Policy presentes",
     "limite": "Projeto ainda sem vinculo com o GitHub: novo push nao publica automaticamente"
-  }
+  },
+  "ajustesPosteriores": [
+    {
+      "dataLocal": "2026-11-09",
+      "mudanca": "Sair leva ao inicio antes de limpar a sessao; entrar pela tela de login volta para a tela de origem tambem pelos atalhos da demonstracao",
+      "motivo": "Ensaio do kit de validacao: apos Sair em pagina privada, a proxima pessoa caia na pagina do usuario anterior (Pedido nao encontrado)",
+      "verificacao": "Ensaio automatico das 12 tarefas do kit na build de demonstracao; 20 testes unitarios; 15 de 15 testes no navegador com nova verificacao do Sair, contra MySQL isolado"
+    }
+  ]
 }

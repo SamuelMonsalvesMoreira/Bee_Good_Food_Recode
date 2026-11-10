@@ -180,7 +180,7 @@ Bee_Good_Food_Recode/
 - [Análise de mercado e melhorias](docs/planejamento/analise-de-mercado.md)
 - [Critérios de aceitação](docs/planejamento/criterios-de-aceitacao.md)
 - [Modelo de dados](docs/planejamento/modelo-de-dados.md)
-- [Métricas e validação](docs/planejamento/metricas-e-validacao.md)
+- [Métricas e validação](docs/planejamento/metricas-e-validacao.md), [kit para os testes com pessoas](docs/validacao/README.md) e [resultados](docs/planejamento/resultados-validacao.md)
 - [Riscos e premissas](docs/planejamento/riscos-e-premissas.md)
 - [Revisão de segurança](docs/planejamento/revisao-de-seguranca.md)
 - [API: execução, rotas e erros](backend/README.md)
