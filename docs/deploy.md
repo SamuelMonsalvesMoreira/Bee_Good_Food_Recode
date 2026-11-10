@@ -29,7 +29,7 @@ Caminho pensado para uma demonstração de portfólio, sem custo. A interface fi
    - `DB_URL`, `DB_USER`, `DB_PASSWORD`: os dados da Aiven;
    - `JWT_SECRET_BASE64`: 32 bytes aleatórios em Base64 (gere com o comando do `backend/README.md` e guarde num gerenciador de senhas).
    Aguarde o deploy e abra `https://<servico>.onrender.com/actuator/health`: deve mostrar `UP`. O Flyway cria as tabelas sozinho.
-3. **Endereço da API no Vercel.** Se o Render der ao serviço um endereço diferente de `bee-good-food-api.onrender.com`, ajuste o `destination` em `frontend/vercel.json` e faça commit.
+3. **Encaminhar a API no Vercel.** Só depois de o serviço existir, acrescente em `frontend/vercel.json`, antes da regra da interface: `{ "source": "/api/:caminho*", "destination": "https://<servico>.onrender.com/api/:caminho*" }`, com o endereço real. A regra não fica no repositório antes disso porque um endereço sem dono poderia ser registrado por outra pessoa e passaria a responder dentro do site.
 4. **Interface (Vercel).** Em *Add New > Project*, importe o repositório e defina **Root Directory = `frontend`**. Antes, troque `buildCommand` no `frontend/vercel.json` de `npm run build:demo` para `npm run build` e faça commit: o arquivo tem prioridade sobre o painel, e a build de demonstração liga a API simulada. Não é preciso variável de ambiente.
 5. **Primeiro administrador.** Crie uma conta pelo site publicado e conceda `ADMINISTRADOR` pelo [procedimento controlado](planejamento/autenticacao.md#administração-local-controlada), conectando-se ao MySQL da Aiven.
 6. **Dados de demonstração (opcional).** Na pasta `frontend`, com `BEE_API` apontando para a URL do Render e o administrador do passo 5, rode `npm run demo:popular`.

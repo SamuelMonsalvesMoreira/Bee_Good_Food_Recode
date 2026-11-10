@@ -166,7 +166,7 @@ try {
     }
     $report = [ordered]@{
         status='PASS'; inicioUtc=$startedAt.ToString('o'); fimUtc=[DateTime]::UtcNow.ToString('o')
-        springBoot='4.1.1'; springdoc='3.1.1'; javaRelease=21; testesHttpMySql=$total; testesUnitarios=$unitTests
+        springBoot='4.1.2'; springdoc='3.1.1'; javaRelease=21; testesHttpMySql=$total; testesUnitarios=$unitTests
         migrations=@('V1__criar_schema_inicial.sql','V2__cadastrar_papeis.sql')
         empacotamento='Somente migrations no JAR; sem seeds ou testes'
         reinicializacoes=$restarts

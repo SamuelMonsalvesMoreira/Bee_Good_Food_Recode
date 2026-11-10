@@ -18,6 +18,8 @@ services:
         sync: false
       - key: JWT_SECRET_BASE64
         sync: false
+      - key: OPENAPI_ENABLED
+        value: "false"
       # O Vercel encaminha /api para ca: o limite de tentativas usa o cliente em X-Forwarded-For.
       - key: FORWARD_HEADERS_STRATEGY
         value: native

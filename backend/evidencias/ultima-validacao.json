@@ -1,8 +1,8 @@
 {
   "status": "PASS",
-  "inicioUtc": "2026-11-09T23:35:51.9485426Z",
-  "fimUtc": "2026-11-09T23:38:05.1380873Z",
-  "springBoot": "4.1.1",
+  "inicioUtc": "2026-11-10T00:25:18.9717660Z",
+  "fimUtc": "2026-11-10T00:27:21.4323490Z",
+  "springBoot": "4.1.2",
   "springdoc": "3.1.1",
   "javaRelease": 21,
   "testesHttpMySql": 171,
