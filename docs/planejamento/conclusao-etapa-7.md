@@ -54,7 +54,7 @@ O Playwright inicia o site na porta 5174. Cada teste cria os próprios dados com
 - [x] Executar `database/scripts/validar-banco.ps1 -Api` com PowerShell 7.6: 159 testes HTTP/MySQL, empacotamento e duas inicializações do JAR, registrados em [`ultima-validacao.json`](../../backend/evidencias/ultima-validacao.json).
 - [x] [Kit de validação](../validacao/README.md) com roteiros, termo de consentimento e critério por hipótese, ensaiado na demonstração.
 - [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
-- [x] Slides da apresentação (15 slides, ligados ao ODS 8).
+- [x] Slides da apresentação (17 slides, ligados ao ODS 8, com números de mercado e fontes).
 - [x] [Revisão de segurança](revisao-de-seguranca.md) com dependências atualizadas.
 - [x] Publicar a demonstração na Vercel e conferir o link do README: [bee-good-food-recode.vercel.app](https://bee-good-food-recode.vercel.app), publicada em 09/11/2026 a partir da `main`.
 

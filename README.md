@@ -32,6 +32,8 @@ Entre como **cliente**, **dona de loja** ou **moderação** com um clique, sem c
 
 Padarias, hortifrutis e restaurantes de bairro terminam o dia com produtos bons que não foram vendidos. O Bee Good Food permite que esses negócios publiquem o excedente com desconto. O cliente reserva pelo site e retira na loja dentro de um prazo combinado. O pagamento é feito no balcão: o sistema só registra a forma escolhida.
 
+O problema é grande: 40% da comida desperdiçada no mundo se perde no varejo e nos serviços de alimentação (PNUMA, 2024), e o Brasil tem mais de 120 mil padarias, quase todas pequenos negócios (Sebrae, 2026). Números e fontes no [contexto de mercado](docs/planejamento/contexto-de-mercado.md).
+
 O foco é o pequeno negócio local. Ele ganha um canal de venda simples, recupera parte do valor de produtos que seriam perdidos e acompanha os resultados em indicadores.
 
 | Para quem | O que a plataforma oferece |
@@ -177,7 +179,7 @@ Bee_Good_Food_Recode/
 - [Escopo](docs/planejamento/escopo.md) e [requisitos](docs/planejamento/requisitos-iniciais.md)
 - [Atendimento ao desafio](docs/planejamento/atendimento-ao-desafio.md)
 - [Decisões do MVP e arquitetura](docs/planejamento/decisoes-do-mvp.md)
-- [Análise de mercado e melhorias](docs/planejamento/analise-de-mercado.md)
+- [Análise de mercado e melhorias](docs/planejamento/analise-de-mercado.md) e [contexto de mercado com números](docs/planejamento/contexto-de-mercado.md)
 - [Critérios de aceitação](docs/planejamento/criterios-de-aceitacao.md)
 - [Modelo de dados](docs/planejamento/modelo-de-dados.md)
 - [Métricas e validação](docs/planejamento/metricas-e-validacao.md), [kit para os testes com pessoas](docs/validacao/README.md) e [resultados](docs/planejamento/resultados-validacao.md)

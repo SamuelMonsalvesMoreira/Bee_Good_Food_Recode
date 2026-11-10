@@ -26,7 +26,7 @@ A apresentação conta uma história: a **Lúcia** tem pão sobrando no fim do d
 
 | Tempo | Parte | O que mostrar | O que dizer |
 |---|---|---|---|
-| 0:00 | Problema | Slides de abertura e do problema | A Lúcia tem uma padaria e termina o dia com produtos bons e sem venda. Falta um canal simples para vender esse excedente. |
+| 0:00 | Problema | Slides de abertura, do problema e dos números | A Lúcia tem uma padaria e termina o dia com produtos bons e sem venda. Falta um canal simples para vender esse excedente. |
 | 1:00 | Proposta e ODS 8 | Slides da proposta e do público | A loja publica com desconto, o cliente reserva e retira no balcão. O foco é a renda do pequeno negócio (ODS 8). O público é adulto. |
 | 2:00 | Vitrine | Página inicial: seções e faixa de prazo de uma oferta | "Compre até" e "Retire até" são prazos diferentes. A pesquisa do TCC apontou que o prazo precisa ficar claro. |
 | 3:00 | Reserva | Entrar como **Camila**, reservar uma oferta e mostrar o código de retirada | O preço e o total finais são calculados pela API, nunca pelo navegador. O código é o que a Camila mostra no balcão. |
@@ -36,7 +36,7 @@ A apresentação conta uma história: a **Lúcia** tem pão sobrando no fim do d
 | 7:00 | CRUDs completos | Slide dos CRUDs. Na loja: criar um rascunho de oferta e remover. Na moderação: criar a categoria Teste, renomear, remover e tentar remover Padaria | Categorias, produtos e ofertas: criar, listar, atualizar e remover pela tela. O que já tem pedido não é apagado, e a tela explica o motivo. |
 | 9:00 | Mercado | Slide do mercado | Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood e trouxe o que cabia no escopo. |
 | 9:45 | Construção e qualidade | Slides de arquitetura, regras e qualidade | React, API em Java e MySQL. A última unidade é vendida uma única vez, e isso tem teste com compras simultâneas. Os testes automatizados estão registrados no repositório. |
-| 10:45 | Impacto e limites | Slides do ODS 8 e dos limites | O sistema mede o que registra. Impacto em renda ainda precisa de teste com pessoas e lojas reais. |
+| 10:45 | Impacto e limites | Slides do ODS 8, do cenário e dos limites | O cenário de R$ 780 por mês é uma simulação, não uma medição. O sistema mede esses números de verdade quando for usado, e o teste com pessoas é o próximo passo. |
 | 11:30 | Fechamento | Slide final | A Lúcia recuperou parte do que perderia, e a Camila economizou. Abrir para perguntas. |
 
 Para a Camila e a Lúcia, entre logo antes de cada parte: a sessão dura 15 minutos.
@@ -89,6 +89,9 @@ Não. O sistema só registra a forma escolhida (Pix, dinheiro ou cartão na reti
 
 **Como é garantido que o cliente é maior de idade?**
 Por autodeclaração obrigatória no cadastro. Não é verificação de documento, e isso está registrado como decisão (DEC-014).
+
+**De onde vêm os números do problema?**
+Do relatório de desperdício do PNUMA (2024), divulgado pela Embrapa, e da Agência Sebrae (2026). As fontes estão no slide e em `docs/planejamento/contexto-de-mercado.md`.
 
 **Vocês mediram impacto no desperdício ou na renda?**
 Não. O sistema mede apenas o que registra: pedidos, valores e unidades. Impacto social exige pesquisa com os negócios, prevista como próxima etapa em [Métricas e validação](../planejamento/metricas-e-validacao.md).

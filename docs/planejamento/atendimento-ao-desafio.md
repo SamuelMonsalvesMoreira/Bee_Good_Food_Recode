@@ -9,7 +9,7 @@ Cada exigência do desafio e onde ela é atendida no projeto. Serve de roteiro p
 | Problema | Padarias, hortifrutis e restaurantes de bairro terminam o dia com comida boa que não foi vendida e não têm um canal simples para vender esse excedente. |
 | ODS | **ODS 8: Trabalho Decente e Crescimento Econômico.** O foco é gerar receita para pequenos negócios locais. |
 | Público-alvo | Responsáveis por pequenos negócios de comida e consumidores adultos (18 anos ou mais, com declaração obrigatória no cadastro). |
-| Impacto esperado | A loja recupera parte do valor de produtos que seriam perdidos e acompanha os resultados em indicadores. O cliente compra mais barato perto de casa. É um impacto **esperado**: a medição com pessoas reais está planejada em [Métricas e validação](metricas-e-validacao.md) e ainda não foi feita. |
+| Impacto esperado | A loja recupera parte do valor de produtos que seriam perdidos e acompanha os resultados em indicadores. O cliente compra mais barato perto de casa. É um impacto **esperado**: a medição com pessoas reais está planejada em [Métricas e validação](metricas-e-validacao.md) e ainda não foi feita. O tamanho do problema e um cenário de impacto hipotético, com fontes, estão no [contexto de mercado](contexto-de-mercado.md). |
 
 ## Restrições
 
