@@ -195,7 +195,9 @@ Bee_Good_Food_Recode/
 - [x] Etapa 4: cadastro adulto, JWT e perfis de acesso
 - [x] Etapa 5: lojas, moderação, catálogo, busca, pedidos e indicadores
 - [x] Etapa 6: interface React integrada
-- [ ] Etapa 7: parte técnica concluída (testes no navegador, acessibilidade, demonstração e guia de publicação). Faltam a validação com pessoas e a apresentação.
+- [x] Etapa 7: parte técnica (testes no navegador, acessibilidade, CRUDs completos e demonstração publicada)
+- [ ] Validação com pessoas (5 consumidores e 3 responsáveis por lojas)
+- [ ] Apresentação final
 
 Fora do escopo do MVP: entrega, pagamento online, geolocalização e refresh token. Todos os motivos estão nas [decisões](docs/planejamento/decisoes-do-mvp.md).
 
