@@ -16,28 +16,40 @@ Duração sugerida: **12 minutos de apresentação + 5 de perguntas**. A demonst
    ```
 
 4. Abra `frontend/.demo/contas.json` para ter à mão os e-mails e senhas da **Camila (cliente)** e da **Lúcia (Padaria da Dona Lúcia)**.
-5. Deixe três abas prontas: o site, o repositório no GitHub e o Swagger (`http://127.0.0.1:8080/swagger-ui/index.html`).
-6. Lembre-se: **recarregar a página encerra a sessão** (o token fica só em memória). Navegue pelos menus, não pela barra de endereço.
+5. Deixe prontos: o site, os slides, o repositório no GitHub e um cliente MySQL conectado ao banco de demonstração.
+6. Ensaie no computador que será usado no dia, com o tempo marcado.
+7. Lembre-se: **recarregar a página encerra a sessão** (o token fica só em memória). Navegue pelos menus, não pela barra de endereço.
 
 ## Roteiro
 
+A apresentação conta uma história: a **Lúcia** tem pão sobrando no fim do dia, e a **Camila** quer comprar mais barato perto de casa. Mostre o sistema local, com Java e MySQL.
+
 | Tempo | Parte | O que mostrar | O que dizer |
 |---|---|---|---|
-| 0:00 | Problema | Slide do problema | Pequenos negócios de comida terminam o dia com produtos bons e sem venda. Falta um canal simples para vender esse excedente. |
-| 1:00 | Proposta e ODS 8 | Página inicial | A abertura explica a proposta antes da primeira ação, um aprendizado da pesquisa do TCC. O foco é a renda do pequeno negócio (ODS 8). |
-| 2:00 | Busca | Digitar "santos" na cidade, sem acento; clicar em **Padaria** nos filtros rápidos | A busca ignora maiúsculas e acentos. Só aparecem ofertas compráveis agora: publicadas, dentro do prazo e com estoque. |
-| 3:00 | Prazos | Apontar a faixa de prazo de uma oferta | "Compre até" e "Retire até" são prazos diferentes e aparecem no fuso da loja. A pesquisa do TCC apontou que o prazo de cada produto precisa ficar claro. |
-| 3:30 | Carrinho | Adicionar duas unidades; tentar adicionar oferta de **outra loja** | Um pedido é retirado numa única loja. O site pergunta antes de trocar e nunca apaga itens sozinho. |
-| 4:30 | Reserva | Entrar como **Camila**, escolher Pix e confirmar | O total mostrado é uma estimativa: preço e total finais são calculados pela API. A reserva usa uma chave de idempotência, e repetir o envio não cria pedido duplicado. |
-| 5:30 | Pedido | Página do pedido: etapas, prazo de retirada e endereço | A página se atualiza sozinha a cada 30 segundos enquanto o pedido está em andamento. |
-| 6:00 | Loja | Sair, entrar como **Lúcia**, abrir **Minhas lojas** → Padaria → **Pedidos** | A loja vê a fila e avança o pedido uma etapa por vez. |
-| 7:00 | Atendimento | Confirmar → Iniciar preparo → Marcar como pronto → Registrar retirada | Cada mudança fica registrada no histórico. Não dá para pular etapas. |
-| 8:00 | Indicadores | Aba **Indicadores** | Pedidos retirados, valor, unidades e taxas por período. Sem pedidos, a taxa aparece como N/A, não como zero. |
-| 9:00 | Oferta nova | Aba **Produtos e ofertas** → um produto → criar oferta com preço maior que o original | O erro aparece no campo. Corrigir e publicar. Depois de publicada, preço e prazo não mudam. |
-| 10:00 | Qualidade | GitHub: README e pasta `backend/evidencias` | 190 testes automatizados, incluindo concorrência na última unidade e auditoria de acessibilidade sem violações. As decisões estão documentadas (DEC-001 a DEC-031). |
-| 11:00 | Limites e próximos passos | Slide final | O que o MVP não faz (entrega, pagamento online) e o que falta validar com pessoas. |
+| 0:00 | Problema | Slides de abertura e do problema | A Lúcia tem uma padaria e termina o dia com produtos bons e sem venda. Falta um canal simples para vender esse excedente. |
+| 1:00 | Proposta e ODS 8 | Slides da proposta e do público | A loja publica com desconto, o cliente reserva e retira no balcão. O foco é a renda do pequeno negócio (ODS 8). O público é adulto. |
+| 2:00 | Vitrine | Página inicial: seções e faixa de prazo de uma oferta | "Compre até" e "Retire até" são prazos diferentes. A pesquisa do TCC apontou que o prazo precisa ficar claro. |
+| 3:00 | Reserva | Entrar como **Camila**, reservar uma oferta e mostrar o código de retirada | O preço e o total finais são calculados pela API, nunca pelo navegador. O código é o que a Camila mostra no balcão. |
+| 4:30 | Atendimento | Sair, entrar como **Lúcia**, abrir **Minhas lojas** → Padaria → **Pedidos**. Confirmar → Iniciar preparo → Marcar como pronto → Registrar retirada | A loja avança uma etapa por vez, e cada mudança fica no histórico. |
+| 5:45 | Prova da integração | No MySQL: `SELECT id, status FROM pedido ORDER BY id DESC LIMIT 1;` | A ação feita na tela passou pela API em Java e está gravada no banco: o status agora é `CONCLUIDO`. |
+| 6:15 | Indicadores | Aba **Indicadores** | A Lúcia vê pedidos retirados, valor e unidades do período. Sem pedidos, a taxa aparece como N/A, não como zero. |
+| 7:00 | CRUDs completos | Slide dos CRUDs. Na loja: criar um rascunho de oferta e remover. Na moderação: criar a categoria Teste, renomear, remover e tentar remover Padaria | Categorias, produtos e ofertas: criar, listar, atualizar e remover pela tela. O que já tem pedido não é apagado, e a tela explica o motivo. |
+| 9:00 | Mercado | Slide do mercado | Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood e trouxe o que cabia no escopo. |
+| 9:45 | Construção e qualidade | Slides de arquitetura, regras e qualidade | React, API em Java e MySQL. A última unidade é vendida uma única vez, e isso tem teste com compras simultâneas. Os testes automatizados estão registrados no repositório. |
+| 10:45 | Impacto e limites | Slides do ODS 8 e dos limites | O sistema mede o que registra. Impacto em renda ainda precisa de teste com pessoas e lojas reais. |
+| 11:30 | Fechamento | Slide final | A Lúcia recuperou parte do que perderia, e a Camila economizou. Abrir para perguntas. |
 
-Se sobrar tempo, mostre a **moderação**: entre como administrador, aprove a "Doceria Vila Mathias" e mostre que o motivo é obrigatório.
+Para a Camila e a Lúcia, entre logo antes de cada parte: a sessão dura 15 minutos.
+
+## Antes de apresentar: saiba explicar estes pontos
+
+Podem pedir para você abrir o código. Leia e explique com as suas palavras:
+
+- **Caminho de um pedido, da tela ao banco:** `frontend/src/api/client.ts`, `backend/.../pedidos/PedidoController.java` e `PedidoService.java`.
+- **Última unidade vendida uma vez:** `backend/.../catalogo/EstoqueVendaService.java`.
+- **Login e permissões:** `backend/.../auth/AuthController.java` e `backend/.../config/SecurityConfig.java`.
+- **Tabelas e relações:** `database/migrations/V1__criar_schema_inicial.sql`.
+- **Um CRUD completo:** `backend/.../catalogo/CatalogoGestaoController.java`, `CatalogoGestaoService.java` e `frontend/src/componentes/BotaoRemover.tsx`.
 
 ## Plano B
 
@@ -53,6 +65,15 @@ Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram a
 
 **Onde estão os 3 CRUDs completos?**
 Categorias (Moderação > Categorias), produtos e ofertas (Minhas lojas > loja > Produtos e ofertas). Os três criam, listam, atualizam e removem pela tela. O que já tem pedido não é apagado, para não quebrar o histórico: a tela explica e sugere desativar ou encerrar.
+
+**O código de retirada é seguro?**
+Não é uma senha. É uma forma legível do número do pedido, para conferir no balcão, e a loja não o valida no sistema. Quem controla o acesso é o login no servidor (DEC-034).
+
+**Sacola surpresa é uma funcionalidade nova?**
+É um selo na vitrine, ativado quando o nome do produto contém "surpresa". Nenhuma regra de negócio muda (DEC-035).
+
+**A versão online usa o sistema real?**
+Não. Ela usa dados simulados no navegador, para abrir na hora e sem custo (DEC-037). O sistema com Java e MySQL é o que foi apresentado.
 
 **Por que só retirada e não entrega?**
 Entrega exigiria endereço do cliente, taxa, área de cobertura e logística. O MVP foca no essencial para o pequeno negócio (DEC-001).
