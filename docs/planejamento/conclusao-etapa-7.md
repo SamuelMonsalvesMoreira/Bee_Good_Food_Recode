@@ -1,6 +1,6 @@
 # Etapa 7 — Validação e entrega
 
-Data: 06/11/2026 (America/Sao_Paulo). Estado: **parte técnica concluída localmente**, com o runner oficial aprovado e o material de apresentação pronto. Faltam as rodadas de validação com pessoas (veja o checklist no fim).
+Data: 06/11/2026 (America/Sao_Paulo); encerrada em 09/11/2026. Estado: **concluída para entrega**, com o runner oficial aprovado, a demonstração publicada e o material de apresentação pronto. A validação com pessoas ficou para depois da entrega ([DEC-039](decisoes-do-mvp.md)): as hipóteses H01 a H05 seguem não validadas.
 
 ## O que foi entregue
 
@@ -52,11 +52,16 @@ O Playwright inicia o site na porta 5174. Cada teste cria os próprios dados com
 - [x] Script de dados de demonstração.
 - [x] Guia e pré-requisitos de publicação.
 - [x] Executar `database/scripts/validar-banco.ps1 -Api` com PowerShell 7.6: 159 testes HTTP/MySQL, empacotamento e duas inicializações do JAR, registrados em [`ultima-validacao.json`](../../backend/evidencias/ultima-validacao.json).
+- [x] [Kit de validação](../validacao/README.md) com roteiros, termo de consentimento e critério por hipótese, ensaiado na demonstração.
+- [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
+- [x] Slides da apresentação (17 slides, ligados ao ODS 8, com números de mercado e fontes).
+- [x] [Revisão de segurança](revisao-de-seguranca.md) com dependências atualizadas.
+- [x] Publicar a demonstração na Vercel e conferir o link do README: [bee-good-food-recode.vercel.app](https://bee-good-food-recode.vercel.app), publicada em 09/11/2026 a partir da `main`.
+
+## Depois da entrega
+
 - [ ] Rodada 1: pelo menos 5 consumidores adultos (H01, H02, H04), com o [kit de validação](../validacao/README.md).
 - [ ] Rodada 2: pelo menos 3 responsáveis por pequenos negócios (H03, H05).
-- [ ] Registrar os resultados agregados, sem dados identificáveis, em [resultados-validacao.md](resultados-validacao.md), e as mudanças decididas a partir deles.
-- [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
-- [x] Slides da apresentação (13 slides, ligados ao ODS 8).
-- [ ] Ensaiar a apresentação e ajustar os slides ao tempo disponível.
-- [x] Publicar a demonstração na Vercel e conferir o link do README: [bee-good-food-recode.vercel.app](https://bee-good-food-recode.vercel.app), publicada em 09/11/2026 a partir da `main`.
-- [ ] (Opcional) Publicar o sistema completo (Vercel, Render e Aiven) seguindo o [guia](../deploy.md) e repetir os testes no navegador contra o endereço publicado.
+- [ ] Registrar os resultados agregados em [resultados-validacao.md](resultados-validacao.md) e as mudanças decididas a partir deles.
+- [ ] Publicar o sistema completo (Vercel, Render e Aiven) seguindo o [guia](../deploy.md) e repetir os testes no navegador contra o endereço publicado.
+- [ ] Ensaiar a apresentação com cronômetro no computador do dia.
