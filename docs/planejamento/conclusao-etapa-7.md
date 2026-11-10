@@ -52,9 +52,9 @@ O Playwright inicia o site na porta 5174. Cada teste cria os próprios dados com
 - [x] Script de dados de demonstração.
 - [x] Guia e pré-requisitos de publicação.
 - [x] Executar `database/scripts/validar-banco.ps1 -Api` com PowerShell 7.6: 159 testes HTTP/MySQL, empacotamento e duas inicializações do JAR, registrados em [`ultima-validacao.json`](../../backend/evidencias/ultima-validacao.json).
-- [ ] Rodada 1: pelo menos 5 consumidores adultos (H01, H02, H04), conforme [Métricas e validação](metricas-e-validacao.md).
+- [ ] Rodada 1: pelo menos 5 consumidores adultos (H01, H02, H04), com o [kit de validação](../validacao/README.md).
 - [ ] Rodada 2: pelo menos 3 responsáveis por pequenos negócios (H03, H05).
-- [ ] Registrar os resultados agregados, sem dados identificáveis, e as mudanças decididas a partir deles.
+- [ ] Registrar os resultados agregados, sem dados identificáveis, em [resultados-validacao.md](resultados-validacao.md), e as mudanças decididas a partir deles.
 - [x] [Roteiro de demonstração](../apresentacao/roteiro-demonstracao.md) com plano B e perguntas prováveis.
 - [x] Slides da apresentação (13 slides, ligados ao ODS 8).
 - [ ] Ensaiar a apresentação e ajustar os slides ao tempo disponível.

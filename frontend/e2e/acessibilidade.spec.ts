@@ -73,6 +73,8 @@ test.describe('acessibilidade @celular', () => {
     await auditar(page, 'detalhe do pedido');
 
     await page.getByRole('button', { name: 'Sair' }).click();
+    // Sair de uma pagina privada leva ao inicio: quem entrar depois nao cai na pagina de outra pessoa.
+    await expect(page).toHaveURL(/\/$/);
     await entrar(page, await admin());
     await irPeloMenu(page, 'Moderação');
     await auditar(page, 'moderação');

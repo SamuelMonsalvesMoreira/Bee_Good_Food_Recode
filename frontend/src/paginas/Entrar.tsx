@@ -24,8 +24,9 @@ export function Entrar() {
   async function autenticar(comEmail: string, comSenha: string, destino?: string) {
     const usuario = await executar(() => entrar(comEmail, comSenha));
     if (!usuario) return;
-    const anterior = voltar?.voltar && voltar.voltar !== '/entrar' ? voltar.voltar : '/';
-    navegar(destino ?? anterior, { replace: true });
+    // Quem chegou aqui vindo de outra tela (ex.: carrinho) volta para ela, inclusive pelos atalhos da demonstracao.
+    const anterior = voltar?.voltar && voltar.voltar !== '/entrar' ? voltar.voltar : undefined;
+    navegar(anterior ?? destino ?? '/', { replace: true });
   }
 
   function enviar(evento: FormEvent) {
