@@ -25,7 +25,8 @@ export function Entrar() {
     const usuario = await executar(() => entrar(comEmail, comSenha));
     if (!usuario) return;
     // Quem chegou aqui vindo de outra tela (ex.: carrinho) volta para ela, inclusive pelos atalhos da demonstracao.
-    const anterior = voltar?.voltar && voltar.voltar !== '/entrar' ? voltar.voltar : undefined;
+    // A pagina inicial nao conta como origem: quem veio dela vai para a area do perfil escolhido.
+    const anterior = voltar?.voltar && voltar.voltar !== '/entrar' && voltar.voltar !== '/' ? voltar.voltar : undefined;
     navegar(anterior ?? destino ?? '/', { replace: true });
   }
 
