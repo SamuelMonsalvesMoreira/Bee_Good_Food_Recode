@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "dataLocal": "2026-11-14 (America/Sao_Paulo)",
+  "assunto": "Fluxo de testes automaticos no GitHub Actions (.github/workflows/ci.yml)",
+  "situacaoNoGitHub": "Ainda nao executado no GitHub nesta data: o fluxo so roda depois do envio. O resultado de cada execucao fica na aba Actions do repositorio e no selo do README.",
+  "fluxo": {
+    "gatilhos": ["push na main", "pull request"],
+    "permissoes": "contents: read; nenhum segredo do repositorio e usado",
+    "trabalhos": {
+      "backend": "MySQL 8.0 descartavel; mvnw -Pintegration verify (unitarios e HTTP/MySQL)",
+      "frontend": "npm ci, typecheck, testes unitarios, build normal sem a API simulada e build de demonstracao",
+      "navegador": "MySQL 8.0 descartavel, API empacotada, administrador criado na hora, Playwright com axe"
+    }
+  },
+  "conferenciaLocal": {
+    "observacao": "Mesmos comandos e mesma configuracao do fluxo (root sem senha, banco descartavel), em MySQL 8.0 isolado na maquina local; o fluxo em si so pode ser exercitado no GitHub",
+    "sintaxe": "Arquivo validado com o pacote yaml 2.8.1",
+    "backend": { "comando": "mvnw --batch-mode --no-transfer-progress -Pintegration verify", "testesHttpMySql": 171, "testesUnitarios": 9, "falhas": 0 },
+    "frontend": { "testesUnitarios": 20, "typecheck": "ok", "buildNormalSemApiSimulada": true, "buildDemonstracao": "ok" },
+    "navegador": { "total": 15, "bancoVazio": true, "execucoesSeguidasSemFalha": 2 }
+  },
+  "falhaIntermitenteExplicada": {
+    "sintoma": "Com banco vazio, 'telas privadas do responsavel e da moderacao' falhava no desktop (registrado como causa nao identificada em revisao-seguranca.json)",
+    "causa": "O teste clicava em Minhas lojas e procurava o link da loja sem esperar a troca de pagina; com poucas ofertas no banco, o nome da loja aparecia tres vezes nos cartoes da vitrine da pagina inicial",
+    "reproducao": "Reproduzida em uma execucao completa com banco vazio antes da correcao",
+    "correcao": "irPeloMenu passa a esperar o item do menu virar a pagina atual (aria-current)",
+    "natureza": "Corrida do teste; nenhum defeito no site"
+  }
+}

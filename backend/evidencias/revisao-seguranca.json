@@ -5,10 +5,27 @@
   "dependencias": {
     "maven": {
       "fonte": "api.osv.dev, escopos compile e runtime, 117 pacotes",
-      "antes": { "springBoot": "4.1.1", "alertas": 18, "pacotesAfetados": ["tomcat-embed-core 11.0.24", "jackson-core e jackson-databind 2.21.5", "jackson-core e jackson-databind 3.1.5"] },
-      "depois": { "springBoot": "4.1.2", "alertas": 0, "tomcat": "11.0.27", "jackson3": "3.1.7", "jackson2": "2.21.7" }
+      "antes": {
+        "springBoot": "4.1.1",
+        "alertas": 18,
+        "pacotesAfetados": [
+          "tomcat-embed-core 11.0.24",
+          "jackson-core e jackson-databind 2.21.5",
+          "jackson-core e jackson-databind 3.1.5"
+        ]
+      },
+      "depois": {
+        "springBoot": "4.1.2",
+        "alertas": 0,
+        "tomcat": "11.0.27",
+        "jackson3": "3.1.7",
+        "jackson2": "2.21.7"
+      }
     },
-    "npm": { "comando": "npm audit", "alertas": 0 }
+    "npm": {
+      "comando": "npm audit",
+      "alertas": 0
+    }
   },
   "segredos": "git grep e git log com padroes conhecidos de chaves em todas as branches: nada encontrado; arquivos .env rastreados sao apenas exemplos e o .env.demo sem segredo",
   "publicacao": {
@@ -19,12 +36,16 @@
   "validacaoAposCorrecoes": {
     "runnerOficial": "database/scripts/validar-banco.ps1 -Api aprovado: 171 testes HTTP/MySQL e 9 unitarios",
     "frontendUnitarios": 20,
-    "builds": ["npm run build", "npm run build:demo"],
+    "builds": [
+      "npm run build",
+      "npm run build:demo"
+    ],
     "navegador": {
       "total": 15,
       "banco": "Instancia MySQL 8.0 isolada, porta somente em 127.0.0.1 (Docker Desktop indisponivel nesta rodada)",
       "resultado": "15 de 15 aprovados na segunda execucao completa",
-      "ocorrencia": "Na primeira execucao completa, com banco vazio, 1 teste de acessibilidade no desktop falhou; o teste passou nas tres execucoes seguintes, inclusive em banco vazio, e a causa nao foi identificada"
+      "ocorrencia": "Na primeira execucao completa, com banco vazio, 1 teste de acessibilidade no desktop falhou; o teste passou nas tres execucoes seguintes, inclusive em banco vazio, e a causa nao foi identificada",
+      "ocorrenciaExplicadaEm": "testes-automaticos.json (14/11/2026): corrida do teste ao navegar pelo menu, sem defeito no site"
     }
   },
   "limites": [

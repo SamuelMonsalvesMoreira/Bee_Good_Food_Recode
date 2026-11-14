@@ -8,12 +8,13 @@
 
 Projeto final do **Programa Transforma Futuros** (Recode Fullstack), evoluído a partir do meu TCC. Alinhado ao **ODS 8**: trabalho decente e crescimento econômico.
 
+[![Testes](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_Recode/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SamuelMonsalvesMoreira/Bee_Good_Food_Recode/actions/workflows/ci.yml)
 ![Java 21](https://img.shields.io/badge/Java-21-2b1d0e?logo=openjdk&logoColor=white)
 ![Spring Boot 4](https://img.shields.io/badge/Spring_Boot-4.1-2f6b3a?logo=springboot&logoColor=white)
 ![React 19](https://img.shields.io/badge/React-19-2b1d0e?logo=react&logoColor=61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-2b1d0e?logo=typescript&logoColor=white)
 ![MySQL 8](https://img.shields.io/badge/MySQL-8-2b1d0e?logo=mysql&logoColor=white)
-![Testes](https://img.shields.io/badge/testes-215_automatizados-2f6b3a)
+![215 testes](https://img.shields.io/badge/testes-215_automatizados-2f6b3a)
 ![Acessibilidade](https://img.shields.io/badge/WCAG_2.1_AA-0_viola%C3%A7%C3%B5es-2f6b3a)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-f2b705)
 
@@ -130,6 +131,8 @@ A API é um monólito modular, com um pacote por área: `auth`, `estabelecimento
 | Frontend unitários | 20 | Regras do carrinho, conversão de fusos, confirmação ao trocar de loja e a API simulada da demonstração. |
 | Navegador (Playwright) | 15 | Fluxos de cliente, responsável e administração, no desktop e no celular, nos temas claro e escuro. |
 | Acessibilidade (axe) | 17 telas | WCAG 2.1 A/AA, sem violações, inclusive no tema escuro. |
+
+A cada push na `main` e a cada pull request, o GitHub Actions roda essas suítes em um MySQL descartável ([fluxo](.github/workflows/ci.yml)); o selo no topo mostra o resultado mais recente.
 
 Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`validacao-vitrine-e-demo.json`](backend/evidencias/validacao-vitrine-e-demo.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
 

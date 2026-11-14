@@ -1,0 +1,174 @@
+# Roda os testes a cada push na main e a cada pull request.
+# Nenhum segredo e usado: o MySQL e descartavel e as chaves sao geradas a cada execucao.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: API (unitários e HTTP com MySQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: bee_good_food_validacao
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=24
+    env:
+      # Os testes recusam qualquer banco que nao seja este, em 127.0.0.1.
+      BEE_TEST_MYSQL_URL: jdbc:mysql://127.0.0.1:3306/bee_good_food_validacao?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+      BEE_TEST_MYSQL_USER: root
+      BEE_TEST_MYSQL_PASSWORD: ""
+      DB_URL: jdbc:mysql://127.0.0.1:3306/bee_good_food_validacao?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+      DB_USER: root
+      DB_PASSWORD: ""
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Gerar chave JWT desta execução
+        run: |
+          chave="$(openssl rand -base64 32)"
+          echo "::add-mask::$chave"
+          echo "JWT_SECRET_BASE64=$chave" >> "$GITHUB_ENV"
+      - name: Testes unitários e de integração
+        working-directory: backend
+        run: ./mvnw --batch-mode --no-transfer-progress -Pintegration verify
+      - name: Guardar relatórios dos testes
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorios-backend
+          path: |
+            backend/target/surefire-reports
+            backend/target/failsafe-reports
+          retention-days: 7
+
+  frontend:
+    name: Interface (tipos, unitários e builds)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Tipos
+        run: npm run typecheck
+      - name: Testes unitários
+        run: npm test
+      - name: Build normal
+        run: npm run build
+      - name: A build normal não leva a API simulada
+        run: |
+          if ls dist/assets | grep -q servidorDemo; then
+            echo "A API simulada entrou na build normal."; exit 1
+          fi
+      - name: Build de demonstração
+        run: npm run build:demo
+
+  navegador:
+    name: Navegador (Playwright e acessibilidade)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: bee_e2e
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=24
+    env:
+      DB_URL: jdbc:mysql://127.0.0.1:3306/bee_e2e?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+      DB_USER: root
+      DB_PASSWORD: ""
+      E2E_API: http://127.0.0.1:8081
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Empacotar a API
+        working-directory: backend
+        run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
+      - name: Iniciar a API no banco de testes
+        run: |
+          chave="$(openssl rand -base64 32)"
+          echo "::add-mask::$chave"
+          JWT_SECRET_BASE64="$chave" nohup java -jar backend/target/bee-good-food-api-*.jar \
+            --server.port=8081 --bee.security.auth-requests-per-minute=1000 > api.log 2>&1 &
+          curl --silent --fail --retry 40 --retry-delay 2 --retry-all-errors http://127.0.0.1:8081/actuator/health
+      - name: Criar o administrador de testes
+        run: |
+          senha="$(openssl rand -hex 16)"
+          echo "::add-mask::$senha"
+          email="admin-ci@exemplo.invalid"
+          curl --silent --fail --output /dev/null -H 'Content-Type: application/json' \
+            --data "{\"nome\":\"Administracao CI\",\"email\":\"$email\",\"senha\":\"$senha\",\"maiorDeIdade\":true}" \
+            http://127.0.0.1:8081/api/v1/auth/cadastro
+          mysql --protocol=tcp -h127.0.0.1 -uroot bee_e2e -e \
+            "INSERT INTO usuario_papel (usuario_id, papel_codigo) SELECT id, 'ADMINISTRADOR' FROM usuario WHERE email_normalizado = '$email'"
+          echo "BEE_ADMIN_EMAIL=$email" >> "$GITHUB_ENV"
+          echo "BEE_ADMIN_SENHA=$senha" >> "$GITHUB_ENV"
+      - name: Instalar dependências e navegador
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Testes no navegador
+        working-directory: frontend
+        run: npx playwright test
+      - name: Guardar relatório do navegador
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-playwright
+          path: frontend/playwright-report
+          retention-days: 7
+      - name: Guardar log da API
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: log-da-api
+          path: api.log
+          retention-days: 7
