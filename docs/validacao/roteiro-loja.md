@@ -17,7 +17,8 @@ Na aba Pedidos: "O que esta tela mostra? Qual pedido você atenderia primeiro?"
 
 **L2. Atender um pedido**
 "Um cliente chegou para buscar o pedido que está aguardando. Leve esse pedido até a retirada."
-- Sucesso: passa por todas as etapas até "Retirado".
+- Na última etapa, o site pede o código de retirada. Diga: "O cliente mostrou o código BEE234" (é o código dos pedidos de exemplo da demonstração).
+- Sucesso: passa por todas as etapas até "Retirado", informando o código.
 
 **L3. Publicar uma oferta (H03)**
 "Sobraram 4 bolos de fubá, que custam R$ 20. Coloque à venda por R$ 12 até as 20h, para retirar até as 21h."

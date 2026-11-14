@@ -98,8 +98,8 @@ export const pedidos = {
   doEstabelecimento: (estabelecimentoId: number, pagina: number, status?: StatusPedido) =>
     requisitar<Pagina<PedidoResumo>>(
       `/api/v1/estabelecimentos/${estabelecimentoId}/pedidos${query({ pagina, tamanho: 50, status })}`),
-  avancar: (id: number, status: StatusPedido) =>
-    requisitar<Pedido>(`/api/v1/pedidos/${id}/status`, { metodo: 'POST', corpo: { status } }),
+  avancar: (id: number, status: StatusPedido, codigoRetirada?: string) =>
+    requisitar<Pedido>(`/api/v1/pedidos/${id}/status`, { metodo: 'POST', corpo: codigoRetirada ? { status, codigoRetirada } : { status } }),
   cancelar: (id: number, motivo?: string) =>
     requisitar<Pedido>(`/api/v1/pedidos/${id}/cancelar`, { metodo: 'POST', corpo: motivo ? { motivo } : {} }),
 };

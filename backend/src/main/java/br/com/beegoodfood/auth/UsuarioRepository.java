@@ -10,6 +10,10 @@ interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmailNormalizado(String emailNormalizado);
     Optional<Usuario> findByIdAndAtivoTrue(Long id);
 
+    // Serializa as reservas de um mesmo cliente (limite de pedidos em andamento, DEC-041).
+    @Query(nativeQuery = true, value = "SELECT id FROM usuario WHERE id = :id FOR UPDATE")
+    Optional<Long> bloquear(@Param("id") long id);
+
     // Idempotente e seguro sob concorrencia: a chave primaria (usuario, papel) impede duplicidade.
     @Modifying
     @Query(nativeQuery = true, value = "INSERT INTO usuario_papel (usuario_id, papel_codigo) VALUES (:usuarioId, :papel) "

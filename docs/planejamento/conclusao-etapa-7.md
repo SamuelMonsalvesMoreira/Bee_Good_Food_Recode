@@ -16,6 +16,7 @@ Data: 06/11/2026 (America/Sao_Paulo); encerrada em 09/11/2026. Estado: **conclu�
 | Demonstração online | Modo demonstração com API simulada no navegador e contas fictícias de um clique, para publicar só a interface na Vercel ([DEC-037](decisoes-do-mvp.md), [passo a passo](../deploy.md#demonstração-do-tcc-só-vercel-modo-demonstração)). Aviso de projeto acadêmico, sem fins lucrativos. |
 | CRUDs completos | Remoção de categorias, produtos e ofertas pela interface, preservando o que tem pedido ([DEC-038](decisoes-do-mvp.md), [atendimento ao desafio](atendimento-ao-desafio.md)). |
 | Testes automáticos no GitHub | Fluxo do GitHub Actions que roda as suítes da API, da interface e do navegador a cada push na `main` e a cada pull request, em MySQL descartável e sem segredos ([`ci.yml`](../../.github/workflows/ci.yml), [evidência](../../backend/evidencias/testes-automaticos.json)). |
+| Retirada conferida e limite de reservas | A loja informa o código que só o cliente vê para registrar a retirada (DEC-040, migration V3), e cada cliente tem no máximo 5 pedidos em andamento (DEC-041). Telas de loja e moderação carregadas sob demanda ([evidência](../../backend/evidencias/retirada-limite-carga.json)). |
 | Robustez da interface | Tela "Algo deu errado" no lugar de página em branco; aviso claro quando a API não responde. Também corrigido o contexto de sessão, que quebrava com o recarregamento automático do servidor de desenvolvimento. |
 
 ## Validação executada

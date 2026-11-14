@@ -33,7 +33,7 @@ Comparar o Bee Good Food com os principais aplicativos de venda de excedentes de
 |---|---|---|
 | Vitrine com seções | Too Good To Go (Discover) | Página inicial com "Terminam logo" e "Maiores descontos" antes da lista completa |
 | Ordenação da busca | Too Good To Go | Ordenar por prazo, maior desconto, menor preço ou mais recentes (a API passou a aceitar `ordem`) |
-| Comprovante de retirada | Too Good To Go (deslizar na tela) | Código de retirada grande na página do pedido, para mostrar no balcão |
+| Comprovante de retirada | Too Good To Go (deslizar na tela) | Código de retirada que só o cliente vê; a loja o informa para registrar a retirada (DEC-040) |
 | Impacto para o cliente | Phenix e Too Good To Go | "Você já economizou R$ X" no histórico de pedidos (a API passou a informar a economia de cada pedido) |
 | Sacola surpresa | Too Good To Go e Food To Save | Selo "Sacola surpresa" nas ofertas assim chamadas e exemplos nos dados de demonstração |
 | Experiência de aplicativo no celular | Todos | Barra de navegação inferior, tema escuro automático e avisos rápidos de confirmação |

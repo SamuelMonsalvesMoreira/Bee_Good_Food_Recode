@@ -60,6 +60,15 @@ describe('API simulada da demonstração', () => {
     expect(depois.estoqueDisponivel).toBe((oferta.estoqueDisponivel as number) - 1);
     const outro = await chamar('POST', '/api/v1/pedidos', { ...corpo, formaPagamento: 'DINHEIRO' }, chave);
     expect(outro.status).toBe(409);
+    // So o cliente recebe o codigo de retirada.
+    expect((primeiro.dados as { codigoRetirada: string }).codigoRetirada).toMatch(/^[2-9A-HJ-NP-Z]{6}$/);
+    // Limite de reservas em andamento: a conta de exemplo ja tem 2 e acabou de fazer a 3a.
+    const nova = (n: number) => chamar('POST', '/api/v1/pedidos', corpo, { ...cliente, 'Idempotency-Key': `teste-demo-limite-${n}` });
+    expect((await nova(4)).status).toBe(201);
+    expect((await nova(5)).status).toBe(201);
+    const recusada = await nova(6);
+    expect(recusada.status).toBe(409);
+    expect((recusada.dados as { detail: string }).detail).toContain('5 reservas em andamento');
   });
 
   it('remove categoria, produto e oferta respeitando o histórico', async () => {
@@ -101,8 +110,17 @@ describe('API simulada da demonstração', () => {
     const pedido = pendentes.conteudo[0]!;
     expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status: 'EM_PREPARO' }, loja)).status).toBe(409);
     expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status: 'CONFIRMADO' }, loja)).status).toBe(200);
+    // A loja nao ve o codigo e so registra a retirada com ele.
+    const visto = (await chamar('GET', `/api/v1/pedidos/${pedido.id}`, undefined, loja)).dados as { codigoRetirada: string | null };
+    expect(visto.codigoRetirada).toBeNull();
+    for (const status of ['EM_PREPARO', 'PRONTO_PARA_RETIRADA']) {
+      expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status }, loja)).status).toBe(200);
+    }
+    expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status: 'CONCLUIDO' }, loja)).status).toBe(400);
+    expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status: 'CONCLUIDO', codigoRetirada: 'ZZZZZZ' }, loja)).status).toBe(400);
+    expect((await chamar('POST', `/api/v1/pedidos/${pedido.id}/status`, { status: 'CONCLUIDO', codigoRetirada: 'bee-234' }, loja)).status).toBe(200);
     const ind = await chamar('GET', `/api/v1/estabelecimentos/${id}/indicadores?inicio=2020-01-01T00:00`, undefined, loja);
     expect(ind.status).toBe(200);
-    expect((ind.dados as { pedidosConcluidos: number }).pedidosConcluidos).toBe(3);
+    expect((ind.dados as { pedidosConcluidos: number }).pedidosConcluidos).toBe(4);
   });
 });

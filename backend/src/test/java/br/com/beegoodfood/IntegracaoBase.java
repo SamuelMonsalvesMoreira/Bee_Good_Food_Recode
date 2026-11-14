@@ -18,6 +18,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -25,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Base dos testes HTTP/MySQL da Etapa 5. Usa somente o banco isolado do runner. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// Limite alto: as classes reutilizam o mesmo cliente em muitos pedidos. O limite real tem classe propria (LimitePedidosIT).
+@TestPropertySource(properties = "bee.pedidos.max-em-andamento-por-cliente=5000")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class IntegracaoBase {
     static final String SENHA = "Senha-ficticia-teste-123";
@@ -49,6 +52,11 @@ abstract class IntegracaoBase {
         // Contexto compartilhado pelas classes da Etapa 5; o limite real tem teste proprio.
         registry.add("bee.security.auth-requests-per-minute", () -> 5000);
         registry.add("bee.security.cors-origins", () -> CorsIT.ORIGEM_FRONTEND);
+    }
+
+    /** Codigo que so o cliente ve pela API; os testes de loja o leem direto do banco. */
+    String codigoRetirada(long pedidoId) {
+        return jdbc.queryForObject("SELECT codigo_retirada FROM pedido WHERE id=?", String.class, pedidoId);
     }
 
     /** Cada classe comeca do zero. Recusa qualquer banco que nao seja o de validacao. */

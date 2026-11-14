@@ -5,10 +5,11 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { pedidos } from '../api/endpoints';
 import type { Pedido, StatusPedido as Status } from '../api/types';
 import { useSessao } from '../auth/sessao';
-import { CampoTexto } from '../componentes/Campo';
+import { Campo, CampoTexto, erroDoCampo } from '../componentes/Campo';
 import { Dialogo } from '../componentes/Dialogo';
 import { Carregando, ErroCarga, Vazio } from '../componentes/Estados';
 import { EtapasPedido, StatusPedido } from '../componentes/StatusPedido';
+import { MODO_DEMO } from '../lib/demo';
 import { dataHora, dinheiro, nomeFuso, prazo, ROTULO_PAGAMENTO, ROTULO_STATUS_PEDIDO } from '../lib/formato';
 import { useAcao, useCarregar } from '../lib/useCarregar';
 
@@ -19,11 +20,6 @@ const PROXIMO: Partial<Record<Status, { status: Status; acao: string }>> = {
   PRONTO_PARA_RETIRADA: { status: 'CONCLUIDO', acao: 'Registrar retirada' },
 };
 
-/** Codigo curto para conferencia no balcao (inspirado no comprovante de retirada dos apps do setor). */
-export function codigoRetirada(id: number): string {
-  return `BG-${String(id).padStart(4, '0')}`;
-}
-
 export function PedidoDetalhe() {
   const id = Number(useParams().id);
   const novo = (useLocation().state as { novo?: boolean } | null)?.novo;
@@ -32,6 +28,7 @@ export function PedidoDetalhe() {
   const [pedido, setPedido] = useState<Pedido>();
   const [cancelando, setCancelando] = useState(false);
   const [motivo, setMotivo] = useState('');
+  const [codigo, setCodigo] = useState('');
   const acao = useAcao();
 
   useEffect(() => { if (carga.dados) setPedido(carga.dados); }, [carga.dados]);
@@ -56,12 +53,15 @@ export function PedidoDetalhe() {
   const fuso = pedido.estabelecimento.fusoIana;
   const proximo = souLoja ? PROXIMO[pedido.status] : undefined;
   const podeCancelar = souCliente ? pedido.status === 'PENDENTE' : !['CONCLUIDO', 'CANCELADO'].includes(pedido.status);
+  // A retirada so e registrada com o codigo que o cliente mostra no balcao (DEC-040).
+  const pedeCodigo = proximo?.status === 'CONCLUIDO';
+  const erroCodigo = erroDoCampo(acao.erro, 'codigoRetirada');
   const economia = pedido.itens.reduce((s, i) => s + (i.precoOriginal - i.precoOferta) * i.quantidade, 0);
 
   async function avancar() {
     if (!proximo) return;
-    const atualizado = await acao.executar(() => pedidos.avancar(pedido!.id, proximo.status));
-    if (atualizado) { setPedido(atualizado); toast.success(`Pedido ${atualizado.id}: ${ROTULO_STATUS_PEDIDO[atualizado.status]}.`); }
+    const atualizado = await acao.executar(() => pedidos.avancar(pedido!.id, proximo.status, pedeCodigo ? codigo.trim() : undefined));
+    if (atualizado) { setPedido(atualizado); setCodigo(''); toast.success(`Pedido ${atualizado.id}: ${ROTULO_STATUS_PEDIDO[atualizado.status]}.`); }
   }
 
   async function cancelar() {
@@ -98,13 +98,15 @@ export function PedidoDetalhe() {
                 <TicketCheck aria-hidden="true" />
                 <div>
                   <p className="pequeno">Código de retirada</p>
-                  <p className="codigo numero" aria-label={`Código de retirada ${codigoRetirada(pedido.id)}`}>{codigoRetirada(pedido.id)}</p>
+                  {pedido.codigoRetirada
+                    ? <p className="codigo numero">{pedido.codigoRetirada}</p>
+                    : <p className="codigo-com-cliente">Está com o cliente</p>}
                 </div>
               </div>
               <div className="retirada-quando">
                 <p className="pequeno">{pedido.status === 'PRONTO_PARA_RETIRADA' ? 'Pronto! Retire até' : 'Retire até'}</p>
                 <p className="retirada-prazo">{prazo(pedido.retiradaAte, fuso)}</p>
-                <p className="pequeno suave">No {nomeFuso(fuso)}. {souCliente ? 'Mostre o código no balcão.' : 'Confira o código com o cliente.'}</p>
+                <p className="pequeno suave">No {nomeFuso(fuso)}. {souCliente ? 'Mostre o código no balcão. Só você vê este código.' : 'Peça o código ao cliente para registrar a retirada.'}</p>
               </div>
             </div>
           )}
@@ -155,11 +157,18 @@ export function PedidoDetalhe() {
             </address>
             <p className="pequeno">Pagamento: {ROTULO_PAGAMENTO[pedido.formaPagamento]}.</p>
           </div>
-          {acao.erro && <div className="aviso aviso-erro" role="alert"><p>{acao.erro.detalhe}</p></div>}
+          {acao.erro && !erroCodigo && <div className="aviso aviso-erro" role="alert"><p>{acao.erro.detalhe}</p></div>}
+          {pedeCodigo && (
+            <form className="painel" onSubmit={(e) => { e.preventDefault(); void avancar(); }}>
+              <Campo rotulo="Código de retirada" value={codigo} maxLength={16} autoComplete="off" autoCapitalize="characters"
+                onChange={(e) => setCodigo(e.target.value)} erro={erroCodigo}
+                ajuda={MODO_DEMO ? 'Na demonstração, os pedidos de exemplo usam o código BEE234.' : 'Peça ao cliente o código que aparece no pedido dele.'} />
+            </form>
+          )}
           {(proximo || podeCancelar) && (
             <div className="linha-acoes">
               {proximo && (
-                <button className="botao botao-principal" disabled={acao.enviando} onClick={avancar}>{proximo.acao}</button>
+                <button className="botao botao-principal" disabled={acao.enviando || (pedeCodigo && !codigo.trim())} onClick={avancar}>{proximo.acao}</button>
               )}
               {podeCancelar && (
                 <button className="botao botao-perigo" disabled={acao.enviando} onClick={() => setCancelando(true)}>Cancelar pedido</button>

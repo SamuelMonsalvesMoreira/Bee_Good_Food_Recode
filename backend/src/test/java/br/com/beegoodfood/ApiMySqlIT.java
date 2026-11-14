@@ -72,7 +72,7 @@ class ApiMySqlIT {
     @Test
     void flywayCreatesSchemaAndReferenceRoles() {
         assertThat(jdbc.queryForList("SELECT version FROM flyway_schema_history WHERE success=1 ORDER BY installed_rank", String.class))
-                .containsExactly("1", "2");
+                .containsExactly("1", "2", "3");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE()", Integer.class)).isEqualTo(13);
         assertThat(jdbc.queryForList("SELECT codigo FROM papel ORDER BY codigo", String.class))
                 .containsExactly("ADMINISTRADOR", "CLIENTE", "RESPONSAVEL");

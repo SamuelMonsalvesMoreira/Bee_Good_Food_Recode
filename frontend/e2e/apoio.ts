@@ -89,9 +89,14 @@ export async function ofertaPublicada(loja: Loja, produto = unico('Pão E2E'), e
 }
 
 export async function pedidoPelaApi(cliente: Conta, ofertaId: number, quantidade = 1): Promise<number> {
-  const pedido = await chamar<{ id: number }>('POST', '/api/v1/pedidos', cliente.token,
+  return (await pedidoComCodigo(cliente, ofertaId, quantidade)).id;
+}
+
+/** O codigo de retirada so e devolvido ao cliente do pedido. */
+export async function pedidoComCodigo(cliente: Conta, ofertaId: number, quantidade = 1): Promise<{ id: number; codigo: string }> {
+  const pedido = await chamar<{ id: number; codigoRetirada: string }>('POST', '/api/v1/pedidos', cliente.token,
     { formaPagamento: 'PIX', itens: [{ ofertaId, quantidade }] }, { 'Idempotency-Key': `e2e-${randomUUID()}` });
-  return pedido.id;
+  return { id: pedido.id, codigo: pedido.codigoRetirada };
 }
 
 /** Login pela interface. Recarregar a pagina encerra a sessao (token so em memoria). */

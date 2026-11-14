@@ -3,9 +3,8 @@ import { ExigeSessao } from './auth/ExigeSessao';
 import { SessaoProvider } from './auth/SessaoContext';
 import { CarrinhoProvider } from './carrinho/CarrinhoContext';
 import { Bee } from './componentes/Bee';
-import { Vazio } from './componentes/Estados';
+import { Carregando, Vazio } from './componentes/Estados';
 import { Layout } from './componentes/Layout';
-import { Admin, AdminCategorias, AdminLojas } from './paginas/admin/Admin';
 import { Cadastro } from './paginas/Cadastro';
 import { Carrinho } from './paginas/Carrinho';
 import { Entrar } from './paginas/Entrar';
@@ -14,9 +13,10 @@ import { Loja } from './paginas/Loja';
 import { OfertaDetalhe } from './paginas/OfertaDetalhe';
 import { PedidoDetalhe } from './paginas/PedidoDetalhe';
 import { Pedidos } from './paginas/Pedidos';
-import { MinhasLojas, SolicitarLoja } from './paginas/responsavel/MinhasLojas';
-import { PainelLoja } from './paginas/responsavel/PainelLoja';
-import { ProdutoOfertas } from './paginas/responsavel/ProdutoOfertas';
+
+// Areas de loja e moderacao so sao baixadas por quem as abre: o cliente nao carrega esse codigo.
+const loja = () => import('./paginas/responsavel');
+const moderacao = () => import('./paginas/admin/Admin');
 
 /** Falha inesperada na interface: nao depende de sessao nem carrinho, para nunca quebrar de novo. */
 function FalhaInesperada() {
@@ -38,6 +38,7 @@ const rotas = createBrowserRouter([
   {
     element: <Layout />,
     errorElement: <FalhaInesperada />,
+    hydrateFallbackElement: <Carregando />,
     children: [
       { index: true, element: <Inicio /> },
       { path: 'ofertas/:id', element: <OfertaDetalhe /> },
@@ -50,21 +51,24 @@ const rotas = createBrowserRouter([
         children: [
           { path: 'pedidos', element: <Pedidos /> },
           { path: 'pedidos/:id', element: <PedidoDetalhe /> },
-          { path: 'minhas-lojas', element: <MinhasLojas /> },
-          { path: 'minhas-lojas/nova', element: <SolicitarLoja /> },
-          { path: 'minhas-lojas/:id', element: <PainelLoja /> },
+          { path: 'minhas-lojas', lazy: async () => ({ Component: (await loja()).MinhasLojas }) },
+          { path: 'minhas-lojas/nova', lazy: async () => ({ Component: (await loja()).SolicitarLoja }) },
+          { path: 'minhas-lojas/:id', lazy: async () => ({ Component: (await loja()).PainelLoja }) },
         ],
       },
       {
         element: <ExigeSessao papel="RESPONSAVEL" />,
-        children: [{ path: 'minhas-lojas/:id/produtos/:produtoId', element: <ProdutoOfertas /> }],
+        children: [{ path: 'minhas-lojas/:id/produtos/:produtoId', lazy: async () => ({ Component: (await loja()).ProdutoOfertas }) }],
       },
       {
         element: <ExigeSessao papel="ADMINISTRADOR" />,
         children: [{
           path: 'admin',
-          element: <Admin />,
-          children: [{ index: true, element: <AdminLojas /> }, { path: 'categorias', element: <AdminCategorias /> }],
+          lazy: async () => ({ Component: (await moderacao()).Admin }),
+          children: [
+            { index: true, lazy: async () => ({ Component: (await moderacao()).AdminLojas }) },
+            { path: 'categorias', lazy: async () => ({ Component: (await moderacao()).AdminCategorias }) },
+          ],
         }],
       },
       { path: '*', element: <NaoEncontrada /> },

@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "dataLocal": "2026-11-14 (America/Sao_Paulo)",
+  "branch": "retirada-limite-carga",
+  "assunto": "Codigo de retirada conferido pela loja (DEC-040), limite de pedidos em andamento por cliente (DEC-041) e carregamento sob demanda das areas de loja e moderacao",
+  "backend": {
+    "comando": "pwsh database/scripts/validar-banco.ps1 -Api (runner oficial; resultado em ultima-validacao.json)",
+    "testesHttpMySql": 173,
+    "testesUnitarios": 9,
+    "falhas": 0,
+    "migrations": [
+      "V1__criar_schema_inicial.sql",
+      "V2__cadastrar_papeis.sql",
+      "V3__codigo_de_retirada.sql"
+    ],
+    "novo": [
+      "PedidoIT: so o cliente recebe o codigo; a loja recebe null; sem codigo ou com codigo errado a retirada responde 400 no campo e o pedido segue pronto; codigo aceito com minusculas, espacos e hifen",
+      "LimitePedidosIT: terceira reserva recusada com limite 2; repeticao com a mesma chave nao conta; cancelar e retirar liberam vaga; outro cliente nao e afetado",
+      "LimitePedidosIT: 6 reservas simultaneas do mesmo cliente com limite 2 geram exatamente 2 pedidos e baixam 2 unidades"
+    ]
+  },
+  "frontend": {
+    "testesUnitarios": 20,
+    "navegador": {
+      "total": 15,
+      "bancoVazio": true,
+      "execucoesSeguidasSemFalha": 2,
+      "banco": "MySQL 8.0 isolado na maquina local",
+      "novo": "A loja nao ve o codigo, o botao fica desabilitado sem codigo, codigo errado mostra o erro no campo e o codigo certo registra a retirada"
+    },
+    "conferenciaManual": "Build de demonstracao: cliente ve o codigo, loja ve 'Esta com o cliente', erro no campo com codigo errado, retirada registrada com Enter, rota sob demanda aberta direto pelo endereco, sem erros no console",
+    "carregamento": {
+      "antes": "1 arquivo JS de 448,9 kB (build de demonstracao)",
+      "depois": "arquivo inicial de 417,4 kB na build de demonstracao; areas de loja (26 kB) e moderacao (6 kB) em arquivos separados",
+      "observacao": "Ganho pequeno, de cerca de 7%: a maior parte do peso e do React e das bibliotecas, usadas em todas as telas"
+    },
+    "imagens": "docs/imagens/pedido.png regerada com a API real e o codigo novo; as demais imagens foram mantidas"
+  },
+  "limites": [
+    "O codigo de retirada nao tem limite de tentativas: reduz erro e registro indevido, nao impede uma loja mal-intencionada.",
+    "O limite de reservas e por pedidos, nao por unidades, e nao impede a criacao de varias contas.",
+    "Ainda nao executado no GitHub Actions nesta data; o fluxo roda no envio."
+  ]
+}

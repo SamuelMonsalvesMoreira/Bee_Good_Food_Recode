@@ -20,6 +20,7 @@ class Pedido {
     @Column(name = "forma_pagamento_declarada", nullable = false, length = 24, updatable = false) private String formaPagamento;
     @Column(name = "idempotency_key", nullable = false, length = 120, updatable = false) private String idempotencyKey;
     @Column(name = "payload_hash", nullable = false, columnDefinition = "char(64)", updatable = false) private String payloadHash;
+    @Column(name = "codigo_retirada", length = 8, updatable = false) private String codigoRetirada;
     @Column(nullable = false, precision = 10, scale = 2, updatable = false) private BigDecimal total;
     @Column(name = "estabelecimento_nome_snapshot", nullable = false, length = 160, updatable = false) private String estabelecimentoNome;
     @Column(name = "logradouro_snapshot", nullable = false, length = 180, updatable = false) private String logradouro;
@@ -48,13 +49,14 @@ class Pedido {
     protected Pedido() { }
 
     Pedido(long clienteId, EstabelecimentoResumo e, FormaPagamento forma, String chave, String hash,
-           List<ItemPedido> itens, LocalDateTime retiradaAte, LocalDateTime agora) {
+           String codigoRetirada, List<ItemPedido> itens, LocalDateTime retiradaAte, LocalDateTime agora) {
         this.clienteId = clienteId;
         this.estabelecimentoId = e.id();
         this.status = StatusPedido.PENDENTE.name();
         this.formaPagamento = forma.name();
         this.idempotencyKey = chave;
         this.payloadHash = hash;
+        this.codigoRetirada = codigoRetirada;
         this.estabelecimentoNome = e.nome();
         this.logradouro = e.logradouro();
         this.numero = e.numero();
@@ -86,6 +88,7 @@ class Pedido {
     StatusPedido status() { return StatusPedido.valueOf(status); }
     FormaPagamento formaPagamento() { return FormaPagamento.valueOf(formaPagamento); }
     String payloadHash() { return payloadHash; }
+    String codigoRetirada() { return codigoRetirada; }
     BigDecimal total() { return total; }
     String estabelecimentoNome() { return estabelecimentoNome; }
     String logradouro() { return logradouro; }

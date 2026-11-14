@@ -70,6 +70,7 @@ erDiagram
 - `pedido.forma_pagamento_declarada` aceitará `PIX`, `DINHEIRO` ou `CARTAO_NA_RETIRADA`.
 - A forma declarada não confirma pagamento e não cria transação financeira.
 - O pedido terá `idempotency_key` e `payload_hash`, com unicidade composta por cliente e chave.
+- Desde a migration V3, o pedido tem `codigo_retirada`: código aleatório que só o cliente vê e que a loja informa para registrar a retirada (DEC-040). É nulo apenas em linhas inseridas fora da API.
 - `item_pedido` armazenará nome, preços, quantidade e subtotal do momento da criação.
 - O total será calculado pelo backend a partir dos itens, nunca pelo frontend.
 - O pedido seguirá `PENDENTE`, `CONFIRMADO`, `EM_PREPARO`, `PRONTO_PARA_RETIRADA`, `CONCLUIDO` ou `CANCELADO`.

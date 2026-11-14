@@ -29,8 +29,8 @@ A apresentação conta uma história: a **Lúcia** tem pão sobrando no fim do d
 | 0:00 | Problema | Slides de abertura, do problema e dos números | A Lúcia tem uma padaria e termina o dia com produtos bons e sem venda. Falta um canal simples para vender esse excedente. |
 | 1:00 | Proposta e ODS 8 | Slides da proposta e do público | A loja publica com desconto, o cliente reserva e retira no balcão. O foco é a renda do pequeno negócio (ODS 8). O público é adulto. |
 | 2:00 | Vitrine | Página inicial: seções e faixa de prazo de uma oferta | "Compre até" e "Retire até" são prazos diferentes. A pesquisa do TCC apontou que o prazo precisa ficar claro. |
-| 3:00 | Reserva | Entrar como **Camila**, reservar uma oferta e mostrar o código de retirada | O preço e o total finais são calculados pela API, nunca pelo navegador. O código é o que a Camila mostra no balcão. |
-| 4:30 | Atendimento | Sair, entrar como **Lúcia**, abrir **Minhas lojas** → Padaria → **Pedidos**. Confirmar → Iniciar preparo → Marcar como pronto → Registrar retirada | A loja avança uma etapa por vez, e cada mudança fica no histórico. |
+| 3:00 | Reserva | Entrar como **Camila**, reservar uma oferta e **anotar o código de retirada** | O preço e o total finais são calculados pela API, nunca pelo navegador. Só a Camila vê este código, e a loja vai precisar dele. |
+| 4:30 | Atendimento | Sair, entrar como **Lúcia**, abrir **Minhas lojas** → Padaria → **Pedidos**. Confirmar → Iniciar preparo → Marcar como pronto. Tentar Registrar retirada com um código errado e depois com o código anotado | A loja avança uma etapa por vez. Ela não vê o código: só registra a retirada com o que a cliente mostra no balcão. |
 | 5:45 | Prova da integração | No MySQL: `SELECT id, status FROM pedido ORDER BY id DESC LIMIT 1;` | A ação feita na tela passou pela API em Java e está gravada no banco: o status agora é `CONCLUIDO`. |
 | 6:15 | Indicadores | Aba **Indicadores** | A Lúcia vê pedidos retirados, valor e unidades do período. Sem pedidos, a taxa aparece como N/A, não como zero. |
 | 7:00 | CRUDs completos | Slide dos CRUDs. Na loja: criar um rascunho de oferta e remover. Na moderação: criar a categoria Teste, renomear, remover e tentar remover Padaria | Categorias, produtos e ofertas: criar, listar, atualizar e remover pela tela. O que já tem pedido não é apagado, e a tela explica o motivo. |
@@ -67,7 +67,10 @@ Comparei com Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram a
 Categorias (Moderação > Categorias), produtos e ofertas (Minhas lojas > loja > Produtos e ofertas). Os três criam, listam, atualizam e removem pela tela. O que já tem pedido não é apagado, para não quebrar o histórico: a tela explica e sugere desativar ou encerrar.
 
 **O código de retirada é seguro?**
-Não é uma senha. É uma forma legível do número do pedido, para conferir no balcão, e a loja não o valida no sistema. Quem controla o acesso é o login no servidor (DEC-034).
+Ele é aleatório, só o cliente vê, e a loja precisa informá-lo para registrar a retirada (DEC-040). Isso evita registrar a retirada do pedido errado ou sem o cliente presente. Não é uma barreira contra fraude: não há limite de tentativas.
+
+**E se alguém reservar tudo e não buscar?**
+Cada cliente pode ter no máximo 5 pedidos em andamento, e a loja pode cancelar com motivo, devolvendo o estoque (DEC-041). Como não há pagamento antecipado, o risco diminui, mas não some.
 
 **Sacola surpresa é uma funcionalidade nova?**
 É um selo na vitrine, ativado quando o nome do produto contém "surpresa". Nenhuma regra de negócio muda (DEC-035).
