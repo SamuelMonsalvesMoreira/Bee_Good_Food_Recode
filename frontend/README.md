@@ -54,6 +54,8 @@ npm run typecheck # TypeScript
 npm run e2e       # Playwright no navegador (veja docs/planejamento/conclusao-etapa-7.md)
 ```
 
+No GitHub, o fluxo `.github/workflows/ci.yml` roda esses comandos a cada push na `main` e a cada pull request.
+
 Os testes no navegador (`e2e/`) percorrem os fluxos de visitante, cliente, responsável e administração contra a API real, em desktop e celular, e auditam a acessibilidade (WCAG 2.1 AA) com axe. Também auditam o tema escuro e o aviso rápido. Os testes unitários cobrem as regras do carrinho (uma loja por pedido, confirmação antes de trocar, limites de estoque e de itens, nova chave de idempotência a cada mudança), a conversão de horários no fuso da loja, o fluxo de troca de loja na interface e as regras principais da API simulada (busca, ordenação, login, idempotência, avanço do pedido e indicadores).
 
 ## Estrutura para estudar

@@ -15,6 +15,7 @@ Data: 06/11/2026 (America/Sao_Paulo); encerrada em 09/11/2026. Estado: **conclu�
 | Comparação com o mercado | [Análise](analise-de-mercado.md) de Too Good To Go, Food To Save, Phenix, Karma e Flashfood. Entraram vitrine em seções, ordenação, código de retirada, economia do cliente, selo de sacola surpresa, contagem regressiva, barra inferior no celular, avisos rápidos e tema escuro (DEC-032 a DEC-036). |
 | Demonstração online | Modo demonstração com API simulada no navegador e contas fictícias de um clique, para publicar só a interface na Vercel ([DEC-037](decisoes-do-mvp.md), [passo a passo](../deploy.md#demonstração-do-tcc-só-vercel-modo-demonstração)). Aviso de projeto acadêmico, sem fins lucrativos. |
 | CRUDs completos | Remoção de categorias, produtos e ofertas pela interface, preservando o que tem pedido ([DEC-038](decisoes-do-mvp.md), [atendimento ao desafio](atendimento-ao-desafio.md)). |
+| Testes automáticos no GitHub | Fluxo do GitHub Actions que roda as suítes da API, da interface e do navegador a cada push na `main` e a cada pull request, em MySQL descartável e sem segredos ([`ci.yml`](../../.github/workflows/ci.yml), [evidência](../../backend/evidencias/testes-automaticos.json)). |
 | Robustez da interface | Tela "Algo deu errado" no lugar de página em branco; aviso claro quando a API não responde. Também corrigido o contexto de sessão, que quebrava com o recarregamento automático do servidor de desenvolvimento. |
 
 ## Validação executada

@@ -105,5 +105,9 @@ export async function entrar(page: Page, conta: Conta) {
 
 /** Navegacao interna (sem recarregar), preservando a sessao em memoria. */
 export async function irPeloMenu(page: Page, link: string) {
-  await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: link }).click();
+  const item = page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: link });
+  await item.click();
+  // Espera a troca de pagina: sem isso, o passo seguinte pode achar links da pagina anterior
+  // (ex.: o nome da loja nos cartoes da vitrine, quando o banco tem poucas ofertas).
+  await expect(item).toHaveAttribute('aria-current', 'page');
 }
