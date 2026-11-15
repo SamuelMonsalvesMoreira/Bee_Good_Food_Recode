@@ -1,9 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "npm run build:demo",
+  "buildCommand": "node scripts/build-vercel.mjs",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/api/:caminho*", "destination": "https://bee-good-food-api.onrender.com/api/:caminho*" },
     { "source": "/((?!assets/|bee\\.svg).*)", "destination": "/index.html" }
   ],
   "headers": [

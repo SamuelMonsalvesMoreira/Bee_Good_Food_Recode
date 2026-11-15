@@ -1,0 +1,29 @@
+{
+  "data": "2026-11-15",
+  "descricao": "Primeira publicacao do sistema completo: interface na Vercel, API no Render (plano gratuito, Docker) e MySQL 8.4 na Aiven.",
+  "enderecos": {
+    "site_api_real": "https://bee-good-food-app.vercel.app",
+    "api": "https://bee-good-food-api.onrender.com",
+    "demonstracao_simulada": "https://bee-good-food-recode.vercel.app"
+  },
+  "commit_publicado": "d56177f (branch sistema-no-ar)",
+  "verificacoes_executadas": [
+    { "o_que": "GET /actuator/health direto no Render", "resultado": "200, status UP" },
+    { "o_que": "GET /api/v1/categorias pelo site (encaminhado pela Vercel)", "resultado": "200, lista vazia (banco novo, migrations V1 a V3 aplicadas pelo Flyway)" },
+    { "o_que": "GET /api/v1/ofertas pelo site", "resultado": "200" },
+    { "o_que": "GET /api/v1/auth/me sem token", "resultado": "401 em problem+json" },
+    { "o_que": "POST /api/v1/auth/cadastro com corpo vazio", "resultado": "400 com campos, nenhuma conta criada" },
+    { "o_que": "GET /api/v3/api-docs", "resultado": "401 (OpenAPI desligado em producao)" },
+    { "o_que": "Pagina inicial e rota /entrar no navegador", "resultado": "200, sem erros no console, cabecalhos CSP e X-Frame-Options presentes" }
+  ],
+  "falhas_ate_subir": [
+    "Tempo de espera de 5 s do pool era menor que a primeira conexao no plano gratuito (cerca de 9 s): JAVA_TOOL_OPTIONS com -Dspring.datasource.hikari.connection-timeout=30000.",
+    "A variavel SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT impede a API de subir (o Spring chama getConnection() ao configurar o pool).",
+    "MySQL da Aiven vem com ANSI_QUOTES: sem sessionVariables=sql_mode na DB_URL o Flyway falha com 'Error setting current schema'."
+  ],
+  "nao_verificado": [
+    "Cadastro, login, reserva e retirada com contas reais no ambiente publicado.",
+    "Limite de tentativas por cliente atras da Vercel e do Render.",
+    "Comportamento sob carga e tempo de despertar da API apos inatividade."
+  ]
+}

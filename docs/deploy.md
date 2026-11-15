@@ -1,6 +1,6 @@
 # Guia de publicação
 
-Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. A demonstração só com interface foi publicada na Vercel em 09/11/2026. O **sistema completo** (API e MySQL) **não foi executado** em um ambiente público. Foram validados localmente o JAR, o build do frontend e a contagem de tentativas por cliente atrás de um proxy (teste automatizado com `X-Forwarded-For` no loopback). O exemplo de configuração do Caddy não foi executado.
+Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. A demonstração só com interface foi publicada na Vercel em 09/11/2026. O **sistema completo** foi publicado em 15/11/2026 em [bee-good-food-app.vercel.app](https://bee-good-food-app.vercel.app), com a API no Render e o MySQL na Aiven; o que foi conferido e o que ainda não foi está em `backend/evidencias/sistema-no-ar.json`. O exemplo de configuração do Caddy, mais abaixo, não foi executado.
 
 ## Demonstração do TCC: só Vercel (modo demonstração)
 
@@ -24,13 +24,14 @@ Caminho pensado para uma demonstração de portfólio, sem custo. A interface fi
 ### Passo a passo
 
 1. **MySQL (Aiven).** Crie um serviço MySQL no plano gratuito. Na página do serviço, copie host, porta, usuário e senha. Monte a `DB_URL`:
-   `jdbc:mysql://HOST:PORTA/defaultdb?sslMode=REQUIRED&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true`
+   `jdbc:mysql://HOST:PORTA/defaultdb?sslMode=REQUIRED&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&connectTimeout=30000&sessionVariables=sql_mode%3D%27STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION%27`
+   O trecho `sessionVariables` é obrigatório na Aiven: o MySQL de lá vem com `ANSI_QUOTES` ligado, e sem ele o driver escreve nomes entre aspas duplas e o Flyway falha com "Error setting current schema".
 2. **API (Render).** Em *New > Blueprint*, conecte este repositório: o `render.yaml` cria o serviço `bee-good-food-api` com o `backend/Dockerfile`. Preencha no painel:
    - `DB_URL`, `DB_USER`, `DB_PASSWORD`: os dados da Aiven;
    - `JWT_SECRET_BASE64`: 32 bytes aleatórios em Base64 (gere com o comando do `backend/README.md` e guarde num gerenciador de senhas).
    Aguarde o deploy e abra `https://<servico>.onrender.com/actuator/health`: deve mostrar `UP`. O Flyway cria as tabelas sozinho.
-3. **Encaminhar a API no Vercel.** Só depois de o serviço existir, acrescente em `frontend/vercel.json`, antes da regra da interface: `{ "source": "/api/:caminho*", "destination": "https://<servico>.onrender.com/api/:caminho*" }`, com o endereço real. A regra não fica no repositório antes disso porque um endereço sem dono poderia ser registrado por outra pessoa e passaria a responder dentro do site.
-4. **Interface (Vercel).** Em *Add New > Project*, importe o repositório e defina **Root Directory = `frontend`**. Antes, troque `buildCommand` no `frontend/vercel.json` de `npm run build:demo` para `npm run build` e faça commit: o arquivo tem prioridade sobre o painel, e a build de demonstração liga a API simulada. Não é preciso variável de ambiente.
+3. **Encaminhar a API no Vercel.** O `frontend/vercel.json` encaminha `/api` para `https://bee-good-food-api.onrender.com`, o serviço criado em 15/11/2026. Se o serviço for recriado com outro nome, troque o endereço nessa regra. Nunca aponte para um endereço que ainda não é seu: outra pessoa poderia registrá-lo e passaria a responder dentro do site.
+4. **Interface (Vercel).** Crie um **segundo** projeto na Vercel com **Root Directory = `frontend`** e a variável de ambiente `BEE_API_REAL=true`. O `frontend/scripts/build-vercel.mjs` usa essa variável para escolher a build: com ela, a interface fala com a API real; sem ela (projeto `bee-good-food-recode`), continua a demonstração com a API simulada.
 5. **Primeiro administrador.** Crie uma conta pelo site publicado e conceda `ADMINISTRADOR` pelo [procedimento controlado](planejamento/autenticacao.md#administração-local-controlada), conectando-se ao MySQL da Aiven.
 6. **Dados de demonstração (opcional).** Na pasta `frontend`, com `BEE_API` apontando para a URL do Render e o administrador do passo 5, rode `npm run demo:popular`.
 7. **Conferir.** Busque ofertas, faça uma reserva e entre como a loja. Depois coloque o link do site no README e na descrição do repositório.

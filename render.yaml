@@ -20,6 +20,11 @@ services:
         sync: false
       - key: OPENAPI_ENABLED
         value: "false"
+      # No plano gratuito a primeira conexao com o MySQL passa de 5 s (medido: cerca de 9 s).
+      # Propriedade de sistema, e nao SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: essa variavel
+      # faz o Spring chamar getConnection() durante a configuracao e a API nao sobe.
+      - key: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=75 -Dspring.datasource.hikari.connection-timeout=30000"
       # O Vercel encaminha /api para ca: o limite de tentativas usa o cliente em X-Forwarded-For.
       - key: FORWARD_HEADERS_STRATEGY
         value: native
