@@ -1,6 +1,6 @@
 # Guia de publicação
 
-Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. A demonstração só com interface foi publicada na Vercel em 09/11/2026. O **sistema completo** (API e MySQL) **não foi executado** em um ambiente público. Foram validados localmente o JAR, o build do frontend e a contagem de tentativas por cliente atrás de um proxy (teste automatizado com `X-Forwarded-For` no loopback). O exemplo de configuração do Caddy não foi executado.
+Este guia descreve como publicar o Bee Good Food em um servidor próprio para demonstração. A demonstração só com interface foi publicada na Vercel em 09/11/2026. O **sistema completo** foi publicado em 15/11/2026 em [bee-good-food-app.vercel.app](https://bee-good-food-app.vercel.app), com a API no Render e o MySQL na Aiven; o que foi conferido e o que ainda não foi está em `backend/evidencias/sistema-no-ar.json`. O exemplo de configuração do Caddy, mais abaixo, não foi executado.
 
 ## Demonstração do TCC: só Vercel (modo demonstração)
 
