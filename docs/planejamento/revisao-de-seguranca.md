@@ -15,7 +15,7 @@ Data: 09/11/2026. Revisão manual do código e da configuração, com consulta a
 
 | Risco | Situação | O que resolveria |
 |---|---|---|
-| Reservas sem pagamento podem prender estoque | A loja pode cancelar o pedido, e o estoque volta. Uma conta pode reservar muitas unidades, e o cadastro não confirma e-mail. | Confirmação de e-mail e limite por cliente, ou pagamento antecipado (fora do escopo, DEC-011). |
+| Reservas sem pagamento podem prender estoque | Reduzido em 14/11/2026: cada cliente tem no máximo 5 pedidos em andamento ([DEC-041](decisoes-do-mvp.md)), e a loja pode cancelar o pedido, com o estoque de volta. Ainda é possível reservar muitas unidades por pedido e criar várias contas, porque o cadastro não confirma e-mail. | Confirmação de e-mail e limite por cliente, ou pagamento antecipado (fora do escopo, DEC-011). |
 | O cadastro revela que um e-mail já existe | A mensagem é genérica, mas o erro 409 só acontece nesse caso. | Confirmação de e-mail. |
 | Limite de tentativas só por IP e em memória | 20 por minuto, com senha mínima de 12 caracteres e BCrypt. Não bloqueia ataque distribuído, e o contador zera ao reiniciar. | Limite também por conta, com armazenamento compartilhado. |
 

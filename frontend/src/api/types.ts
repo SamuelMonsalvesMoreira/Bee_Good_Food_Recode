@@ -142,6 +142,8 @@ export interface Pedido {
   retiradaAte: string;
   concluidoEm: string | null;
   criadoEm: string;
+  /** So vem preenchido para o cliente do pedido; a loja recebe null e pede o codigo no balcao. */
+  codigoRetirada: string | null;
   itens: {
     ofertaId: number;
     produtoNome: string;

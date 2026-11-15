@@ -1,6 +1,7 @@
 package br.com.beegoodfood.pedidos;
 
 import jakarta.persistence.LockModeType;
+import java.util.Collection;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,8 @@ interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Pedido p where p.id = :id")
     Optional<Pedido> bloquear(@Param("id") long id);
+
+    long countByClienteIdAndStatusIn(Long clienteId, Collection<String> status);
 
     Page<Pedido> findByClienteId(Long clienteId, Pageable pageable);
     Page<Pedido> findByClienteIdAndStatus(Long clienteId, String status, Pageable pageable);

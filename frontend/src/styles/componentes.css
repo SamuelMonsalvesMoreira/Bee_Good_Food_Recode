@@ -412,6 +412,7 @@ address { font-style: normal; margin-bottom: 0.75rem; }
 .retirada-codigo p { margin: 0; }
 .retirada-quando { flex: 1 1 12rem; min-width: 0; }
 .codigo { font: 800 var(--t3)/1 var(--fonte-titulo); letter-spacing: 0.04em; }
+.codigo-com-cliente { font: 700 var(--t1)/1.2 var(--fonte-titulo); }
 .painel-retirada.pronto { background: #2f6b3a; color: #fff; }
 .painel-retirada.pronto .retirada-prazo, .painel-retirada.pronto .suave, .painel-retirada.pronto svg { color: #fff; }
 .painel-retirada.pronto .retirada-codigo { border-color: rgb(255 255 255 / 0.6); }

@@ -14,7 +14,7 @@ Projeto final do **Programa Transforma Futuros** (Recode Fullstack), evoluído a
 ![React 19](https://img.shields.io/badge/React-19-2b1d0e?logo=react&logoColor=61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-2b1d0e?logo=typescript&logoColor=white)
 ![MySQL 8](https://img.shields.io/badge/MySQL-8-2b1d0e?logo=mysql&logoColor=white)
-![215 testes](https://img.shields.io/badge/testes-215_automatizados-2f6b3a)
+![217 testes](https://img.shields.io/badge/testes-217_automatizados-2f6b3a)
 ![Acessibilidade](https://img.shields.io/badge/WCAG_2.1_AA-0_viola%C3%A7%C3%B5es-2f6b3a)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-f2b705)
 
@@ -62,7 +62,7 @@ Antes de fechar a interface, comparei o Bee Good Food com Too Good To Go, Food T
 |---|---|
 | Vitrine em seções | Trilhos "Terminam logo" e "Maiores descontos" antes da lista completa |
 | Ordenar resultados | Termina antes, maior desconto, menor preço ou mais recentes ([DEC-032](docs/planejamento/decisoes-do-mvp.md)) |
-| Comprovante no balcão | Código de retirada (`BG-0042`) em destaque no pedido, verde quando está pronto |
+| Comprovante no balcão | Código de retirada que só o cliente vê; a loja precisa informá-lo para registrar a retirada ([DEC-040](docs/planejamento/decisoes-do-mvp.md)) |
 | Impacto para o cliente | "Você já economizou R$ X" em Meus pedidos e economia em cada pedido |
 | Sacola surpresa | Selo próprio na vitrine para sacolas com o excedente variado do dia |
 | Urgência honesta | "faltam 45 min" quando a venda termina em até 3 horas |
@@ -95,6 +95,7 @@ As telas abaixo usam apenas dados fictícios, criados pelo [script de demonstra�
 
 ## Destaques técnicos
 
+- **Retirada conferida e reservas limitadas.** A loja só registra a retirada com o código que apenas o cliente vê, e cada cliente tem um limite de pedidos em andamento, garantido sob requisições simultâneas.
 - **Pedido transacional e concorrente.** As ofertas são bloqueadas em ordem de ID e o estoque é descontado com atualização condicional. Testes com requisições simultâneas garantem que a última unidade gera um único pedido.
 - **Idempotência.** Cada tentativa de reserva envia uma `Idempotency-Key`. Repetir a mesma compra devolve o pedido original sem descontar o estoque de novo; reutilizar a chave com outro conteúdo retorna `409`.
 - **O servidor é a autoridade.** Preços, totais, prazo de retirada e o dono de cada recurso são definidos no backend. Recursos de outras pessoas respondem `404`, sem revelar que existem.
@@ -126,7 +127,7 @@ A API é um monólito modular, com um pacote por área: `auth`, `estabelecimento
 
 | Suíte | Quantidade | O que cobre |
 |---|---|---|
-| Backend HTTP/MySQL | 171 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa, cenários simultâneos, ordenação da vitrine e remoção. |
+| Backend HTTP/MySQL | 173 | Todos os endpoints contra um MySQL real: sucesso, validação, 401/403, recurso de outra pessoa, cenários simultâneos, ordenação da vitrine, remoção, código de retirada e limite de reservas. |
 | Backend unitários | 9 | Limite de tentativas, chave JWT e relógio com precisão de microssegundos. |
 | Frontend unitários | 20 | Regras do carrinho, conversão de fusos, confirmação ao trocar de loja e a API simulada da demonstração. |
 | Navegador (Playwright) | 15 | Fluxos de cliente, responsável e administração, no desktop e no celular, nos temas claro e escuro. |
@@ -134,7 +135,7 @@ A API é um monólito modular, com um pacote por área: `auth`, `estabelecimento
 
 A cada push na `main` e a cada pull request, o GitHub Actions roda essas suítes em um MySQL descartável ([fluxo](.github/workflows/ci.yml)); o selo no topo mostra o resultado mais recente.
 
-Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`validacao-vitrine-e-demo.json`](backend/evidencias/validacao-vitrine-e-demo.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
+Os resultados de cada etapa estão registrados em [`backend/evidencias`](backend/evidencias). Os números acima vêm de [`retirada-limite-carga.json`](backend/evidencias/retirada-limite-carga.json). São resultados locais: não medem desempenho sob carga nem substituem testes com pessoas.
 
 ## Como executar localmente
 

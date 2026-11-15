@@ -611,7 +611,7 @@
           "Pedidos"
         ],
         "summary": "Criar pedido (idempotente)",
-        "description": "Cabeçalho Idempotency-Key obrigatório (8 a 120 caracteres: letras, números, '-' e '_'). Repetir a mesma chave com o mesmo conteúdo devolve o pedido original (200) sem nova baixa de estoque; com conteúdo diferente, 409. Preços e total são sempre calculados pelo servidor.",
+        "description": "Cabeçalho Idempotency-Key obrigatório (8 a 120 caracteres: letras, números, '-' e '_'). Repetir a mesma chave com o mesmo conteúdo devolve o pedido original (200) sem nova baixa de estoque; com conteúdo diferente, 409. Preços e total são sempre calculados pelo servidor. Cada cliente tem um limite de pedidos em andamento (409 ao atingir).",
         "operationId": "criar",
         "parameters": [
           {
@@ -659,7 +659,7 @@
           "Pedidos"
         ],
         "summary": "Avançar status (responsável)",
-        "description": "PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO, uma etapa por vez.",
+        "description": "PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO, uma etapa por vez. CONCLUIDO exige codigoRetirada, o código que só o cliente vê no pedido (400 se faltar ou não conferir).",
         "operationId": "avancar",
         "parameters": [
           {
@@ -2560,6 +2560,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "codigoRetirada": {
+            "type": "string"
+          },
           "itens": {
             "type": "array",
             "items": {
@@ -2587,6 +2590,11 @@
               "CONCLUIDO",
               "CANCELADO"
             ]
+          },
+          "codigoRetirada": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 0
           }
         },
         "required": [

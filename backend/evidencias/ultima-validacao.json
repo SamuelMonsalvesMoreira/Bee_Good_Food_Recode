@@ -1,15 +1,16 @@
 {
   "status": "PASS",
-  "inicioUtc": "2026-11-10T00:25:18.9717660Z",
-  "fimUtc": "2026-11-10T00:27:21.4323490Z",
+  "inicioUtc": "2026-11-14T20:43:03.6128767Z",
+  "fimUtc": "2026-11-14T20:44:51.3424935Z",
   "springBoot": "4.1.2",
   "springdoc": "3.1.1",
   "javaRelease": 21,
-  "testesHttpMySql": 171,
+  "testesHttpMySql": 173,
   "testesUnitarios": 9,
   "migrations": [
     "V1__criar_schema_inicial.sql",
-    "V2__cadastrar_papeis.sql"
+    "V2__cadastrar_papeis.sql",
+    "V3__codigo_de_retirada.sql"
   ],
   "empacotamento": "Somente migrations no JAR; sem seeds ou testes",
   "reinicializacoes": [
@@ -29,6 +30,7 @@
     "CorsIT",
     "EstabelecimentoIT",
     "IndicadoresIT",
+    "LimitePedidosIT",
     "PedidoIT",
     "ProxyReversoIT"
   ],

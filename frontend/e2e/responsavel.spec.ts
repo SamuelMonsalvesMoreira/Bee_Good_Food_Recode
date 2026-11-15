@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { categoria, criarConta, entrar, irPeloMenu, lojaAtiva, ofertaPublicada, pedidoPelaApi, unico } from './apoio';
+import { categoria, criarConta, entrar, irPeloMenu, lojaAtiva, ofertaPublicada, pedidoComCodigo, unico } from './apoio';
 
 test.describe('responsável pela loja', () => {
   test('atende o pedido do início à retirada e vê os indicadores (CA13, CA14, CA17)', async ({ page }) => {
     const loja = await lojaAtiva();
     const oferta = await ofertaPublicada(loja, unico('Bolo E2E'), 5, 30, 12);
-    const pedido = await pedidoPelaApi(await criarConta(), oferta.id, 2);
+    const { id: pedido, codigo } = await pedidoComCodigo(await criarConta(), oferta.id, 2);
 
     await entrar(page, loja.dono);
     await irPeloMenu(page, 'Minhas lojas');
@@ -17,11 +17,22 @@ test.describe('responsável pela loja', () => {
       ['Confirmar pedido', 'Confirmado'],
       ['Iniciar preparo', 'Em preparo'],
       ['Marcar como pronto', 'Pronto para retirar'],
-      ['Registrar retirada', 'Retirado'],
     ] as const) {
       await page.getByRole('button', { name: acao }).click();
       await expect(page.locator('.pedido-topo').getByText(situacao)).toBeVisible();
     }
+
+    // A loja nao ve o codigo e so registra a retirada com o que o cliente mostra (DEC-040).
+    await expect(page.getByText('Está com o cliente')).toBeVisible();
+    await expect(page.getByText(codigo)).toHaveCount(0);
+    const registrar = page.getByRole('button', { name: 'Registrar retirada' });
+    await expect(registrar).toBeDisabled();
+    await page.getByLabel('Código de retirada').fill('ZZZZZZ');
+    await registrar.click();
+    await expect(page.getByText('Código de retirada incorreto. Confira com o cliente.')).toBeVisible();
+    await page.getByLabel('Código de retirada').fill(codigo.toLowerCase());
+    await registrar.click();
+    await expect(page.locator('.pedido-topo').getByText('Retirado')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toHaveCount(0);
 
     await page.getByRole('link', { name: 'Painel da loja' }).click();

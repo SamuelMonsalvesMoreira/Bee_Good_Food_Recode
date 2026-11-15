@@ -32,7 +32,7 @@ Na tela do pedido, pergunte uma coisa de cada vez:
 - "Quanto você vai pagar?"
 - "Onde você busca?"
 - "Até que horas?"
-- "O que mostra no balcão?"
+- "O que você mostra no balcão?"
 - "A loja já confirmou?"
 
 Sucesso: acerta as 5. Anote quantas acertou.

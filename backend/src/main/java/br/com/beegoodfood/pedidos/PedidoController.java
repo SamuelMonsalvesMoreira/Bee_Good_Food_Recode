@@ -27,7 +27,8 @@ public class PedidoController {
     @Operation(summary = "Criar pedido (idempotente)",
             description = "Cabeçalho Idempotency-Key obrigatório (8 a 120 caracteres: letras, números, '-' e '_'). "
                     + "Repetir a mesma chave com o mesmo conteúdo devolve o pedido original (200) sem nova baixa de estoque; "
-                    + "com conteúdo diferente, 409. Preços e total são sempre calculados pelo servidor.")
+                    + "com conteúdo diferente, 409. Preços e total são sempre calculados pelo servidor. "
+                    + "Cada cliente tem um limite de pedidos em andamento (409 ao atingir).")
     public ResponseEntity<PedidoResponse> criar(
             @RequestHeader("Idempotency-Key") @Pattern(regexp = "[A-Za-z0-9_-]{8,120}",
                     message = "Use de 8 a 120 caracteres: letras, números, '-' ou '_'.") String chave,
@@ -61,13 +62,17 @@ public class PedidoController {
         return service.doEstabelecimento(estabelecimentoId, Usuarios.id(auth), status, pagina, tamanho);
     }
 
-    public record StatusRequest(@NotNull StatusPedido status) { }
+    public record StatusRequest(@NotNull StatusPedido status, @Size(max = 16) String codigoRetirada) {
+        public StatusRequest { codigoRetirada = codigoRetirada == null ? null : codigoRetirada.strip(); }
+        @Override public String toString() { return "StatusRequest[status=" + status + ", codigo omitido]"; }
+    }
 
     @PostMapping("/pedidos/{id}/status")
     @Operation(summary = "Avançar status (responsável)",
-            description = "PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO, uma etapa por vez.")
+            description = "PENDENTE → CONFIRMADO → EM_PREPARO → PRONTO_PARA_RETIRADA → CONCLUIDO, uma etapa por vez. "
+                    + "CONCLUIDO exige codigoRetirada, o código que só o cliente vê no pedido (400 se faltar ou não conferir).")
     public PedidoResponse avancar(@PathVariable @Min(1) long id, @Valid @RequestBody StatusRequest request, Authentication auth) {
-        return service.avancar(id, Usuarios.id(auth), request.status());
+        return service.avancar(id, Usuarios.id(auth), request.status(), request.codigoRetirada());
     }
 
     public record CancelamentoRequest(@Size(max = 500) String motivo) {

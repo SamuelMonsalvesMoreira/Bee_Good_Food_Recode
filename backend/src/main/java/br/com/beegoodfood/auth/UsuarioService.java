@@ -59,5 +59,11 @@ public class UsuarioService {
     @Transactional
     public void concederResponsavel(long usuarioId) { repository.concederPapel(usuarioId, "RESPONSAVEL"); }
 
+    /** Uso interno do modulo de pedidos: bloqueia a linha do cliente ate o fim da transacao em curso. */
+    @Transactional
+    public void bloquearParaPedido(long usuarioId) {
+        repository.bloquear(usuarioId).orElseThrow(() -> new BadCredentialsException("Sessão inválida."));
+    }
+
     private String normalizar(String email) { return email.strip().toLowerCase(Locale.ROOT); }
 }

@@ -65,7 +65,8 @@ class IndicadoresIT extends IntegracaoBase {
                 "Idempotency-Key", "k-" + UUID.randomUUID());
         long deOutra = tree(r).get("id").asLong();
         for (var s : List.of("CONFIRMADO", "EM_PREPARO", "PRONTO_PARA_RETIRADA", "CONCLUIDO")) {
-            send("POST", "/api/v1/pedidos/" + deOutra + "/status", outra.dono().token(), Map.of("status", s));
+            send("POST", "/api/v1/pedidos/" + deOutra + "/status", outra.dono().token(),
+                    Map.of("status", s, "codigoRetirada", codigoRetirada(deOutra)));
         }
         datas(deOutra, "2026-09-10 12:00:00", "2026-09-11 12:00:00");
         // A publicacao real ocorreu hoje; fixar em julho para o teste de atividade sem pedidos.
@@ -157,7 +158,8 @@ class IndicadoresIT extends IntegracaoBase {
 
     private void concluir(long id) throws Exception {
         for (var s : List.of("CONFIRMADO", "EM_PREPARO", "PRONTO_PARA_RETIRADA", "CONCLUIDO")) {
-            assertThat(send("POST", "/api/v1/pedidos/" + id + "/status", loja.dono().token(), Map.of("status", s)).statusCode()).isEqualTo(200);
+            assertThat(send("POST", "/api/v1/pedidos/" + id + "/status", loja.dono().token(),
+                    Map.of("status", s, "codigoRetirada", codigoRetirada(id))).statusCode()).isEqualTo(200);
         }
     }
 

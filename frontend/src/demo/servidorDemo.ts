@@ -18,7 +18,7 @@ interface Loja { id: number; responsavelId: number; nome: string; descricao: str
 interface Produto { id: number; estabelecimentoId: number; categoriaId: number; nome: string; descricao: string | null; ativo: boolean }
 interface Oferta { id: number; produtoId: number; precoOriginal: number; precoOferta: number; estoqueDisponivel: number; inicioVenda: string; vendaAte: string; retiradaAte: string; status: StatusOferta; publicadaEm: string | null; encerradaEm: string | null }
 interface Item { ofertaId: number; produtoNome: string; precoOriginal: number; precoOferta: number; quantidade: number; subtotal: number }
-interface Pedido { id: number; clienteId: number; estabelecimentoId: number; status: StatusPedido; formaPagamento: string; chave: string; impressao: string; total: number; estabelecimento: Omit<Endereco, never> & { nome: string }; retiradaAte: string; concluidoEm: string | null; criadoEm: string; itens: Item[]; historico: Omit<Historico, 'id'>[] }
+interface Pedido { codigoRetirada: string; id: number; clienteId: number; estabelecimentoId: number; status: StatusPedido; formaPagamento: string; chave: string; impressao: string; total: number; estabelecimento: Omit<Endereco, never> & { nome: string }; retiradaAte: string; concluidoEm: string | null; criadoEm: string; itens: Item[]; historico: Omit<Historico, 'id'>[] }
 
 interface Estado { versao: number; geradoEm: number; seq: number; usuarios: Usuario[]; categorias: Categoria[]; lojas: Loja[]; produtos: Produto[]; ofertas: Oferta[]; pedidos: Pedido[] }
 
@@ -34,7 +34,15 @@ const naoEncontrado = (detalhe: string) => new Erro(404, 'Recurso não encontrad
 const [CONTA_CLIENTE, CONTA_LOJA, CONTA_ADMIN] = CONTAS_DEMO;
 
 const CHAVE = 'bee.demo.v1';
-const VERSAO = 1;
+const VERSAO = 2;
+const MAX_EM_ANDAMENTO = 5;
+/** Codigo fixo dos pedidos de exemplo, para quem testa a area da loja sem ter o pedido do cliente em maos. */
+const CODIGO_DE_EXEMPLO = 'BEE234';
+const ALFABETO_CODIGO = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+function novoCodigo(): string {
+  const sorteio = crypto.getRandomValues(new Uint8Array(6));
+  return Array.from(sorteio, (n) => ALFABETO_CODIGO[n % ALFABETO_CODIGO.length]).join('');
+}
 const FUSO = 'America/Sao_Paulo';
 const HORA = 3_600_000;
 
@@ -119,6 +127,7 @@ function semear(): Estado {
   // Historico da padaria para os indicadores: retiradas nos ultimos dias, um cancelamento e um pedido em andamento.
   const pedido = (cliente: Usuario, o: Oferta, qtd: number, status: StatusPedido, horasAtras: number, forma = 'PIX') => {
     const p = criarRegistroPedido(cliente.id, [{ oferta: o, quantidade: qtd }], forma, `semente-${proximoId()}`, emHoras(-horasAtras));
+    p.codigoRetirada = CODIGO_DE_EXEMPLO;
     if (status !== 'PENDENTE') {
       const etapas: StatusPedido[] = status === 'CANCELADO' ? ['CANCELADO'] : ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_RETIRADA', 'CONCLUIDO'].slice(0, ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_RETIRADA', 'CONCLUIDO'].indexOf(status) + 1) as StatusPedido[];
       etapas.forEach((s, i) => transicionar(p, s, s === 'CANCELADO' ? cliente.id : lucia.id, s === 'CANCELADO' ? 'Imprevisto do cliente.' : null, emHoras(-horasAtras + 0.2 * (i + 1))));
@@ -171,9 +180,10 @@ function pedidoResumo(p: Pedido) {
     formaPagamento: p.formaPagamento, total: p.total, economia, retiradaAte: p.retiradaAte, fusoIana: p.estabelecimento.fusoIana, criadoEm: p.criadoEm };
 }
 
-function pedidoCompleto(p: Pedido) {
-  const { chave: _c, impressao: _i, ...resto } = p;
-  return resto;
+/** Como na API: o codigo de retirada so vai para o cliente do pedido. */
+function pedidoCompleto(p: Pedido, paraOCliente: boolean) {
+  const { chave: _c, impressao: _i, codigoRetirada, ...resto } = p;
+  return { ...resto, codigoRetirada: paraOCliente ? codigoRetirada : null };
 }
 
 function pagina<T>(lista: T[], params: URLSearchParams, padrao = 20) {
@@ -194,7 +204,7 @@ function criarRegistroPedido(clienteId: number, itens: { oferta: Oferta; quantid
   });
   const retirada = itens.map((i) => i.oferta.retiradaAte).sort()[0]!;
   const p: Pedido = {
-    id: proximoId(), clienteId, estabelecimentoId: loja.id, status: 'PENDENTE', formaPagamento: forma, chave,
+    codigoRetirada: novoCodigo(), id: proximoId(), clienteId, estabelecimentoId: loja.id, status: 'PENDENTE', formaPagamento: forma, chave,
     impressao: itens.map((i) => `${i.oferta.id}:${i.quantidade}`).sort().join(',') + `|${forma}`,
     total: Math.round(registros.reduce((s, i) => s + i.subtotal, 0) * 100) / 100,
     estabelecimento: { nome: loja.nome, ...loja.endereco }, retiradaAte: retirada, concluidoEm: null, criadoEm, itens: registros,
@@ -515,25 +525,31 @@ function pedidoRotas(ctx: Contexto, id?: number, acao?: string): RespostaDemo {
   const p = estado.pedidos.find((x) => x.id === id);
   if (!p) { exigir(ctx); throw naoEncontrado('Pedido não encontrado.'); }
   const papel = papelNoPedido(ctx, p);
-  if (!acao) return ok(pedidoCompleto(p));
+  const cliente = papel === 'CLIENTE';
+  if (!acao) return ok(pedidoCompleto(p, cliente));
   if (acao === 'status') {
     if (papel !== 'LOJA') throw new Erro(403, 'Acesso negado', 'Você não tem permissão para esta operação.');
     const destino = (ctx.corpo as { status?: StatusPedido }).status;
     const ordem: StatusPedido[] = ['PENDENTE', 'CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_RETIRADA', 'CONCLUIDO'];
     if (destino === 'CANCELADO') throw invalido({ status: 'Use a operação de cancelamento para cancelar o pedido.' });
     if (!destino || ordem[ordem.indexOf(p.status) + 1] !== destino) throw conflito(`Transição de ${p.status} para ${destino} não é permitida.`);
+    if (destino === 'CONCLUIDO') {
+      const informado = String((ctx.corpo as { codigoRetirada?: string }).codigoRetirada ?? '').replace(/[\s-]/g, '').toUpperCase();
+      if (!informado) throw invalido({ codigoRetirada: 'Informe o código de retirada mostrado pelo cliente.' });
+      if (informado !== p.codigoRetirada) throw invalido({ codigoRetirada: 'Código de retirada incorreto. Confira com o cliente.' });
+    }
     transicionar(p, destino, ctx.usuario!.id, null);
-    return ok(pedidoCompleto(p));
+    return ok(pedidoCompleto(p, false));
   }
   if (acao === 'cancelar') {
     const motivo = String((ctx.corpo as { motivo?: string }).motivo ?? '').trim() || null;
-    if (p.status === 'CANCELADO') return ok(pedidoCompleto(p));
+    if (p.status === 'CANCELADO') return ok(pedidoCompleto(p, cliente));
     if (p.status === 'CONCLUIDO') throw conflito('Pedido concluído não pode ser cancelado.');
     if (papel === 'CLIENTE' && p.status !== 'PENDENTE') throw conflito('O cliente só pode cancelar pedidos pendentes. Fale com o estabelecimento.');
     if (papel === 'LOJA' && !motivo) throw invalido({ motivo: 'Informe o motivo do cancelamento.' });
     for (const item of p.itens) { const o = estado.ofertas.find((x) => x.id === item.ofertaId); if (o) o.estoqueDisponivel += item.quantidade; }
     transicionar(p, 'CANCELADO', ctx.usuario!.id, motivo);
-    return ok(pedidoCompleto(p));
+    return ok(pedidoCompleto(p, cliente));
   }
   throw naoEncontrado('O endereço solicitado não existe.');
 }
@@ -552,7 +568,11 @@ function criarPedido(ctx: Contexto): RespostaDemo {
   const anterior = estado.pedidos.find((p) => p.clienteId === u.id && p.chave === chave);
   if (anterior) {
     if (anterior.impressao !== impressao) throw conflito('Esta chave de idempotência já foi usada com outro conteúdo de pedido.');
-    return ok(pedidoCompleto(anterior), 200, { 'Idempotent-Replayed': 'true' });
+    return ok(pedidoCompleto(anterior, true), 200, { 'Idempotent-Replayed': 'true' });
+  }
+  const emAndamento = estado.pedidos.filter((p) => p.clienteId === u.id && p.status !== 'CONCLUIDO' && p.status !== 'CANCELADO').length;
+  if (emAndamento >= MAX_EM_ANDAMENTO) {
+    throw conflito(`Você já tem ${MAX_EM_ANDAMENTO} reservas em andamento. Retire ou cancele uma delas para fazer outra.`);
   }
   const ofertas = itens.map((i) => ({ oferta: estado.ofertas.find((o) => o.id === i.ofertaId), quantidade: i.quantidade }));
   if (ofertas.some((x) => !x.oferta)) throw conflito('Uma ou mais ofertas não estão disponíveis para compra.');
@@ -567,7 +587,7 @@ function criarPedido(ctx: Contexto): RespostaDemo {
     if (oferta!.estoqueDisponivel < quantidade) throw conflito(`Estoque insuficiente para a oferta ${oferta!.id}.`);
   }
   const p = criarRegistroPedido(u.id, ofertas.map((x) => ({ oferta: x.oferta!, quantidade: x.quantidade })), String(corpo.formaPagamento), chave);
-  return ok(pedidoCompleto(p), 201, { 'Idempotent-Replayed': 'false' });
+  return ok(pedidoCompleto(p, true), 201, { 'Idempotent-Replayed': 'false' });
 }
 
 function indicadores(ctx: Contexto, id: number): RespostaDemo {

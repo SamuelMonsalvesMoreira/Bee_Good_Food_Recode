@@ -1,5 +1,6 @@
 package br.com.beegoodfood.pedidos;
 
+import br.com.beegoodfood.auth.UsuarioService;
 import br.com.beegoodfood.catalogo.EstoqueVendaService;
 import br.com.beegoodfood.catalogo.EstoqueVendaService.OfertaParaVenda;
 import br.com.beegoodfood.comum.PaginaResponse;
@@ -15,9 +16,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.data.domain.PageRequest;
@@ -32,18 +35,26 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class PedidoService {
     private static final String NAO_ENCONTRADO = "Pedido não encontrado.";
     private static final BigDecimal LIMITE_VALOR = new BigDecimal("99999999.99");
+    private static final List<String> EM_ANDAMENTO = List.of(StatusPedido.PENDENTE.name(), StatusPedido.CONFIRMADO.name(),
+            StatusPedido.EM_PREPARO.name(), StatusPedido.PRONTO_PARA_RETIRADA.name());
 
     public record Resultado(PedidoResponse pedido, boolean criado) { }
 
     private final PedidoRepository pedidos;
     private final EstoqueVendaService estoque;
     private final EstabelecimentoService estabelecimentos;
+    private final UsuarioService usuarios;
+    private final int maxEmAndamento;
     private final TransactionTemplate tx;
     private final TransactionTemplate leitura;
     private final Clock clock;
 
     public PedidoService(PedidoRepository pedidos, EstoqueVendaService estoque, EstabelecimentoService estabelecimentos,
+                         UsuarioService usuarios, @Value("${bee.pedidos.max-em-andamento-por-cliente}") int maxEmAndamento,
                          PlatformTransactionManager transactions, Clock clock) {
+        if (maxEmAndamento < 1) { throw new IllegalStateException("O limite de pedidos em andamento deve ser positivo."); }
+        this.usuarios = usuarios;
+        this.maxEmAndamento = maxEmAndamento;
         this.pedidos = pedidos;
         this.estoque = estoque;
         this.estabelecimentos = estabelecimentos;
@@ -74,11 +85,18 @@ public class PedidoService {
 
     private Resultado criarNaTransacao(long clienteId, String chave, String hash, FormaPagamento forma, Map<Long, Integer> itens) {
         var agora = agora();
+        // 0. Bloqueia o cliente: reservas simultaneas da mesma conta sao contadas uma por vez (DEC-041).
+        usuarios.bloquearParaPedido(clienteId);
         // 1. Bloqueia as ofertas em ordem crescente de ID (evita deadlock entre pedidos).
         var ofertas = estoque.bloquear(itens.keySet());
         // 2. Releitura com bloqueio: pedido concorrente com a mesma chave ja confirmado e devolvido sem nova baixa.
         var concorrente = pedidos.bloquearPorChave(clienteId, chave);
         if (concorrente.isPresent()) { return repeticao(concorrente.get(), hash); }
+        // Sem pagamento antecipado, o limite impede uma conta de prender o estoque das lojas.
+        if (pedidos.countByClienteIdAndStatusIn(clienteId, EM_ANDAMENTO) >= maxEmAndamento) {
+            throw RegraNegocioException.conflito("Você já tem " + maxEmAndamento
+                    + " reservas em andamento. Retire ou cancele uma delas para fazer outra.");
+        }
         if (ofertas.size() != itens.size()) {
             throw RegraNegocioException.conflito("Uma ou mais ofertas não estão disponíveis para compra.");
         }
@@ -113,19 +131,19 @@ public class PedidoService {
             // O menor prazo de retirada entre as ofertas vale para o pedido (DEC-018).
             if (retiradaAte == null || oferta.retiradaAte().isBefore(retiradaAte)) { retiradaAte = oferta.retiradaAte(); }
         }
-        var pedido = new Pedido(clienteId, estabelecimento, forma, chave, hash, itensPedido, retiradaAte, agora);
+        var pedido = new Pedido(clienteId, estabelecimento, forma, chave, hash, CodigoRetirada.novo(), itensPedido, retiradaAte, agora);
         if (pedido.total().compareTo(LIMITE_VALOR) > 0) {
             throw RegraNegocioException.invalido("itens", "O valor do pedido excede o limite permitido.");
         }
         // 5. Pedido, itens e historico inicial gravados juntos; a chave unica protege contra corrida.
-        return new Resultado(PedidoResponse.from(pedidos.saveAndFlush(pedido)), true);
+        return new Resultado(PedidoResponse.from(pedidos.saveAndFlush(pedido), true), true);
     }
 
     private Resultado repeticao(Pedido existente, String hash) {
         if (!existente.payloadHash().equals(hash)) {
             throw RegraNegocioException.conflito("Esta chave de idempotência já foi usada com outro conteúdo de pedido.");
         }
-        return new Resultado(PedidoResponse.from(existente), false);
+        return new Resultado(PedidoResponse.from(existente, true), false);
     }
 
     /** Itens repetidos sao rejeitados; ordem dos itens nao altera a impressao digital. */
@@ -170,14 +188,13 @@ public class PedidoService {
     public PedidoResponse detalhe(long pedidoId, long usuarioId) {
         return leitura.execute(s -> {
             var pedido = pedidos.findById(pedidoId).orElseThrow(() -> new RecursoNaoEncontradoException(NAO_ENCONTRADO));
-            papel(pedido, usuarioId);
-            return PedidoResponse.from(pedido);
+            return PedidoResponse.from(pedido, papel(pedido, usuarioId) == Papel.CLIENTE);
         });
     }
 
     // ---- Status e cancelamento (5.6) ----
 
-    public PedidoResponse avancar(long pedidoId, long usuarioId, StatusPedido destino) {
+    public PedidoResponse avancar(long pedidoId, long usuarioId, StatusPedido destino, String codigoRetirada) {
         return tx.execute(s -> {
             var pedido = pedidos.bloquear(pedidoId).orElseThrow(() -> new RecursoNaoEncontradoException(NAO_ENCONTRADO));
             if (papel(pedido, usuarioId) != Papel.ESTABELECIMENTO) {
@@ -190,8 +207,18 @@ public class PedidoService {
             if (atual.proximo() != destino) {
                 throw RegraNegocioException.conflito("Transição de " + atual.name() + " para " + destino.name() + " não é permitida.");
             }
+            // A retirada so e registrada com o codigo que o cliente mostra no balcao (DEC-040).
+            // Linhas inseridas fora da API nao tem codigo e seguem sem essa conferencia.
+            if (destino == StatusPedido.CONCLUIDO && pedido.codigoRetirada() != null) {
+                if (codigoRetirada == null || codigoRetirada.isBlank()) {
+                    throw RegraNegocioException.invalido("codigoRetirada", "Informe o código de retirada mostrado pelo cliente.");
+                }
+                if (!CodigoRetirada.confere(pedido.codigoRetirada(), codigoRetirada)) {
+                    throw RegraNegocioException.invalido("codigoRetirada", "Código de retirada incorreto. Confira com o cliente.");
+                }
+            }
             pedido.transicionar(destino, usuarioId, null, agora());
-            return PedidoResponse.from(pedidos.saveAndFlush(pedido));
+            return PedidoResponse.from(pedidos.saveAndFlush(pedido), false);
         });
     }
 
@@ -201,7 +228,7 @@ public class PedidoService {
             var pedido = pedidos.bloquear(pedidoId).orElseThrow(() -> new RecursoNaoEncontradoException(NAO_ENCONTRADO));
             var papel = papel(pedido, usuarioId);
             var atual = pedido.status();
-            if (atual == StatusPedido.CANCELADO) { return PedidoResponse.from(pedido); }
+            if (atual == StatusPedido.CANCELADO) { return PedidoResponse.from(pedido, papel == Papel.CLIENTE); }
             if (atual == StatusPedido.CONCLUIDO) { throw RegraNegocioException.conflito("Pedido concluído não pode ser cancelado."); }
             if (papel == Papel.CLIENTE && atual != StatusPedido.PENDENTE) {
                 throw RegraNegocioException.conflito("O cliente só pode cancelar pedidos pendentes. Fale com o estabelecimento.");
@@ -211,7 +238,7 @@ public class PedidoService {
             }
             for (var item : pedido.itens()) { estoque.devolver(item.ofertaId(), item.quantidade()); }
             pedido.transicionar(StatusPedido.CANCELADO, usuarioId, motivo, agora());
-            return PedidoResponse.from(pedidos.saveAndFlush(pedido));
+            return PedidoResponse.from(pedidos.saveAndFlush(pedido), papel == Papel.CLIENTE);
         });
     }
 

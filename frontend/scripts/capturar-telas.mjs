@@ -37,6 +37,13 @@ async function entrar(conta) {
   await pagina.getByRole('button', { name: 'Sair' }).waitFor();
 }
 
+/** Espera a troca de pagina: sem isso, o passo seguinte pode achar links da pagina anterior. */
+async function irPeloMenu(nome) {
+  const item = pagina.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: nome });
+  await item.click();
+  await pagina.waitForFunction((el) => el.getAttribute('aria-current') === 'page', await item.elementHandle());
+}
+
 async function sair() {
   await pagina.getByRole('button', { name: 'Sair' }).click();
 }
@@ -59,7 +66,7 @@ await foto('detalhe-oferta');
 await entrar(contas.cliente);
 await pagina.getByRole('link', { name: /^Carrinho/ }).click();
 await foto('carrinho');
-await pagina.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Meus pedidos' }).click();
+await irPeloMenu('Meus pedidos');
 await pagina.getByRole('link', { name: /^Pedido \d+/ }).last().click();
 await pagina.getByRole('heading', { level: 1, name: /^Pedido \d+/ }).waitFor();
 await foto('pedido');
@@ -67,7 +74,7 @@ await sair();
 
 // Responsavel: fila, indicadores e ofertas
 await entrar(contas.padaria);
-await pagina.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Minhas lojas' }).click();
+await irPeloMenu('Minhas lojas');
 await pagina.getByRole('link', { name: 'Padaria da Dona Lúcia' }).click();
 await pagina.getByLabel('Mostrar').selectOption({ label: 'Todos' });
 await pagina.getByRole('table').waitFor();
@@ -83,7 +90,7 @@ await sair();
 
 // Moderacao
 await entrar(admin);
-await pagina.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Moderação' }).click();
+await irPeloMenu('Moderação');
 await pagina.getByRole('button', { name: 'Aprovar' }).first().click();
 await pagina.getByRole('dialog').getByLabel('Motivo').fill('Endereço e dados conferidos.');
 await foto('moderacao');

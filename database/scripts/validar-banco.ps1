@@ -129,7 +129,7 @@ try {
     }
     $migrationEvidence = @()
     # Lista explicita: acompanha a ordem do Flyway, sem ordenar V10 antes de V2.
-    foreach ($migration in @('V1__criar_schema_inicial.sql', 'V2__cadastrar_papeis.sql')) {
+    foreach ($migration in @('V1__criar_schema_inicial.sql', 'V2__cadastrar_papeis.sql', 'V3__codigo_de_retirada.sql')) {
         $migrationPath = Join-Path $databaseDir "migrations\$migration"
         $null = Invoke-Sql ([IO.File]::ReadAllText($migrationPath))
         $migrationEvidence += @{ arquivo = $migration; sha256 = (Get-MigrationHash $migrationPath) }

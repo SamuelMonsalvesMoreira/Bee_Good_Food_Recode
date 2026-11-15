@@ -100,7 +100,7 @@ try {
     $archive = [IO.Compression.ZipFile]::OpenRead($jar)
     try {
         $migrationFiles = @($archive.Entries | Where-Object { $_.FullName -match '^BOOT-INF/classes/db/migration/V.*\.sql$' })
-        if ($migrationFiles.Count -ne 2) { throw 'O JAR deve conter exatamente V1 e V2.' }
+        if ($migrationFiles.Count -ne 3) { throw 'O JAR deve conter exatamente V1, V2 e V3.' }
         if (@($archive.Entries | Where-Object { $_.FullName -match '^BOOT-INF/classes/.*(demonstracao\.sql|integridade\.sql|ApiMySqlIT)' }).Count) { throw 'Dados/testes nao podem entrar no JAR.' }
     } finally { $archive.Dispose() }
 
@@ -167,7 +167,7 @@ try {
     $report = [ordered]@{
         status='PASS'; inicioUtc=$startedAt.ToString('o'); fimUtc=[DateTime]::UtcNow.ToString('o')
         springBoot='4.1.2'; springdoc='3.1.1'; javaRelease=21; testesHttpMySql=$total; testesUnitarios=$unitTests
-        migrations=@('V1__criar_schema_inicial.sql','V2__cadastrar_papeis.sql')
+        migrations=@('V1__criar_schema_inicial.sql','V2__cadastrar_papeis.sql','V3__codigo_de_retirada.sql')
         empacotamento='Somente migrations no JAR; sem seeds ou testes'
         reinicializacoes=$restarts
         segurancaJar=@('Cadastro restrito a CLIENTE', 'JWT de 900 segundos', 'Conta e sessao persistidas entre reinicios com mesma chave', 'HTTP 429 na tentativa 21 com Retry-After')

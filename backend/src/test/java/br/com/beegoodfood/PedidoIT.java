@@ -252,9 +252,25 @@ class PedidoIT extends IntegracaoBase {
             assertThat(tree(response).get("status").asText()).isEqualTo(proximo);
             assertThat(tree(response).get("concluidoEm").isNull()).isTrue();
         }
-        var concluido = tree(status(id, token, "CONCLUIDO"));
+        // DEC-040: so o cliente ve o codigo, e a loja precisa informa-lo para registrar a retirada.
+        String codigo = tree(get("/api/v1/pedidos/" + id, cliente.token())).get("codigoRetirada").asText();
+        assertThat(codigo).matches("[2-9A-HJ-NP-Z]{6}").isEqualTo(codigoRetirada(id));
+        assertThat(tree(get("/api/v1/pedidos/" + id, token)).get("codigoRetirada").isNull()).isTrue();
+        var semCodigo = status(id, token, "CONCLUIDO");
+        assertProblem(semCodigo, 400);
+        assertThat(tree(semCodigo).get("campos").get("codigoRetirada").asText()).contains("Informe");
+        String errado = codigo.startsWith("2") ? "3" + codigo.substring(1) : "2" + codigo.substring(1);
+        var comErrado = concluir(id, token, errado);
+        assertProblem(comErrado, 400);
+        assertThat(tree(comErrado).get("campos").get("codigoRetirada").asText()).contains("incorreto");
+        assertThat(jdbc.queryForObject("SELECT status FROM pedido WHERE id=?", String.class, id)).isEqualTo("PRONTO_PARA_RETIRADA");
+        // Aceita minusculas, espacos e hifen, como a pessoa digitaria.
+        var resposta = concluir(id, token, " " + codigo.substring(0, 3).toLowerCase() + "-" + codigo.substring(3) + " ");
+        assertThat(resposta.statusCode()).as(resposta.body()).isEqualTo(200);
+        var concluido = tree(resposta);
         assertThat(concluido.get("concluidoEm").asText()).endsWith("Z");
-        assertProblem(status(id, token, "CONCLUIDO"), 409);
+        assertThat(concluido.get("codigoRetirada").isNull()).isTrue();
+        assertProblem(concluir(id, token, codigo), 409);
         assertProblem(cancelar(id, token, "tarde demais"), 409);
         var estados = jdbc.queryForList("SELECT CONCAT(IFNULL(status_anterior,'-'),'>',status_novo) FROM historico_status_pedido WHERE pedido_id=? ORDER BY id", String.class, id);
         assertThat(estados).containsExactly("->PENDENTE", "PENDENTE>CONFIRMADO", "CONFIRMADO>EM_PREPARO", "EM_PREPARO>PRONTO_PARA_RETIRADA", "PRONTO_PARA_RETIRADA>CONCLUIDO");
@@ -417,6 +433,10 @@ class PedidoIT extends IntegracaoBase {
 
     private HttpResponse<String> criar(Conta cliente, String chave, Object body) throws Exception {
         return http.send(criarRequest(cliente, chave, body), HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> concluir(long id, String token, String codigo) throws Exception {
+        return send("POST", "/api/v1/pedidos/" + id + "/status", token, Map.of("status", "CONCLUIDO", "codigoRetirada", codigo));
     }
 
     private HttpResponse<String> status(long id, String token, String status) throws Exception {

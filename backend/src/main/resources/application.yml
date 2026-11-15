@@ -61,6 +61,9 @@ springdoc:
     disable-swagger-default-url: true
   paths-to-match: /api/v1/**
 bee:
+  pedidos:
+    # Reservas em andamento por cliente; sem pagamento antecipado, limita quem tenta prender estoque (DEC-041).
+    max-em-andamento-por-cliente: ${MAX_PEDIDOS_EM_ANDAMENTO:5}
   security:
     jwt-secret-base64: ${JWT_SECRET_BASE64}
     auth-requests-per-minute: 20

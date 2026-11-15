@@ -76,7 +76,9 @@ src/
 
 - **Token só em memória** (CA18). Recarregar a página ou passar 15 minutos encerra a sessão. Não há `localStorage` de credenciais nem refresh token. Única exceção: a sessão fictícia do modo demonstração (DEC-037).
 - **Tema** (DEC-036): segue o sistema; a escolha manual guarda só a preferência visual.
-- **Vitrine** (DEC-032 a DEC-035): seções, ordenação, selo de sacola surpresa, código de retirada e economia do cliente, a partir da [análise de mercado](../docs/planejamento/analise-de-mercado.md).
+- **Retirada** (DEC-040): o código só chega para o cliente; a tela da loja pede o código para registrar a retirada.
+- **Carregamento**: as telas de loja e moderação ficam em arquivos separados, baixados só por quem as abre.
+- **Vitrine** (DEC-032 a DEC-035): seções, ordenação, selo de sacola surpresa e economia do cliente, a partir da [análise de mercado](../docs/planejamento/analise-de-mercado.md).
 - **Carrinho na aba** (DEC-007, DEC-028): fica em `sessionStorage`, sem dados pessoais, e é limpo no logout.
 - **Uma loja por pedido** (CA07): adicionar oferta de outra loja abre uma confirmação. Nada é removido sem ela.
 - **Idempotência** (CA23, DEC-029): cada tentativa de reserva gera uma `Idempotency-Key`. Reenviar a mesma compra repete a chave, e mudar o carrinho gera outra.
